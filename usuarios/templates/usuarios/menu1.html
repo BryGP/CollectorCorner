@@ -259,8 +259,8 @@
         document.addEventListener('DOMContentLoaded', function () {
             const carousel = document.querySelector('.carousel');
             const buttons = document.querySelectorAll('.carousel-button');
-            const buttonWidth = 50; // Width of the navigation buttons
-            const itemWidth = 230; // Width of each carousel item (200px + 30px margin)
+            const buttonWidth = 50; // Ancho de los botones de navegación
+            const itemWidth = 230; // Tamaño del item (200px + 30px margin)
             let currentIndex = 0;
 
             function updateCarousel() {
@@ -275,7 +275,7 @@
                 });
             }
 
-            cloneItems(); // Clone items to create the infinite effect
+            cloneItems(); // Clonar elementos para hacer el carrusel infinito
 
             buttons.forEach(button => {
                 button.addEventListener('click', () => {

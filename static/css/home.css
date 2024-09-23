@@ -5,7 +5,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Montserrat', sans-serif;
-    background-image: url('../assets/images/LSF.png');
+    background-image: url('resources\LSF.png'); /* Ajusta la ruta */
     background-position: center;
     background-color: #000;
     color: #fff;

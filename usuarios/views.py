@@ -14,7 +14,7 @@ def login_view(request):
     return render(request, 'usuarios/login.html', {})
 
 def menu_view(request):
-    return render(request, 'usuarios/menu.html', {})
+    return render(request, 'usuarios/menu1.html', {})
 
 def services_view(request):
    return render(request, 'usuarios/services.html', {})
