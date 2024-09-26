@@ -33,6 +33,7 @@ def login_view(request):
 
     return render(request, 'usuarios/login.html', {})
 
+
 def menu_view(request):
     return render(request, 'usuarios/menu1.html', {})
 

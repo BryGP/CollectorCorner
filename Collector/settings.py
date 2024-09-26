@@ -77,11 +77,11 @@ WSGI_APPLICATION = 'Collector.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # Para MariaDB, se usa el backend de MySQL
-        'NAME': 'usuarios',
+        'NAME': 'db_proyecto',
         'USER': 'root',
         'PASSWORD': 'maria',
-        'HOST': 'localhost',  # O la dirección IP de tu servidor
-        'PORT': '3306',       # Puerto por defecto de MariaDB
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
