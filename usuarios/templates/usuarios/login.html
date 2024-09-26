@@ -1,12 +1,14 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - RTI</title>
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
+
 <body>
     <header>
         <a href="{% url 'home' %}">Home</a>
@@ -19,20 +21,25 @@
             </div>
             <h2>Login</h2>
             <p>Ingresa con tu cuenta para poder acceder a nuestro sistema</p>
-            <form action="{% url 'menu1' %}" method="POST">
+            <form action="{% url 'login' %}" method="POST"> <!-- URL corregida para login -->
                 {% csrf_token %}
-                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="username" placeholder="Username" required> <!-- Cambiado a 'username' -->
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit">Login</button>
             </form>
             <div class="messages">
                 <ul>
-                    {% for message in messages %}
-                    <li>{{ message }}</li>
-                    {% endfor %}
+                    {% if messages %}
+                    <div>
+                        {% for message in messages %}
+                        <p style="color:red;">{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </div>
 </body>
+
 </html>
