@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Credenciales correctas, inicia sesión
             session_start();
             $_SESSION['username'] = $username;
-            header("Location: ../menu1.html"); // Redirige a la página principal
+            header("Location: ../menu1.html"); // Redirige al menu del software
             exit(); // Asegúrate de salir después de redirigir
         } else {
             header("Location: ../login.html?error=1"); // Contraseña incorrecta

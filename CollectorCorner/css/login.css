@@ -1,5 +1,6 @@
-body,
-html {
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+body {
     margin: 0;
     padding: 0;
     font-family: 'Montserrat', sans-serif;
@@ -14,6 +15,7 @@ html {
     background-repeat: no-repeat;
 }
 
+/* Contenedor de login con estilo de sombra similar a home.css */
 .container {
     flex: 1;
     display: flex;
@@ -26,7 +28,7 @@ html {
     padding: 40px;
     border-radius: 10px;
     text-align: center;
-    box-shadow: 0 0 20px #d4af37;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); /* Ajuste de sombra */
     width: 300px;
 }
 
@@ -48,6 +50,7 @@ p {
     font-size: 0.9em;
 }
 
+/* Formulario */
 form {
     display: flex;
     flex-direction: column;
@@ -66,6 +69,7 @@ input::placeholder {
     color: #999;
 }
 
+/* Botón de login con estilos similares */
 button {
     background-color: #d4af37;
     color: #000;
@@ -75,12 +79,14 @@ button {
     cursor: pointer;
     font-weight: bold;
     margin-top: 10px;
+    transition: background-color 0.3s ease; /* Suavizado de cambio de color */
 }
 
 button:hover {
     background-color: #b8960c;
 }
 
+/* Enlaces */
 a {
     color: #d4af37;
     text-decoration: none;
@@ -90,6 +96,7 @@ a:hover {
     text-decoration: underline;
 }
 
+/* Mensajes de error */
 .messages {
     margin-top: 20px;
 }
@@ -103,6 +110,7 @@ a:hover {
     color: #ff6b6b;
 }
 
+/* Estilo para el header y enlaces del submenú */
 header {
     padding: 20px;
     text-align: right;
@@ -111,9 +119,27 @@ header {
 header a {
     margin-left: 15px;
     color: #fff;
+    font-size: 1.1em;
     text-decoration: none;
+    transition: color 0.3s ease; /* Suavizado de cambio de color */
 }
 
 header a:hover {
     color: #d4af37;
+}
+
+/* Botón de "Contact us" y otros enlaces de submenú */
+.header-button {
+    padding: 8px 20px;
+    background-color: #d4af37;
+    color: #000;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1em;
+    text-decoration: none;
+    transition: background-color 0.3s ease; /* Suavizado de cambio de color */
+}
+
+.header-button:hover {
+    background-color: #b18b2f;
 }

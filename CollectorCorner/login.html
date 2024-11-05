@@ -9,33 +9,49 @@
     <script src="js/login.js" defer></script>
 </head>
 
-<body>
-    <header>
+<!-- Submenu -->
+<header>
+    <nav>
         <a href="home.html">Home</a>
-        <a href="contact.html">Contact us</a>
-    </header>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+</header>
 
-    <div class="container">
-        <div class="login-container">
-            <div class="logo">
-            </div>
-            <h2>Login</h2>
-            <p>Ingresa con tu cuenta para poder acceder al sistema</p>
-            <form action="includes/login.php" method="POST"> <!-- URL corregida para login -->
+<!-- Contenedor principal de login -->
+<div class="container">
+    <div class="login-container">
+        <div class="logo"></div>
+        <h2>Login</h2>
+        <p>Ingresa con tu cuenta para poder acceder al sistema</p>
 
-                <input type="text" name="username" placeholder="Username" required> <!-- Cambiado a 'username' -->
-                <input type="password" name="password" placeholder="Password" required>
-                <button type="submit">Login</button>
-            </form>
-            <div class="messages" id="error-message">
-                <?php
-                if (isset($_GET['error'])){
-                    echo "<p class='error'>Usuario o contraseña incorrectos.</p>";
-                }
-                ?>
-            </div>
+        <!-- Formulario de login -->
+        <form action="includes/login.php" method="POST">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <!-- Mensaje de error -->
+        <div class="messages" id="error-message" style="display: none;">
+            <p class='error'>Usuario o contraseña incorrectos.</p>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('error')) {
+                    // Mostrar el mensaje de error
+                    document.getElementById('error-message').style.display = 'block';
+
+                    // Redirigir para eliminar el parámetro 'error' después de 2 segundos
+                    setTimeout(() => {
+                        urlParams.delete('error');
+                        window.location.href = window.location.pathname;
+                    }, 2000); // Cambia el tiempo si deseas mostrar el mensaje por más o menos tiempo
+                }
+            });
+        </script>
     </div>
-</body>
+</div>
 
 </html>
