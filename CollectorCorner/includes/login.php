@@ -1,38 +1,44 @@
 <?php
-// login.php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "collectors_corner";
 
-// Incluir el archivo de conexión
-include 'conexion.php';
+// Crear conexión
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-$message = ""; // Variable para mensajes
-
-// Procesar el formulario si se envía
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-
-    // Consultar en la base de datos
-    $sql = "SELECT * FROM usuarios WHERE nombre = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-        if (password_verify($password, $user['contraseña'])) {
-            // Credenciales correctas, inicia sesión
-            session_start();
-            $_SESSION['username'] = $username;
-            header("Location: ../menu1.html"); // Redirige al menu del software
-            exit(); // Asegúrate de salir después de redirigir
-        } else {
-            header("Location: ../login.html?error=1"); // Contraseña incorrecta
-            exit();
-        }
-    } else {
-        header("Location: ../login.html?error=1"); // Usuario no encontrado
-        exit();
-    }
+// Verificar conexión
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
+
+// Obtener datos del formulario
+$username = $_POST['username'];
+$password = $_POST['password'];
+
+// Consulta SQL para verificar las credenciales
+$sql = "SELECT * FROM usuarios WHERE correo = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $user = $result->fetch_assoc();
+    if (password_verify($password, $user['contraseña'])) {
+        // Inicio de sesión exitoso
+        session_start();
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['nombre'];
+        header("Location: ../menu1.html");
+    } else {
+        // Contraseña incorrecta
+        header("Location: ../login.html?error=1");
+    }
+} else {
+    // Usuario no encontrado
+    header("Location: ../login.html?error=1");
+}
+
+$conn->close();
 ?>
