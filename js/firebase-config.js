@@ -5,7 +5,7 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAO8AGH8-dAMktpeTUJ8k8YqZDsoykbqTM",
+    apiKey: "AIzaSyAO8AGH8-+++++++++++++++++++",
     authDomain: "rti-collector-corner-1d6a7.firebaseapp.com",
     projectId: "rti-collector-corner-1d6a7",
     storageBucket: "rti-collector-corner-1d6a7.firebasestorage.app",
