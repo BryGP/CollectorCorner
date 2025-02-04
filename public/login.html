@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - RTI</title>
+    <link rel="stylesheet" href="/css/login.css">
+
+    <!-- Firebase y autenticación -->
+    <script type="module">
+        import { loginUser } from './js/auth.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('error-message');
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const result = await loginUser(email, password);
+                    console.log("Usuario autenticado:", result);
+
+                    // Redirigir a la página principal
+                    window.location.href = 'menu1.html';
+                } catch (error) {
+                    console.error("Error en el login:", error);
+                    errorMessage.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <header>
+        <a href="home.html">Home</a>
+        <a href="contact.html">Contact us</a>
+    </header>
+
+    <div class="container">
+        <div class="login-container">
+            <h2>Login</h2>
+            <p>Ingresa con tu cuenta para acceder</p>
+            <form id="loginForm">
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <div id="error-message" style="display: none;">
+                <p class="error">Correo o contraseña incorrectos.</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
