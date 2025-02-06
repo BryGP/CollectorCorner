@@ -23,9 +23,7 @@
             <li><a href="menu1.html"><i class="fas fa-home"></i> Inicio</a></li>
             <li><a href="clientes.php"><i class="fas fa-users"></i> Clientes</a></li>
             <li><a href="proyectos.php"><i class="fas fa-tasks"></i> Proyectos</a></li>
-            <li><a href="#"><i class="fas fa-calendar-alt"></i> Calendario</a></li>
-            <li><a href="#"><i class="fas fa-envelope"></i> Mensajes</a></li>
-            <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
+            <li><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
         </ul>
     </nav>
 
@@ -44,36 +42,6 @@
                     <th> Fecha Alta </th>
                 </tr>
             </thead>
-            <tbody>
-                <?php while($row = $clientes->fetch_assoc()): ?>
-                    <tr>
-                        <td>
-                            <?php echo $row['id']; ?>
-                        </td>
-                        <td>
-                            <?php echo $row['nombre']; ?>
-                        </td>
-                        <td>
-                            <?php echo $row['apellido']; ?>
-                        </td>
-                        <td>
-                            <?php echo $row['numero']; ?>
-                        </td>
-                        <td>
-                            <?php echo $row['correo']; ?>
-                        </td>
-                        <td>
-                            <?php echo $row['tipo_cliente']; ?>
-                        </td>
-                        <td>
-                            <?php echo $row['credito']; ?>
-                        </td>
-                        <td>
-                            <?php echo $row['fecha_alta']; ?>
-                        </td>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
         </table>
 
         <div style="margin-top: 20px;">
