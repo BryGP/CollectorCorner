@@ -37,7 +37,14 @@
             "key": "Content-Type",
           "value": "application/javascript"
           }
-        ]
+        ],
+        "firestore": {
+          "rules": "firestore.rules",
+          "indexes": "firestore.indexes.json"
+        },
+        "storage": {
+          "rules": "storage.rules"
+        }
       }
     ]
   }

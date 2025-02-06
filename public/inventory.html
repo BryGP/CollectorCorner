@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Collector's Corner</title>
+    <link rel="stylesheet" href="/css/menu1.css">
+    <style>
+        .inventory-container {
+            padding: 20px;
+        }
+
+        .inventory-form {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .inventory-form input {
+            margin: 5px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .carrito-card {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+        }
+    </style>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <h2>Collector's Corner</h2>
+            <h1>Inventario de Hot Wheels</h1>
+        </div>
+        <nav>
+            <a href="/menu1.html">Volver al Menú</a>
+        </nav>
+    </header>
+
+    <div class="inventory-container">
+        <div class="inventory-form">
+            <h3>Agregar Nuevo Hot Wheel</h3>
+            <form id="carritoForm">
+                <input type="text" id="name" placeholder="Nombre del modelo" required>
+                <input type="text" id="serie" placeholder="Número de serie" required>
+                <input type="number" id="año" placeholder="Año" required>
+                <input type="text" id="color" placeholder="Color" required>
+                <input type="number" id="precio" placeholder="Precio" step="0.01" required>
+                <button type="submit">Agregar al Inventario</button>
+            </form>
+        </div>
+
+        <div id="inventoryGrid" class="inventory-grid">
+            <!-- Aquí se mostrarán los carritos -->
+        </div>
+    </div>
+
+    <script type="module">
+        import { getCarritos, addCarrito } from '/js/inventory.js';
+
+        // Función para cargar y mostrar los carritos
+        async function loadCarritos() {
+            try {
+                const carritos = await getCarritos();
+                const grid = document.getElementById('inventoryGrid');
+                grid.innerHTML = carritos.map(carrito => `
+                    <div class="carrito-card">
+                        <h3>${carrito.name}</h3>
+                        <p>Serie: ${carrito.serie}</p>
+                        <p>Año: ${carrito.año}</p>
+                        <p>Color: ${carrito.color}</p>
+                        <p>Precio: $${carrito.precio}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error al cargar carritos:', error);
+            }
+        }
+
+        // Manejar el formulario de agregar carrito
+        document.getElementById('carritoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const carrito = {
+                name: document.getElementById('name').value,
+                serie: document.getElementById('serie').value,
+                año: document.getElementById('año').value,
+                color: document.getElementById('color').value,
+                precio: document.getElementById('precio').value
+            };
+
+            try {
+                await addCarrito(carrito);
+                e.target.reset();
+                await loadCarritos(); // Recargar la lista
+            } catch (error) {
+                console.error('Error al agregar carrito:', error);
+            }
+        });
+
+        // Cargar carritos al iniciar la página
+        loadCarritos();
+    </script>
+</body>
+
+</html>
