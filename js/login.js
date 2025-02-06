@@ -1,9 +1,8 @@
 // js/login.js
 
 import { auth } from './firebase-config.js';
-import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const errorMessage = document.getElementById('error-message');
 
@@ -13,11 +12,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
+        console.log("Intentando iniciar sesión con:", email);
+
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            window.location.href = 'home.html'; // Redirigir al home después del login exitoso
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            console.log("Usuario autenticado:", userCredential.user);
+
+            // Guardar información del usuario en sessionStorage
+            sessionStorage.setItem('userEmail', userCredential.user.email);
+
+            console.log("Redirigiendo a menu1.html");
+            window.location.href = '/menu1.html';
         } catch (error) {
-            console.error("Error en login:", error);
+            console.error("Error en el login:", error);
+            errorMessage.textContent = `Error: ${error.message}`;
             errorMessage.style.display = 'block';
         }
     });

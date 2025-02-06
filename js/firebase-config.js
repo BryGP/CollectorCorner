@@ -1,11 +1,11 @@
 // firebase-config.js
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAO8AGH8-+++++++++++++++++++",
+    apiKey: "AIzaSyAO8AGH8-dAMktpeTUJ8k8YqZDsoykbqTM",
     authDomain: "rti-collector-corner-1d6a7.firebaseapp.com",
     projectId: "rti-collector-corner-1d6a7",
     storageBucket: "rti-collector-corner-1d6a7.firebasestorage.app",
@@ -15,7 +15,6 @@ const firebaseConfig = {
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+export const auth = getAuth(app);
 
-export { auth, db };
+console.log("Firebase inicializado");

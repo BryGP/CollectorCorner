@@ -1,6 +1,9 @@
 # Node modules
 node_modules/
 
+# Ignorar las claves de Firebase
+js/firebase-config.js
+
 #Trash firebase
 .firebase/
 
