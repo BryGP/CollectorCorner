@@ -2,6 +2,12 @@
 import { db } from './firebase-config.js';
 import { collection, getDocs, addDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
+// Referencia al documento específico en 'Items'
+const itemDocRef = doc(db, 'Items', 'ID_DEL_DOCUMENTO');
+
+// Referencia a la subcolección 'Carritos' dentro del documento
+const carritosCollectionRef = collection(itemDocRef, 'Carritos');
+
 // Función para obtener todos los carritos
 export async function getCarritos() {
     try {
