@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario - Collector's Corner</title>
+    <script type="module" src="./js/firebase-config.js"></script>
     <script type="module" src="./js/inventory.js"></script>
     <link rel="stylesheet" href="css/menu1.css">
     <link rel="stylesheet" href="css/inventory.css">
@@ -29,290 +30,64 @@
                 <button class="tab" data-tab="categorias">Categorías</button>
             </div>
 
-            <div id="productos" class="tab-content active">
-                <div class="search-bar">
-                    <input type="text" id="searchProducto" placeholder="Buscar producto...">
-                    <select id="filterCategoria">
-                        <option value="">Todas las categorías</option>
-                    </select>
-                    <button id="addProductoBtn" class="submit-btn">Agregar Producto</button>
+            <div class="tab-content-container">
+                <!-- Sección de productos -->
+                <div id="productos" class="tab-content active">
+                    <div class="search-bar">
+                        <input type="text" id="searchProducto" placeholder="Buscar producto...">
+                        <select id="filterCategoria">
+                            <option value="">Todas las categorías</option>
+                        </select>
+                        <button id="addProductoBtn" class="submit-btn">Agregar Producto</button>
+                    </div>
+                    <div id="productosGrid" class="inventory-grid"></div>
                 </div>
-                <div id="productosGrid" class="inventory-grid">
-                    <!-- Los productos se cargarán aquí dinámicamente -->
-                </div>
-            </div>
 
-            <div id="categorias" class="tab-content">
-                <div class="search-bar">
-                    <input type="text" id="searchCategoria" placeholder="Buscar categoría...">
-                    <button id="addCategoriaBtn" class="submit-btn">Agregar Categoría</button>
-                </div>
-                <div id="categoriasGrid" class="inventory-grid">
-                    <!-- Las categorías se cargarán aquí dinámicamente -->
+                <!-- Sección de categorías -->
+                <div id="categorias" class="tab-content">
+                    <div class="search-bar">
+                        <input type="text" id="searchCategoria" placeholder="Buscar categoría...">
+                        <button id="addCategoriaBtn" class="submit-btn">Agregar Categoría</button>
+                    </div>
+                    <div id="categoriasGrid" class="inventory-grid"></div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Modal para agregar/editar producto -->
+    <!-- Modal para agregar productos -->
     <div id="productoModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h3 id="productoModalTitle">Agregar Nuevo Producto</h3>
+            <h3>Agregar Producto</h3>
             <form id="productoForm">
-                <div class="form-group">
-                    <label for="productoName">Nombre del producto:</label>
-                    <input type="text" id="productoName" required>
-                </div>
-                <div class="form-group">
-                    <label for="productoDescripcion">Descripción:</label>
-                    <textarea id="productoDescripcion" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="productoPrecio">Precio:</label>
-                    <input type="number" id="productoPrecio" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="productoCategoria">Categoría:</label>
-                    <select id="productoCategoria" required>
-                        <!-- Opciones de categorías se cargarán dinámicamente -->
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="productoStock">Stock:</label>
-                    <input type="number" id="productoStock" required>
-                </div>
-                <button type="submit" class="submit-btn">Guardar</button>
+                <label for="productoName">Nombre:</label>
+                <input type="text" id="productoName" required>
+                <label for="productoCategoria">Categoría:</label>
+                <select id="productoCategoria" required>
+                    <option value="">Selecciona una categoría</option>
+                </select>
+                <label for="productoCantidad">Cantidad:</label>
+                <input type="number" id="productoCantidad" required>
+                <label for="productoPrecio">Precio:</label>
+                <input type="number" id="productoPrecio" required>
+                <button type="submit">Guardar</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal para agregar/editar categoría -->
+    <!-- Modal para agregar categorías -->
     <div id="categoriaModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h3 id="categoriaModalTitle">Agregar Nueva Categoría</h3>
+            <h3>Agregar Categoría</h3>
             <form id="categoriaForm">
-                <div class="form-group">
-                    <label for="categoriaName">Nombre de la categoría:</label>
-                    <input type="text" id="categoriaName" required>
-                </div>
-                <button type="submit" class="submit-btn">Guardar Categoría</button>
+                <label for="categoriaName">Nombre:</label>
+                <input type="text" id="categoriaName" required>
+                <button type="submit">Guardar</button>
             </form>
         </div>
     </div>
-
-    <script type="module">
-        import {
-            getProductos,
-            addProducto,
-            updateProducto,
-            deleteProducto,
-            getCategorias,
-            addCategoria,
-            updateCategoria,
-            deleteCategoria
-        } from './inventory.js';
-
-        // Función para cargar y mostrar los productos
-        async function loadProductos() {
-            try {
-                const productos = await getProductos();
-                const grid = document.getElementById('productosGrid');
-                grid.innerHTML = productos.map(producto => `
-                    <div class="carrito-card" data-id="${producto.id}">
-                        <h3>${producto.name}</h3>
-                        <p>${producto.descripcion}</p>
-                        <p>Precio: $${producto.precio}</p>
-                        <p>Categoría: ${producto.categoria || 'No especificada'}</p>
-                        <p>Stock: ${producto.stock}</p>
-                        <div class="card-actions">
-                            <button class="edit-btn" data-id="${producto.id}">Editar</button>
-                            <button class="delete-btn" data-id="${producto.id}">Eliminar</button>
-                        </div>
-                    </div>
-                `).join('');
-
-                // Agregar event listeners para editar y eliminar
-                document.querySelectorAll('.edit-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => openProductoModal(e.target.dataset.id));
-                });
-                document.querySelectorAll('.delete-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => deleteProducto(e.target.dataset.id).then(loadProductos));
-                });
-            } catch (error) {
-                console.error('Error al cargar productos:', error);
-            }
-        }
-
-        // Función para cargar categorías
-        async function loadCategorias() {
-            try {
-                const categorias = await getCategorias();
-                const grid = document.getElementById('categoriasGrid');
-                grid.innerHTML = categorias.map(categoria => `
-                    <div class="carrito-card" data-id="${categoria.id}">
-                        <h3>${categoria.name}</h3>
-                        <div class="card-actions">
-                            <button class="edit-btn" data-id="${categoria.id}">Editar</button>
-                            <button class="delete-btn" data-id="${categoria.id}">Eliminar</button>
-                        </div>
-                    </div>
-                `).join('');
-
-                // Actualizar el select de categorías en la pestaña de productos
-                const select = document.getElementById('filterCategoria');
-                const productoCategoria = document.getElementById('productoCategoria');
-                const categoriaOptions = `
-                    <option value="">Todas las categorías</option>
-                    ${categorias.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('')}
-                `;
-                select.innerHTML = categoriaOptions;
-                productoCategoria.innerHTML = categoriaOptions;
-
-                // Agregar event listeners para editar y eliminar categorías
-                document.querySelectorAll('#categoriasGrid .edit-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => openCategoriaModal(e.target.dataset.id));
-                });
-                document.querySelectorAll('#categoriasGrid .delete-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => deleteCategoria(e.target.dataset.id).then(loadCategorias));
-                });
-            } catch (error) {
-                console.error('Error al cargar categorías:', error);
-            }
-        }
-
-        // Función para abrir el modal de producto
-        async function openProductoModal(productoId = null) {
-            const modal = document.getElementById('productoModal');
-            const form = document.getElementById('productoForm');
-            const title = document.getElementById('productoModalTitle');
-
-            if (productoId) {
-                title.textContent = 'Editar Producto';
-                const productos = await getProductos();
-                const producto = productos.find(p => p.id === productoId);
-                if (producto) {
-                    document.getElementById('productoName').value = producto.name;
-                    document.getElementById('productoDescripcion').value = producto.descripcion;
-                    document.getElementById('productoPrecio').value = producto.precio;
-                    document.getElementById('productoCategoria').value = producto.categoria;
-                    document.getElementById('productoStock').value = producto.stock;
-                    form.dataset.id = productoId;
-                }
-            } else {
-                title.textContent = 'Agregar Nuevo Producto';
-                form.reset();
-                delete form.dataset.id;
-            }
-
-            modal.style.display = 'block';
-        }
-
-        // Función para abrir el modal de categoría
-        async function openCategoriaModal(categoriaId = null) {
-            const modal = document.getElementById('categoriaModal');
-            const form = document.getElementById('categoriaForm');
-            const title = document.getElementById('categoriaModalTitle');
-
-            if (categoriaId) {
-                title.textContent = 'Editar Categoría';
-                const categorias = await getCategorias();
-                const categoria = categorias.find(c => c.id === categoriaId);
-                if (categoria) {
-                    document.getElementById('categoriaName').value = categoria.name;
-                    form.dataset.id = categoriaId;
-                }
-            } else {
-                title.textContent = 'Agregar Nueva Categoría';
-                form.reset();
-                delete form.dataset.id;
-            }
-
-            modal.style.display = 'block';
-        }
-
-        // Event Listeners
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.getElementById(tab.dataset.tab).classList.add('active');
-                tab.classList.add('active');
-            });
-        });
-
-        document.getElementById('addProductoBtn').addEventListener('click', () => openProductoModal());
-        console.log("Boton de agregar producto presionado");
-        document.getElementById('addCategoriaBtn').addEventListener('click', () => openCategoriaModal());
-        console.log("Boton de agregar categoria presionado");
-
-        document.querySelectorAll('.close').forEach(closeBtn => {
-            closeBtn.addEventListener('click', () => {
-                closeBtn.closest('.modal').style.display = 'none';
-            });
-        });
-
-        document.getElementById('productoForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const productoData = {
-                name: document.getElementById('productoName').value,
-                descripcion: document.getElementById('productoDescripcion').value,
-                precio: parseFloat(document.getElementById('productoPrecio').value),
-                categoria: document.getElementById('productoCategoria').value,
-                stock: parseInt(document.getElementById('productoStock').value)
-            };
-
-            if (e.target.dataset.id) {
-                await updateProducto(e.target.dataset.id, productoData);
-            } else {
-                await addProducto(productoData);
-            }
-
-            document.getElementById('productoModal').style.display = 'none';
-            await loadProductos();
-        });
-
-        document.getElementById('categoriaForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const categoriaData = {
-                name: document.getElementById('categoriaName').value
-            };
-
-            if (e.target.dataset.id) {
-                await updateCategoria(e.target.dataset.id, categoriaData);
-            } else {
-                await addCategoria(categoriaData);
-            }
-
-            document.getElementById('categoriaModal').style.display = 'none';
-            await loadCategorias();
-        });
-
-        document.getElementById('searchProducto').addEventListener('input', filterProductos);
-        document.getElementById('filterCategoria').addEventListener('change', filterProductos);
-
-        function filterProductos() {
-            const searchInput = document.getElementById('searchProducto').value.toLowerCase();
-            const categoryFilter = document.getElementById('filterCategoria').value;
-            const cards = document.querySelectorAll('#productosGrid .carrito-card');
-
-            cards.forEach(card => {
-                const name = card.querySelector('h3').textContent.toLowerCase();
-                const category = card.querySelector('p:nth-child(4)').textContent.toLowerCase();
-                const matchesSearch = name.includes(searchInput);
-                const matchesCategory = !categoryFilter ||
-                    card.querySelector('p:nth-child(4)').textContent.includes(categoryFilter);
-
-
-                card.style.display = (matchesSearch && matchesCategory) ? 'block' : 'none';
-            });
-        }
-
-        // Inicialización
-        loadProductos();
-        loadCategorias();
-    </script>
 </body>
 
 </html>
