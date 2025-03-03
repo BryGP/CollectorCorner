@@ -1,90 +1,184 @@
-.inventory-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+/* inventory.css */
+
+/* Estilos específicos para la página de inventario */
+.inventory-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-top: 20px;
 }
 
-.filters {
+.tabs {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-radius: 5px 5px 0 0;
+}
+
+.tab:not(:last-child) {
+    margin-right: 5px;
+}
+
+.tab.active {
+    background-color: var(--accent-color);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.search-bar {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.search-bar input,
+.search-bar select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    flex-grow: 1;
 }
 
 .inventory-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 2rem;
-    padding: 1rem;
+    gap: 20px;
 }
 
-.inventory-item {
-    background: white;
+.carrito-card {
+    background-color: var(--secondary-color);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transition: transform 0.2s;
+    box-shadow: var(--shadow);
+    padding: 15px;
+    transition: transform 0.3s;
 }
 
-.inventory-item:hover {
+.carrito-card:hover {
     transform: translateY(-5px);
 }
 
-.item-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+.card-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
 }
 
-.item-details {
-    padding: 1rem;
+.card-actions button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.edit-btn {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+}
+
+.delete-btn {
+    background-color: #e74c3c;
+    color: var(--text-color);
 }
 
 .modal {
     display: none;
     position: fixed;
-    top: 0;
+    z-index: 1;
     left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
 }
 
 .modal-content {
-    background: white;
-    margin: 10% auto;
-    padding: 2rem;
-    width: 90%;
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
     max-width: 500px;
-    border-radius: 8px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 15px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 5px;
+    color: var(--primary-color);
 }
 
 .form-group input,
 .form-group select {
     width: 100%;
-    padding: 0.5rem;
+    padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
 
-.primary-button {
-    background: var(--primary);
-    color: white;
+.submit-btn {
+    background-color: var(--accent-color);
+    color: var(--text-color);
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    padding: 10px 20px;
+    border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-.primary-button:hover {
-    background: var(--primary-dark);
+.submit-btn:hover {
+    background-color: var(--primary-color);
+}
+
+/* Estilos responsivos específicos para el inventario */
+@media (max-width: 768px) {
+    .inventory-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .inventory-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-bar {
+        flex-direction: column;
+    }
 }
