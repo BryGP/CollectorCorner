@@ -31,7 +31,6 @@
             </div>
 
             <div class="tab-content-container">
-                <!-- Sección de productos -->
                 <div id="productos" class="tab-content active">
                     <div class="search-bar">
                         <input type="text" id="searchProducto" placeholder="Buscar producto...">
@@ -43,7 +42,6 @@
                     <div id="productosGrid" class="inventory-grid"></div>
                 </div>
 
-                <!-- Sección de categorías -->
                 <div id="categorias" class="tab-content">
                     <div class="search-bar">
                         <input type="text" id="searchCategoria" placeholder="Buscar categoría...">
@@ -59,14 +57,15 @@
     <div id="productoModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h3>Agregar Producto</h3>
+            <h3>Editar/Agregar Producto</h3>
             <form id="productoForm">
+                <input type="hidden" id="productoId">
                 <label for="productoName">Nombre:</label>
                 <input type="text" id="productoName" required>
+                <label for="productoDescripcion">Descripción:</label>
+                <textarea id="productoDescripcion" required></textarea>
                 <label for="productoCategoria">Categoría:</label>
-                <select id="productoCategoria" required>
-                    <option value="">Selecciona una categoría</option>
-                </select>
+                <select id="productoCategoria" required></select>
                 <label for="productoCantidad">Cantidad:</label>
                 <input type="number" id="productoCantidad" required>
                 <label for="productoPrecio">Precio:</label>
@@ -80,8 +79,9 @@
     <div id="categoriaModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h3>Agregar Categoría</h3>
+            <h3>Editar/Agregar Categoría</h3>
             <form id="categoriaForm">
+                <input type="hidden" id="categoriaId">
                 <label for="categoriaName">Nombre:</label>
                 <input type="text" id="categoriaName" required>
                 <button type="submit">Guardar</button>

@@ -1,14 +1,56 @@
 /* inventory.css */
 
-/* Estilos específicos para la página de inventario */
+/* Variables de color */
+:root {
+    --primary-color: #2C3E50;
+    --secondary-color: #ECF0F1;
+    --accent-color: #fbce06cf;
+    --text-color: #000000;
+}
+
+/* Estilos generales */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+header .logo h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+header .logo h1 {
+    margin: 5px 0 0;
+    font-size: 18px;
+    font-weight: normal;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+/* Contenedor principal */
 .inventory-container {
-    background-color: white;
+    background-color: #fff;
     border-radius: 10px;
     box-shadow: var(--shadow);
     padding: 20px;
-    margin-top: 20px;
+    margin: 20px auto;
+    max-width: 1200px;
 }
 
+/* Pestañas */
 .tabs {
     display: flex;
     margin-bottom: 20px;
@@ -17,14 +59,11 @@
 .tab {
     padding: 10px 20px;
     background-color: var(--primary-color);
-    color: var(--text-color);
+    color: #fff;
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
     border-radius: 5px 5px 0 0;
-}
-
-.tab:not(:last-child) {
     margin-right: 5px;
 }
 
@@ -40,6 +79,7 @@
     display: block;
 }
 
+/* Barra de búsqueda */
 .search-bar {
     margin-bottom: 20px;
     display: flex;
@@ -54,48 +94,89 @@
     flex-grow: 1;
 }
 
+.submit-btn {
+    background-color: var(--accent-color);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Grid de productos */
 .inventory-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
 }
 
-.carrito-card {
-    background-color: var(--secondary-color);
-    border-radius: 8px;
+/* Tarjetas de producto */
+.producto-item {
+    background-color: #fff;
+    border-radius: 10px;
     box-shadow: var(--shadow);
     padding: 15px;
     transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-.carrito-card:hover {
+.producto-item:hover {
     transform: translateY(-5px);
 }
 
-.card-actions {
+.producto-item h3 {
+    margin-top: 0;
+    font-size: 20px;
+    color: var(--primary-color);
+}
+
+.producto-item p {
+    color: var(--text-color);
+    margin: 5px 0;
+}
+
+.producto-item .actions {
     display: flex;
     justify-content: space-between;
     margin-top: 10px;
 }
 
-.card-actions button {
+.producto-item .actions button {
     padding: 5px 10px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
+    flex-grow: 1;
+    margin: 0 5px;
 }
 
 .edit-btn {
-    background-color: var(--accent-color);
-    color: var(--text-color);
+    background-color: #3498db;
+    color: #fff;
+}
+
+.edit-btn:hover {
+    background-color: #2980b9;
 }
 
 .delete-btn {
     background-color: #e74c3c;
-    color: var(--text-color);
+    color: #fff;
 }
 
+.delete-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -105,7 +186,7 @@
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
 .modal-content {
@@ -145,28 +226,16 @@
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    resize: vertical;
 }
 
-.submit-btn {
-    background-color: var(--accent-color);
-    color: var(--text-color);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.submit-btn:hover {
-    background-color: var(--primary-color);
-}
-
-/* Estilos responsivos específicos para el inventario */
+/* Estilos responsivos */
 @media (max-width: 768px) {
     .inventory-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -180,5 +249,10 @@
 
     .search-bar {
         flex-direction: column;
+    }
+
+    .search-bar input,
+    .search-bar select {
+        flex-grow: 0;
     }
 }
