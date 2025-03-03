@@ -5,7 +5,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Montserrat', sans-serif;
-    background-image: url('../public/Img/LSF.png'); /* Asegurar ruta correcta */
+    background-image: url('../Img/LSF.png'); /* Asegurar ruta correcta */
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;

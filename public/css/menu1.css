@@ -17,10 +17,14 @@ body {
     color: #333;
 }
 
+/* HEADER */
 header {
     background-color: var(--primary-color);
     color: var(--text-color);
-    padding: 20px;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     text-align: center;
     box-shadow: var(--shadow);
 }
@@ -37,10 +41,13 @@ header {
     letter-spacing: 2px;
 }
 
+/* NAVBAR */
 nav {
     background-color: #34495E;
-    padding: 10px;
+    padding: 15px;
     box-shadow: var(--shadow);
+    display: flex;
+    justify-content: center;
 }
 
 nav ul {
@@ -48,60 +55,69 @@ nav ul {
     margin: 0;
     padding: 0;
     display: flex;
-    justify-content: center;
+    gap: 20px;
     flex-wrap: wrap;
 }
 
 nav li {
-    margin: 5px 15px;
+    display: inline;
 }
 
 nav a {
     text-decoration: none;
     color: var(--text-color);
     font-weight: bold;
-    transition: color 0.3s ease;
-    font-size: 0.9em;
+    transition: color 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1em;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
 nav a:hover {
     color: var(--accent-color);
 }
 
+/* SECCIÓN PRINCIPAL */
 main {
     flex-grow: 1;
     padding: 40px 20px;
     max-width: 1200px;
     margin: 0 auto;
+    text-align: center;
 }
 
 h2 {
     text-align: center;
     color: var(--primary-color);
     margin-bottom: 30px;
-    font-size: 2em;
+    font-size: 2.2em;
+    font-weight: bold;
 }
 
+/* CARRUSEL MEJORADO */
 .carousel-container {
     position: relative;
     overflow: hidden;
-    padding: 20px 50px;
-    background-color: #fff;
+    width: 750px; /* 🔹 Define un ancho fijo en desktop */
+    max-width: 100%;
+    padding: 20px;
+    background-color: white;
     border-radius: 10px;
     box-shadow: var(--shadow);
+    margin: 0 auto;
 }
 
 .carousel {
     display: flex;
-    transition: transform 0.5s ease;
+    transition: transform 0.5s ease-in-out;
+    width: 100%;
 }
 
 .menu-button {
-    flex: 0 0 200px;
+    flex: 0 0 200px; /* 🔹 Define un ancho fijo */
     height: 180px;
-    margin: 0 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -111,8 +127,10 @@ h2 {
     border-radius: 10px;
     text-decoration: none;
     color: var(--primary-color);
-    transition: all 0.3s ease;
+    transition: all 0.3s ease-in-out;
     box-shadow: var(--shadow);
+    font-size: 1.2em;
+    font-weight: bold;
 }
 
 .menu-button:hover {
@@ -123,15 +141,10 @@ h2 {
 
 .menu-button i {
     font-size: 3em;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
-.menu-button span {
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
+/* BOTONES DEL CARRUSEL */
 .carousel-button {
     position: absolute;
     top: 50%;
@@ -157,64 +170,73 @@ h2 {
 }
 
 .carousel-button.left {
-    left: 10px;
+    left: -15px;
 }
 
 .carousel-button.right {
-    right: 10px;
+    right: -15px;
 }
 
+/* FOOTER */
 footer {
     background-color: var(--primary-color);
     color: var(--text-color);
-    padding: 15px;
+    padding: 20px;
     text-align: center;
     font-size: 0.9em;
 }
 
+/* RESPONSIVIDAD */
 @media (max-width: 768px) {
-    nav ul {
-        flex-direction: column;
-        align-items: center;
+    .carousel-container {
+        width: 100%;
+    }
+
+    .carousel {
+        justify-content: center;
     }
 
     .menu-button {
         flex: 0 0 150px;
         height: 150px;
-        margin: 0 10px;
+        font-size: 0.9em;
+    }
+
+    .menu-button i {
+        font-size: 2.5em;
+    }
+
+    .carousel-button {
+        width: 35px;
+        height: 35px;
+        font-size: 1em;
     }
 }
 
-/* Estilos para la tabla */
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+@media (max-width: 480px) {
+    .carousel-container {
+        width: 100%;
+        padding: 10px;
+    }
 
-th, td {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-}
+    .carousel {
+        justify-content: center;
+    }
 
-th {
-    background-color: #f2f2f2;
-}
+    .menu-button {
+        flex: 0 0 130px;
+        height: 130px;
+        font-size: 0.8em;
+    }
 
-tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
+    .menu-button i {
+        font-size: 2em;
+    }
 
-.button {
-    display: inline-block;
-    padding: 10px 20px;
-    color: white;
-    background-color: #007BFF; /* Color de fondo del botón */
-    text-decoration: none; /* Quita el subrayado del enlace */
-    border-radius: 5px; /* Bordes redondeados */
-    transition: background-color 0.3s; /* Efecto al pasar el mouse */
-}
-
-.button:hover {
-    background-color: #0056b3; /* Color de fondo al pasar el mouse */
+    .carousel-button {
+        display: block;
+        width: 30px;
+        height: 30px;
+        font-size: 0.9em;
+    }
 }
