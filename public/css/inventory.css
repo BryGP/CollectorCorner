@@ -1,140 +1,185 @@
-/* inventory.css */
-
-/* Variables de color */
+/*
+ * CSS Inventory (General Format)
+ */
+ 
+ /* ======== VARIABLES DE COLOR ======== */
 :root {
     --primary-color: #2C3E50;
     --secondary-color: #ECF0F1;
     --accent-color: #fbce06cf;
     --text-color: #000000;
+    --danger-color: #e74c3c;
+    --success-color: #27ae60;
+    --hover-color: #d4ac0d;
+    --shadow: 2px 4px 10px rgba(0, 0, 0, 0.15);
 }
 
-/* Estilos generales */
+/* ======== ESTILOS GENERALES ======== */
 body {
     font-family: 'Roboto', sans-serif;
-    background-color: #f9f9f9;
+    background-color: var(--secondary-color);
     margin: 0;
     padding: 0;
 }
 
+/* ======== HEADER ======== */
 header {
     background-color: var(--primary-color);
-    color: #fff;
-    padding: 20px;
+    color: var(--secondary-color);
+    padding: 20px 40px;
     text-align: center;
+    box-shadow: var(--shadow);
 }
 
 header .logo h2 {
     margin: 0;
-    font-size: 24px;
+    font-size: 1.8em;
+    color: var(--accent-color);
 }
 
 header .logo h1 {
-    margin: 5px 0 0;
-    font-size: 18px;
-    font-weight: normal;
+    margin: 10px 0;
+    font-size: 2.5em;
+    font-weight: bold;
 }
 
 nav a {
-    color: #fff;
+    color: white;
     text-decoration: none;
     font-size: 16px;
 }
 
-/* Contenedor principal */
+/* ======== CONTENEDOR PRINCIPAL ======== */
 .inventory-container {
-    background-color: #fff;
+    background-color: white;
     border-radius: 10px;
     box-shadow: var(--shadow);
     padding: 20px;
     margin: 20px auto;
-    max-width: 1200px;
 }
 
-/* Pestañas */
+/* ======== PESTAÑAS (TABS) ======== */
 .tabs {
     display: flex;
     margin-bottom: 20px;
 }
 
 .tab {
-    padding: 10px 20px;
+    flex: 1;
+    text-align: center;
+    padding: 12px;
     background-color: var(--primary-color);
-    color: #fff;
+    color: white;
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: 0.3s;
     border-radius: 5px 5px 0 0;
-    margin-right: 5px;
+    font-weight: bold;
 }
 
 .tab.active {
     background-color: var(--accent-color);
+    color: var(--text-color);
 }
 
+/* ======== CONTENIDO DE LAS TABS ======== */
 .tab-content {
     display: none;
+    padding: 15px;
 }
 
 .tab-content.active {
     display: block;
 }
 
-/* Barra de búsqueda */
+/* ======== BARRA DE BÚSQUEDA ======== */
 .search-bar {
-    margin-bottom: 20px;
     display: flex;
     gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
+/* Estilos para la barra de búsqueda */
 .search-bar input,
 .search-bar select {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    flex-grow: 1;
+    padding: 12px;
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    font-size: 16px;
+    width: 250px; /* Ajusta el ancho */
 }
 
+.search-bar input:focus,
+.search-bar select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(251, 206, 6, 0.5);
+    outline: none;
+}
+
+/* Estilos para el filtro de categorías */
+.search-bar select {
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    background-color: #fff;
+}
+
+.search-bar select:hover {
+    border-color: var(--primary-color);
+}
+
+/* Estilos para el botón de agregar */
 .submit-btn {
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
     background-color: var(--accent-color);
     color: #fff;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease-in-out;
 }
 
 .submit-btn:hover {
-    background-color: #c0392b;
+    background-color: var(--hover-color);
 }
 
-/* Grid de productos */
+/* ======== GRID DE PRODUCTOS Y CATEGORÍAS ======== */
 .inventory-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Ajuste dinámico */
+    gap: 15px;
+    justify-content: center;
+    align-items: stretch;
+    padding: 20px;
+    max-width: 90vw; /* Limita el ancho para evitar márgenes grandes */
 }
 
-/* Tarjetas de producto */
-.producto-item {
-    background-color: #fff;
+/* ======== TARJETAS DE PRODUCTOS Y CATEGORÍAS ======== */
+.producto-item, .categoria-item {
+    background-color: white;
     border-radius: 10px;
     box-shadow: var(--shadow);
     padding: 15px;
-    transition: transform 0.3s;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-align: center;
 }
 
-.producto-item:hover {
+.producto-item:hover, .categoria-item:hover {
     transform: translateY(-5px);
+    box-shadow: 4px 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-.producto-item h3 {
-    margin-top: 0;
+.producto-item h3, .categoria-item h3 {
     font-size: 20px;
     color: var(--primary-color);
+    margin-bottom: 10px;
 }
 
 .producto-item p {
@@ -142,85 +187,85 @@ nav a {
     margin: 5px 0;
 }
 
-.producto-item .actions {
+/* ======== BOTONES DE ACCIONES ======== */
+.actions {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 10px;
     margin-top: 10px;
 }
 
-.producto-item .actions button {
-    padding: 5px 10px;
+.actions button {
+    padding: 7px 12px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    flex-grow: 1;
-    margin: 0 5px;
+    transition: 0.3s;
+    font-weight: bold;
 }
 
 .edit-btn {
-    background-color: #3498db;
-    color: #fff;
+    background-color: var(--primary-color);
+    color: white;
 }
 
 .edit-btn:hover {
-    background-color: #2980b9;
+    background-color: #34495e;
 }
 
 .delete-btn {
-    background-color: #e74c3c;
-    color: #fff;
+    background-color: var(--danger-color);
+    color: white;
 }
 
 .delete-btn:hover {
     background-color: #c0392b;
 }
 
-/* Modal */
+/* ======== MODALES ======== */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 10;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
+    background-color: white;
     padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
     border-radius: 10px;
-    box-shadow: var(--shadow);
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
 }
 
 .close {
-    color: #aaa;
     float: right;
-    font-size: 28px;
-    font-weight: bold;
+    font-size: 24px;
     cursor: pointer;
+    color: #aaa;
 }
 
-.close:hover,
-.close:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
+.close:hover {
+    color: black;
 }
 
+/* ======== FORMULARIOS ======== */
 .form-group {
     margin-bottom: 15px;
+    text-align: left;
 }
 
 .form-group label {
     display: block;
+    font-weight: bold;
     margin-bottom: 5px;
     color: var(--primary-color);
 }
@@ -231,14 +276,83 @@ nav a {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
-    border-radius: 4px;
-    resize: vertical;
+    border-radius: 5px;
 }
 
-/* Estilos responsivos */
+/* ======== RESPONSIVE ======== */
+@media (max-width: 1024px) {
+    .inventory-container {
+        padding: 15px;
+        margin: 15px;
+    }
+
+    .tab {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .tab-content {
+        padding: 10px;
+    }
+
+    .search-bar {
+        gap: 8px;
+    }
+
+    .search-bar input,
+    .search-bar select {
+        padding: 8px;
+    }
+
+    .submit-btn {
+        padding: 8px 15px;
+    }
+
+    .producto-item, .categoria-item {
+        padding: 12px;
+    }
+
+    .actions button {
+        padding: 6px 10px;
+    }
+
+    .modal-content {
+        padding: 15px;
+    }
+}
+
 @media (max-width: 768px) {
     .inventory-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    .tab {
+        font-size: 12px;
+    }
+
+    .search-bar {
+        gap: 6px;
+    }
+
+    .search-bar input,
+    .search-bar select {
+        padding: 6px;
+    }
+
+    .submit-btn {
+        padding: 6px 10px;
+    }
+
+    .producto-item, .categoria-item {
+        padding: 10px;
+    }
+
+    .actions button {
+        padding: 5px 8px;
+    }
+
+    .modal-content {
+        padding: 10px;
     }
 }
 
@@ -254,5 +368,34 @@ nav a {
     .search-bar input,
     .search-bar select {
         flex-grow: 0;
+        width: 100%;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 8px;
+    }
+
+    .tab {
+        padding: 8px;
+        font-size: 10px;
+    }
+
+    .producto-item, .categoria-item {
+        padding: 8px;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .actions button {
+        width: 100%;
+        padding: 8px;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 8px;
     }
 }

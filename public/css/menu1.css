@@ -1,15 +1,18 @@
 /*
- * CCS Menu Principal (Formato General)
+ * CSS Menú Principal (Formato General)
  */
 
+/* ======== VARIABLES DE COLOR ======== */
 :root {
     --primary-color: #2C3E50;
     --secondary-color: #ECF0F1;
     --accent-color: #fbce06cf;
-    --text-color: #fff;
-    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --text-color: #ffffff;
+    --hover-color: #f1c40f;
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
+/* ======== ESTILOS GENERALES ======== */
 body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
@@ -21,31 +24,28 @@ body {
     color: #333;
 }
 
-/* HEADER */
+/* ======== HEADER ======== */
 header {
     background-color: var(--primary-color);
     color: var(--text-color);
     padding: 20px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     text-align: center;
     box-shadow: var(--shadow);
 }
 
 .logo h2 {
     margin: 0;
-    font-size: 1.5em;
+    font-size: 1.8em;
     color: var(--accent-color);
 }
 
 .logo h1 {
     margin: 10px 0;
     font-size: 2.5em;
-    letter-spacing: 2px;
+    font-weight: bold;
 }
 
-/* NAVBAR */
+/* ======== NAVBAR ======== */
 nav {
     background-color: #34495E;
     padding: 15px;
@@ -71,19 +71,22 @@ nav a {
     text-decoration: none;
     color: var(--text-color);
     font-weight: bold;
-    transition: color 0.3s ease-in-out;
+    transition: 0.3s ease-in-out;
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 1em;
     text-transform: uppercase;
+    padding: 10px 15px;
+    border-radius: 5px;
 }
 
 nav a:hover {
-    color: var(--accent-color);
+    background-color: var(--hover-color);
+    color: var(--primary-color);
 }
 
-/* SECCIÓN PRINCIPAL */
+/* ======== SECCIÓN PRINCIPAL ======== */
 main {
     flex-grow: 1;
     padding: 40px 20px;
@@ -100,11 +103,11 @@ h2 {
     font-weight: bold;
 }
 
-/* CARRUSEL MEJORADO */
+/* ======== CARRUSEL MEJORADO ======== */
 .carousel-container {
     position: relative;
     overflow: hidden;
-    width: 750px; /* 🔹 Define un ancho fijo en desktop */
+    width: 750px; 
     max-width: 100%;
     padding: 20px;
     background-color: white;
@@ -119,8 +122,9 @@ h2 {
     width: 100%;
 }
 
+/* ======== BOTONES DEL MENÚ PRINCIPAL ======== */
 .menu-button {
-    flex: 0 0 200px; /* 🔹 Define un ancho fijo */
+    flex: 0 0 200px;
     height: 180px;
     display: flex;
     flex-direction: column;
@@ -141,6 +145,7 @@ h2 {
     background-color: var(--accent-color);
     color: var(--text-color);
     transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
 }
 
 .menu-button i {
@@ -148,7 +153,7 @@ h2 {
     margin-bottom: 10px;
 }
 
-/* BOTONES DEL CARRUSEL */
+/* ======== BOTONES DEL CARRUSEL ======== */
 .carousel-button {
     position: absolute;
     top: 50%;
@@ -170,7 +175,7 @@ h2 {
 }
 
 .carousel-button:hover {
-    background-color: var(--accent-color);
+    background-color: var(--hover-color);
 }
 
 .carousel-button.left {
@@ -181,7 +186,7 @@ h2 {
     right: -15px;
 }
 
-/* FOOTER */
+/* ======== FOOTER ======== */
 footer {
     background-color: var(--primary-color);
     color: var(--text-color);
@@ -190,7 +195,7 @@ footer {
     font-size: 0.9em;
 }
 
-/* RESPONSIVIDAD */
+/* ======== RESPONSIVE ======== */
 @media (max-width: 768px) {
     .carousel-container {
         width: 100%;
@@ -238,7 +243,6 @@ footer {
     }
 
     .carousel-button {
-        display: block;
         width: 30px;
         height: 30px;
         font-size: 0.9em;

@@ -45,7 +45,7 @@ async function loadProductos() {
             div.setAttribute("data-producto-id", producto.id)
             div.innerHTML = `
                 <h3>${producto.name || "Sin nombre"}</h3>
-                <p>Categoría: ${producto.categoria || "No especificada"}</p>
+                <p class="categoria-label">${producto.categoria || "No especificada"}</p>
                 <p>Precio: $${producto.precio || 0}</p>
                 <p>Stock: ${producto.stock || 0}</p>
                 <div class="actions">
@@ -55,6 +55,47 @@ async function loadProductos() {
             `
             productosGrid.appendChild(div)
         })
+
+        // ==================== FUNCIÓN PARA FILTRAR PRODUCTOS ====================
+        function filterProductos() {
+            const searchTerm = document.getElementById("searchProducto").value.toLowerCase();
+            const productos = document.querySelectorAll(".producto-item");
+
+            productos.forEach(producto => {
+                const nombre = producto.querySelector("h3").textContent.toLowerCase();
+                if (nombre.includes(searchTerm)) {
+                    producto.style.display = "block";
+                } else {
+                    producto.style.display = "none";
+                }
+            });
+        }
+
+        // Evento de entrada en el campo de búsqueda
+        document.getElementById("searchProducto").addEventListener("input", filterProductos);
+
+        // ==================== FUNCIÓN PARA FILTRAR POR CATEGORÍA ====================
+        function filterByCategoria() {
+            const selectedCategoria = document.getElementById("filterCategoria").value.toLowerCase();
+            const productos = document.querySelectorAll(".producto-item");
+
+            productos.forEach(producto => {
+                const categoriaElemento = producto.querySelector(".categoria-label");
+                if (!categoriaElemento) return;
+
+                const categoria = categoriaElemento.textContent.trim().toLowerCase();
+
+                // Si no hay filtro seleccionado, muestra todos
+                if (selectedCategoria === "" || categoria === selectedCategoria) {
+                    producto.style.display = "block";
+                } else {
+                    producto.style.display = "none";
+                }
+            });
+        }
+
+        // Evento de cambio en el filtro de categorías
+        document.getElementById("filterCategoria").addEventListener("change", filterByCategoria);
 
         // Añadir el hover effect a los productos
         const productoItems = document.querySelectorAll(".producto-item")
