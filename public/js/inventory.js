@@ -279,8 +279,11 @@ async function loadCategoriasForDropdown() {
         const categoriasSnapshot = await getDocs(categoriasRef)
         const categoriasList = categoriasSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
 
-        // Actualizar el dropdown de categorías
+        // Actualizar el dropdown de categorías en el formulario de productos
         populateProductCategoryDropdown(categoriasList)
+
+        // Actualizar también el dropdown de filtro de categorías
+        populateCategoryFilterDropdown(categoriasList)
     } catch (error) {
         console.error("Error al cargar categorías para dropdown:", error)
     }
@@ -368,7 +371,7 @@ async function saveCategoria(event) {
     }
 }
 
-// Función para llenar el dropdown de categorías
+// Función para llenar el dropdown de categorías en el formulario de productos
 function populateProductCategoryDropdown(categoriasList) {
     const productoCategoriaSelect = document.getElementById("productoCategoria")
     if (!productoCategoriaSelect) return
@@ -383,6 +386,25 @@ function populateProductCategoryDropdown(categoriasList) {
     })
 }
 
+// Función para llenar el dropdown de filtro de categorías
+function populateCategoryFilterDropdown(categoriasList) {
+    const filterCategoriaSelect = document.getElementById("filterCategoria")
+    if (!filterCategoriaSelect) return
+
+    // Mantener la opción "Todas las categorías"
+    filterCategoriaSelect.innerHTML = '<option value="">Todas las categorías</option>'
+
+    // Añadir cada categoría como una opción
+    categoriasList.forEach((categoria) => {
+        const option = document.createElement("option")
+        option.value = categoria.name
+        option.text = categoria.name
+        filterCategoriaSelect.appendChild(option)
+    })
+
+    console.log("Categorías cargadas en el filtro:", categoriasList.length)
+}
+
 // ==================== FUNCIONES PARA MODALES ====================
 
 // Modal de productos
@@ -390,6 +412,9 @@ const productoModal = document.getElementById("productoModal")
 const closeBtn = document.querySelector("#productoModal .close")
 
 function openProductoModal() {
+    // Cerrar el modal de categorías si está abierto
+    categoriaModal.style.display = "none"
+    // Abrir el modal de productos
     productoModal.style.display = "block"
 }
 
@@ -411,6 +436,9 @@ const categoriaModal = document.getElementById("categoriaModal")
 const closeCategoriaBtn = document.querySelector("#categoriaModal .close")
 
 function openCategoriaModal() {
+    // Cerrar el modal de productos si está abierto
+    productoModal.style.display = "none"
+    // Abrir el modal de categorías
     categoriaModal.style.display = "block"
 }
 
@@ -462,7 +490,32 @@ tabs.forEach((tab) => {
 
 // Inicializar la aplicación cuando el DOM esté listo
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM cargado, inicializando aplicación...")
-    loadProductos()
-    loadCategorias()
-})
+    console.log("DOM cargado, inicializando aplicación...");
+
+    // Ocultar modales al cargar la página
+    productoModal.style.display = "none"
+    categoriaModal.style.display = "none"
+
+    loadProductos();
+    loadCategorias();
+
+    // Deshabilitar autocompletar en todos los campos de texto
+    document.querySelectorAll("input, textarea").forEach((input) => {
+        input.setAttribute("autocomplete", "off");
+    });
+});
+
+// Permitir cerrar modales con la tecla ESC (fuera del DOMContentLoaded)
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" || event.key === "Esc") {
+
+        // Verificar si los modales están visibles
+        if (productoModal.style.display === "block") {
+            closeProductoModal();
+        }
+
+        if (categoriaModal.style.display === "block") {
+            closeCategoriaModal();
+        }
+    }
+});
