@@ -1,0 +1,114 @@
+<!-- Boceto 3: Registro de usuarios -->
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios - Collector's Corner</title>
+    <link rel="stylesheet" href="css/menu1.css">
+    <link rel="stylesheet" href="css/usuarios.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <h2>Collector's Corner</h2>
+            <h1>Gestión de Usuarios</h1>
+        </div>
+        <nav>
+            <a href="menu1.html">Volver al Menú</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="table-container">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <!-- Usuarios de prueba agregados manualmente -->
+                        <tr>
+                            <td>Juan Pérez</td>
+                            <td>juanperez@example.com</td>
+                            <td>Administrador</td>
+                            <td>
+                                <button class="delete-btn"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Ana Gómez</td>
+                            <td>anagomez@example.com</td>
+                            <td>Empleado</td>
+                            <td>
+                                <button class="delete-btn"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Carlos López</td>
+                            <td>carloslopez@example.com</td>
+                            <td>Empleado</td>
+                            <td>
+                                <button class="delete-btn"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <button id="addUserBtn" class="add-btn">
+                <i class="fas fa-user-plus"></i> Añadir Usuario
+            </button>
+        </div>
+    </main>
+
+    <!-- Modal para añadir/editar usuarios -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modalTitle">Añadir Nuevo Usuario</h3>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+
+                <div class="form-group">
+                    <label for="userName">Nombre:</label>
+                    <input type="text" id="userName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="userEmail">Correo:</label>
+                    <input type="email" id="userEmail" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="userRole">Rol:</label>
+                    <select id="userRole">
+                        <option value="admin">Administrador</option>
+                        <option value="employee" selected>Empleado</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="userPassword">Contraseña:</label>
+                    <input type="password" id="userPassword" required>
+                    <small id="passwordHelp" class="form-text">Dejar en blanco para mantener la contraseña
+                        actual.</small>
+                </div>
+
+                <button type="submit" id="saveUserBtn">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="js/usuarios.js"></script>
+</body>
+
+</html>
