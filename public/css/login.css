@@ -9,7 +9,8 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-image: url('../Img/Logo.jpeg'); /* Asegurar ruta correcta */
+    background-image: url('../Img/Logo.jpeg');
+    /* Asegurar ruta correcta */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -29,7 +30,8 @@ body {
     padding: 40px;
     border-radius: 10px;
     text-align: center;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); /* Ajuste de sombra dorada */
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    /* Ajuste de sombra dorada */
     width: 90%;
     max-width: 400px;
 }
@@ -99,18 +101,23 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Mensajes de error */
-.messages {
-    margin-top: 20px;
+/* Añadir estilos para los mensajes de éxito y error */
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
 }
 
-.messages ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.messages li {
-    color: #ff6b6b;
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
 }
 
 /* Estilo para el header y enlaces del submenú */

@@ -1,8 +1,8 @@
-// Validaciones de usuarios
+// js/usuarios.js
+
 // Importar Firebase y Firestore
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"
+import { auth, db } from "./firebase-config.js"
 import {
-    getFirestore,
     collection,
     addDoc,
     getDocs,
@@ -13,45 +13,63 @@ import {
     query,
     where,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
-import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    deleteUser,
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"
+import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"
 
-// Configuración de Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyAO8AGH8-dAMktpeTUJ8k8YqZDsoykbqTM",
-    authDomain: "rti-collector-corner-1d6a7.firebaseapp.com",
-    projectId: "rti-collector-corner-1d6a7",
-    storageBucket: "rti-collector-corner-1d6a7.firebasestorage.app",
-    messagingSenderId: "357714788669",
-    appId: "1:357714788669:web:80a50e6d32fe4eed5dc554",
-}
-
-// Inicializar Firebase y Firestore
-const app = initializeApp(firebaseConfig)
-const db = getFirestore(app)
-const auth = getAuth(app)
+// Referencias a elementos del DOM
+const userTableBody = document.getElementById("userTableBody")
+const userModal = document.getElementById("userModal")
+const userForm = document.getElementById("userForm")
+const modalTitle = document.getElementById("modalTitle")
+const addUserBtn = document.getElementById("addUserBtn")
+const closeBtn = document.querySelector(".close")
+const userId = document.getElementById("userId")
+const userName = document.getElementById("userName")
+const userEmail = document.getElementById("userEmail")
+const userRole = document.getElementById("userRole")
+const userPassword = document.getElementById("userPassword")
+const passwordHelp = document.getElementById("passwordHelp")
 
 // Verificar si el usuario actual es administrador
 async function checkAdminAccess() {
     try {
+        console.log("Verificando acceso de administrador...")
+
         // Obtener el usuario actual
         const currentUser = auth.currentUser
+        console.log("Usuario actual:", currentUser ? currentUser.email : "No hay usuario")
 
         if (!currentUser) {
-            // Si no hay usuario autenticado, redirigir al login
-            alert("Debes iniciar sesión para acceder a esta página.")
-            window.location.href = "login.html"
-            return false
+            // Verificar si hay información en sessionStorage
+            const storedUser = sessionStorage.getItem("currentUser")
+            console.log("Usuario en sessionStorage:", storedUser)
+
+            if (!storedUser) {
+                console.log("No hay usuario autenticado, redirigiendo a login")
+                alert("Debes iniciar sesión para acceder a esta página.")
+                window.location.href = "login.html"
+                return false
+            }
+
+            // Intentar usar la información almacenada en sessionStorage
+            const userData = JSON.parse(storedUser)
+            if (userData.role === "admin") {
+                console.log("Usuario admin encontrado en sessionStorage")
+                return true
+            } else {
+                console.log("Usuario no es administrador, redirigiendo a ventas")
+                alert("No tienes permisos para acceder a esta página.")
+                window.location.href = "ventas.html"
+                return false
+            }
         }
 
         // Obtener el rol del usuario desde Firestore
         const userRole = await getUserRole(currentUser.uid)
+        console.log("Rol del usuario:", userRole)
 
         if (userRole !== "admin") {
             // Si el usuario no es administrador, redirigir a la página de ventas
+            console.log("Usuario no es administrador, redirigiendo a ventas")
             alert("No tienes permisos para acceder a esta página.")
             window.location.href = "ventas.html"
             return false
@@ -68,12 +86,17 @@ async function checkAdminAccess() {
 // Función para obtener el rol del usuario
 async function getUserRole(uid) {
     try {
+        console.log("Buscando rol para UID:", uid)
+
         // Primero intentamos obtener el documento del usuario directamente
         const userDoc = await getDoc(doc(db, "Users", uid))
 
         if (userDoc.exists()) {
-            return userDoc.data().role || "employee" // Si existe, devolvemos su rol o "employee" por defecto
+            console.log("Usuario encontrado por ID:", userDoc.data())
+            return userDoc.data().role || "employee"
         }
+
+        console.log("Usuario no encontrado por ID, buscando por uid...")
 
         // Si no encontramos el documento por ID, buscamos por uid
         const usersRef = collection(db, "Users")
@@ -81,44 +104,47 @@ async function getUserRole(uid) {
         const querySnapshot = await getDocs(q)
 
         if (!querySnapshot.empty) {
-            // Devolvemos el rol del primer documento que coincida
+            console.log("Usuario encontrado por uid:", querySnapshot.docs[0].data())
             return querySnapshot.docs[0].data().role || "employee"
         }
 
-        // Si no encontramos ningún documento, devolvemos "employee" por defecto
+        console.log("Usuario no encontrado en la base de datos")
         return "employee"
     } catch (error) {
         console.error("Error al obtener el rol del usuario:", error)
-        return "employee" // En caso de error, asumimos rol básico
+        return "employee"
     }
 }
-
-// Referencias a elementos del DOM
-const userTableBody = document.getElementById("userTableBody")
-const userModal = document.getElementById("userModal")
-const userForm = document.getElementById("userForm")
-const modalTitle = document.getElementById("modalTitle")
-const addUserBtn = document.getElementById("addUserBtn")
-const closeBtn = document.querySelector(".close")
-const userId = document.getElementById("userId")
-const userName = document.getElementById("userName")
-const userEmail = document.getElementById("userEmail")
-const userRole = document.getElementById("userRole")
-const userPassword = document.getElementById("userPassword")
-const passwordHelp = document.getElementById("passwordHelp")
 
 // Función para cargar usuarios desde Firestore
 async function loadUsers() {
     try {
+        console.log("Cargando usuarios desde Firestore...")
+
         // Verificar si el usuario tiene permisos de administrador
         const isAdmin = await checkAdminAccess()
         if (!isAdmin) return
 
+        // Limpiar la tabla antes de cargar los usuarios
+        userTableBody.innerHTML = ""
+
+        // Obtener usuarios de Firestore
         const usersRef = collection(db, "Users")
         const usersSnapshot = await getDocs(usersRef)
-        const usersList = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
 
-        userTableBody.innerHTML = ""
+        if (usersSnapshot.empty) {
+            console.log("No se encontraron usuarios en Firestore")
+            // Mostrar mensaje si no hay usuarios
+            const tr = document.createElement("tr")
+            tr.innerHTML = `
+                <td colspan="4" style="text-align: center;">No hay usuarios registrados</td>
+            `
+            userTableBody.appendChild(tr)
+            return
+        }
+
+        const usersList = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        console.log("Usuarios encontrados:", usersList)
 
         usersList.forEach((user) => {
             const tr = document.createElement("tr")
@@ -146,7 +172,7 @@ async function loadUsers() {
         })
 
         document.querySelectorAll(".delete-btn").forEach((button) => {
-            button.addEventListener("click", () => deleteUser(button.getAttribute("data-id")))
+            button.addEventListener("click", () => deleteUserRecord(button.getAttribute("data-id")))
         })
     } catch (error) {
         console.error("Error al cargar usuarios:", error)
@@ -191,7 +217,7 @@ async function editUser(id) {
 }
 
 // Función para eliminar un usuario
-async function deleteUser(id) {
+async function deleteUserRecord(id) {
     if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
         try {
             // Obtener datos del usuario
@@ -206,29 +232,14 @@ async function deleteUser(id) {
             const userData = userSnap.data()
 
             // Verificar si el usuario actual está intentando eliminarse a sí mismo
-            if (userData.uid === auth.currentUser.uid) {
+            const currentUser = auth.currentUser
+            if (currentUser && userData.uid === currentUser.uid) {
                 alert("No puedes eliminar tu propia cuenta.")
                 return
             }
 
             // Eliminar el documento de Firestore
             await deleteDoc(userRef)
-
-            // Si el usuario tiene un UID de autenticación, intentar eliminar también de Auth
-            if (userData.uid) {
-                try {
-                    // Necesitamos iniciar sesión temporalmente como el usuario para eliminarlo
-                    // Esto requeriría conocer su contraseña, lo cual no es práctico
-                    // En su lugar, podríamos usar Firebase Admin SDK en un backend
-
-                    // Por ahora, solo mostramos un mensaje informativo
-                    console.log(
-                        "Nota: El usuario ha sido eliminado de la base de datos, pero su cuenta de autenticación podría seguir existiendo.",
-                    )
-                } catch (authError) {
-                    console.error("Error al eliminar cuenta de autenticación:", authError)
-                }
-            }
 
             alert("Usuario eliminado exitosamente")
             loadUsers()
@@ -260,104 +271,55 @@ async function saveUser(e) {
                 return
             }
 
-            const userData = userSnap.data()
-
             // Actualizar datos en Firestore
-            const updatedData = {
+            await updateDoc(userRef, {
                 name,
                 role,
                 updatedAt: new Date(),
-            }
-
-            // Si el email ha cambiado, actualizarlo
-            if (email !== userData.email) {
-                updatedData.email = email
-
-                // Si el usuario tiene un UID de autenticación, intentar actualizar también en Auth
-                if (userData.uid) {
-                    try {
-                        // Esto requeriría iniciar sesión como el usuario o usar Firebase Admin SDK
-                        console.log(
-                            "Nota: El email ha sido actualizado en la base de datos, pero no en la cuenta de autenticación.",
-                        )
-                    } catch (authError) {
-                        console.error("Error al actualizar email en Auth:", authError)
-                    }
-                }
-            }
-
-            await updateDoc(userRef, updatedData)
-
-            // Si se proporcionó una nueva contraseña, intentar actualizarla
-            if (password) {
-                if (userData.uid) {
-                    try {
-                        // Esto requeriría iniciar sesión como el usuario o usar Firebase Admin SDK
-                        console.log(
-                            "Nota: La contraseña no puede ser actualizada desde aquí. El usuario deberá usar la opción 'Olvidé mi contraseña'.",
-                        )
-                    } catch (authError) {
-                        console.error("Error al actualizar contraseña en Auth:", authError)
-                    }
-                }
-            }
+            })
 
             alert("Usuario actualizado exitosamente")
+            closeModal()
+            loadUsers()
         } else {
             // Crear nuevo usuario
             try {
+                console.log("Creando nuevo usuario en Firebase Auth...")
+
                 // Crear usuario en Firebase Auth
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password)
                 const user = userCredential.user
+                console.log("Usuario creado en Auth:", user.uid)
 
                 // Guardar información adicional en Firestore
-                await addDoc(collection(db, "Users"), {
+                console.log("Guardando información en Firestore...")
+                const docRef = await addDoc(collection(db, "Users"), {
                     uid: user.uid,
                     name,
                     email,
                     role,
                     createdAt: new Date(),
                 })
+                console.log("Documento creado en Firestore con ID:", docRef.id)
 
                 alert("Usuario creado exitosamente")
-
-                // Volver a iniciar sesión con el usuario administrador original
-                // Esto requeriría guardar las credenciales del admin, lo cual no es seguro en el cliente
-                // En una implementación real, esto se manejaría con Firebase Admin SDK en un backend
+                closeModal()
+                loadUsers()
             } catch (authError) {
                 console.error("Error al crear usuario en Auth:", authError)
 
                 if (authError.code === "auth/email-already-in-use") {
-                    // Si el email ya existe, podemos intentar guardar en Firestore de todos modos
-                    await addDoc(collection(db, "Users"), {
-                        name,
-                        email,
-                        role,
-                        createdAt: new Date(),
-                    })
-
-                    alert(
-                        "Usuario guardado en la base de datos, pero el email ya está registrado en el sistema de autenticación.",
-                    )
+                    alert("El correo electrónico ya está en uso. Intenta con otro.")
+                } else if (authError.code === "auth/weak-password") {
+                    alert("La contraseña debe tener al menos 6 caracteres.")
                 } else {
-                    throw authError // Relanzar el error para que sea capturado por el catch exterior
+                    alert(`Error: ${authError.message}`)
                 }
             }
         }
-
-        closeModal()
-        loadUsers()
     } catch (error) {
         console.error("Error al guardar usuario:", error)
-
-        // Manejar diferentes tipos de errores
-        if (error.code === "auth/weak-password") {
-            alert("La contraseña debe tener al menos 6 caracteres.")
-        } else if (error.code === "auth/invalid-email") {
-            alert("El correo electrónico no es válido.")
-        } else {
-            alert("Error al guardar usuario. Intenta de nuevo.")
-        }
+        alert(`Error al guardar usuario: ${error.message}`)
     }
 }
 
@@ -387,6 +349,6 @@ document.addEventListener("keydown", (e) => {
 
 // Inicializar la tabla de usuarios al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("Página de usuarios cargada")
     loadUsers()
 })
-
