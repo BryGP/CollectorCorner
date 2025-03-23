@@ -1,8 +1,9 @@
-// js/usuarios.js
+// js/usuarios.js - Versión simplificada sin verificación de roles
 
 // Importar Firebase y Firestore
-import { auth, db } from "./firebase-config.js"
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"
 import {
+    getFirestore,
     collection,
     addDoc,
     getDocs,
@@ -10,10 +11,25 @@ import {
     deleteDoc,
     updateDoc,
     getDoc,
-    query,
-    where,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
-import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"
+
+// Configuración de Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyAO8AGH8-dAMktpeTUJ8k8YqZDsoykbqTM",
+    authDomain: "rti-collector-corner-1d6a7.firebaseapp.com",
+    projectId: "rti-collector-corner-1d6a7",
+    storageBucket: "rti-collector-corner-1d6a7.firebasestorage.app",
+    messagingSenderId: "357714788669",
+    appId: "1:357714788669:web:80a50e6d32fe4eed5dc554",
+}
+
+// Inicializar Firebase y Firestore
+console.log("Inicializando Firebase en usuarios.js...")
+const app = initializeApp(firebaseConfig)
+const auth = getAuth(app)
+const db = getFirestore(app)
+console.log("Firebase inicializado correctamente en usuarios.js")
 
 // Referencias a elementos del DOM
 const userTableBody = document.getElementById("userTableBody")
@@ -29,101 +45,10 @@ const userRole = document.getElementById("userRole")
 const userPassword = document.getElementById("userPassword")
 const passwordHelp = document.getElementById("passwordHelp")
 
-// Verificar si el usuario actual es administrador
-async function checkAdminAccess() {
-    try {
-        console.log("Verificando acceso de administrador...")
-
-        // Obtener el usuario actual
-        const currentUser = auth.currentUser
-        console.log("Usuario actual:", currentUser ? currentUser.email : "No hay usuario")
-
-        if (!currentUser) {
-            // Verificar si hay información en sessionStorage
-            const storedUser = sessionStorage.getItem("currentUser")
-            console.log("Usuario en sessionStorage:", storedUser)
-
-            if (!storedUser) {
-                console.log("No hay usuario autenticado, redirigiendo a login")
-                alert("Debes iniciar sesión para acceder a esta página.")
-                window.location.href = "login.html"
-                return false
-            }
-
-            // Intentar usar la información almacenada en sessionStorage
-            const userData = JSON.parse(storedUser)
-            if (userData.role === "admin") {
-                console.log("Usuario admin encontrado en sessionStorage")
-                return true
-            } else {
-                console.log("Usuario no es administrador, redirigiendo a ventas")
-                alert("No tienes permisos para acceder a esta página.")
-                window.location.href = "ventas.html"
-                return false
-            }
-        }
-
-        // Obtener el rol del usuario desde Firestore
-        const userRole = await getUserRole(currentUser.uid)
-        console.log("Rol del usuario:", userRole)
-
-        if (userRole !== "admin") {
-            // Si el usuario no es administrador, redirigir a la página de ventas
-            console.log("Usuario no es administrador, redirigiendo a ventas")
-            alert("No tienes permisos para acceder a esta página.")
-            window.location.href = "ventas.html"
-            return false
-        }
-
-        return true
-    } catch (error) {
-        console.error("Error al verificar permisos:", error)
-        alert("Error al verificar permisos. Por favor, intenta de nuevo.")
-        return false
-    }
-}
-
-// Función para obtener el rol del usuario
-async function getUserRole(uid) {
-    try {
-        console.log("Buscando rol para UID:", uid)
-
-        // Primero intentamos obtener el documento del usuario directamente
-        const userDoc = await getDoc(doc(db, "Users", uid))
-
-        if (userDoc.exists()) {
-            console.log("Usuario encontrado por ID:", userDoc.data())
-            return userDoc.data().role || "employee"
-        }
-
-        console.log("Usuario no encontrado por ID, buscando por uid...")
-
-        // Si no encontramos el documento por ID, buscamos por uid
-        const usersRef = collection(db, "Users")
-        const q = query(usersRef, where("uid", "==", uid))
-        const querySnapshot = await getDocs(q)
-
-        if (!querySnapshot.empty) {
-            console.log("Usuario encontrado por uid:", querySnapshot.docs[0].data())
-            return querySnapshot.docs[0].data().role || "employee"
-        }
-
-        console.log("Usuario no encontrado en la base de datos")
-        return "employee"
-    } catch (error) {
-        console.error("Error al obtener el rol del usuario:", error)
-        return "employee"
-    }
-}
-
 // Función para cargar usuarios desde Firestore
 async function loadUsers() {
     try {
         console.log("Cargando usuarios desde Firestore...")
-
-        // Verificar si el usuario tiene permisos de administrador
-        const isAdmin = await checkAdminAccess()
-        if (!isAdmin) return
 
         // Limpiar la tabla antes de cargar los usuarios
         userTableBody.innerHTML = ""
@@ -151,7 +76,7 @@ async function loadUsers() {
             tr.innerHTML = `
                 <td>${user.name || "Sin nombre"}</td>
                 <td>${user.email || "Sin correo"}</td>
-                <td>${user.role === "admin" ? "Administrador" : "Empleado"}</td>
+                <td>${user.rol === "admin" ? "Administrador" : "Empleado"}</td>
                 <td>
                     <div class="action-buttons">
                         <button class="edit-btn" data-id="${user.id}">
@@ -203,7 +128,7 @@ async function editUser(id) {
             userId.value = id
             userName.value = userData.name || ""
             userEmail.value = userData.email || ""
-            userRole.value = userData.role || "employee"
+            userRole.value = userData.rol || "employee" // Nota: campo 'rol' en lugar de 'role'
             userPassword.required = false
             passwordHelp.style.display = "block"
             userModal.style.display = "block"
@@ -220,27 +145,8 @@ async function editUser(id) {
 async function deleteUserRecord(id) {
     if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
         try {
-            // Obtener datos del usuario
-            const userRef = doc(db, "Users", id)
-            const userSnap = await getDoc(userRef)
-
-            if (!userSnap.exists()) {
-                alert("No se encontró el usuario.")
-                return
-            }
-
-            const userData = userSnap.data()
-
-            // Verificar si el usuario actual está intentando eliminarse a sí mismo
-            const currentUser = auth.currentUser
-            if (currentUser && userData.uid === currentUser.uid) {
-                alert("No puedes eliminar tu propia cuenta.")
-                return
-            }
-
             // Eliminar el documento de Firestore
-            await deleteDoc(userRef)
-
+            await deleteDoc(doc(db, "Users", id))
             alert("Usuario eliminado exitosamente")
             loadUsers()
         } catch (error) {
@@ -257,24 +163,18 @@ async function saveUser(e) {
     const id = userId.value
     const name = userName.value
     const email = userEmail.value
-    const role = userRole.value
+    const rol = userRole.value // Nota: campo 'rol' en lugar de 'role'
     const password = userPassword.value
 
     try {
         if (id) {
             // Editar usuario existente
             const userRef = doc(db, "Users", id)
-            const userSnap = await getDoc(userRef)
-
-            if (!userSnap.exists()) {
-                alert("No se encontró el usuario.")
-                return
-            }
 
             // Actualizar datos en Firestore
             await updateDoc(userRef, {
                 name,
-                role,
+                rol, // Nota: campo 'rol' en lugar de 'role'
                 updatedAt: new Date(),
             })
 
@@ -297,7 +197,7 @@ async function saveUser(e) {
                     uid: user.uid,
                     name,
                     email,
-                    role,
+                    rol, // Nota: campo 'rol' en lugar de 'role'
                     createdAt: new Date(),
                 })
                 console.log("Documento creado en Firestore con ID:", docRef.id)
