@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ventas</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <header>
-        <h1>Ventas</h1>
+        <h1>CollectorCorner</h1>
         <nav>
             <ul>
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="productos.html">Productos</a></li>
-                <li><a href="ventas.html">Ventas</a></li>
-                <li><a href="contacto.html">Contacto</a></li>
+            <li><a href="menu1.html">Inicio</a></li>
+            <li><a href="inventory.html">Productos</a></li>
+            <li><a href="ventas.html" class="active">Ventas</a></li>
+            <li><a href="login.html" class="logout-button">Cerrar Sesión</a></li>
             </ul>
         </nav>
     </header>
@@ -24,13 +26,13 @@
             <form action="/procesar-venta" method="POST">
                 <label for="producto">Producto:</label>
                 <input type="text" id="producto" name="producto" required>
-                
+
                 <label for="cantidad">Cantidad:</label>
                 <input type="number" id="cantidad" name="cantidad" required>
-                
+
                 <label for="precio">Precio:</label>
                 <input type="number" id="precio" name="precio" step="0.01" required>
-                
+
                 <button type="submit">Registrar Venta</button>
             </form>
         </section>
@@ -59,5 +61,7 @@
     <footer>
         <p>&copy; 2023 CollectorCorner</p>
     </footer>
+    <script type="module" src="js/ventas.js"></script>
 </body>
+
 </html>

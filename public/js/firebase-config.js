@@ -3,6 +3,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"
 import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
+import { appConfig, secureLog } from "./config.js"
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -15,10 +16,10 @@ const firebaseConfig = {
 }
 
 // Inicializar Firebase
-const app = initializeApp(firebaseConfig)
+secureLog("Inicializando Firebase...")
+const app = initializeApp(appConfig.firebase)
 const auth = getAuth(app)
 const db = getFirestore(app)
-
-console.log("Firebase inicializado correctamente")
+secureLog("Firebase inicializado correctamente")
 
 export { app, auth, db }

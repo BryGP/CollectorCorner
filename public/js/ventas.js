@@ -1,35 +1,33 @@
-// js/ventas.js
+// js/ventas.js - Página para empleados
 
-// Importar funciones de autenticación
 import { checkEmployeeAccess, logout } from "./auth-check.js"
 
-// Referencias a elementos del DOM
-const userNameElement = document.getElementById("userName")
-const logoutBtn = document.getElementById("logoutBtn")
-
-// Verificar acceso de empleado al cargar la página
 document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        // Verificar si el usuario está autenticado (al menos empleado)
-        const hasAccess = await checkEmployeeAccess()
+    console.log("Cargando página de ventas...")
 
-        if (hasAccess) {
-            // Obtener información del usuario desde sessionStorage
-            const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}")
+    // Verificar si el usuario está autenticado
+    const hasAccess = await checkEmployeeAccess()
+    if (!hasAccess) return // Si no tiene acceso, la función ya redirigió
 
-            // Mostrar información del usuario en la interfaz
-            if (currentUser.email) {
-                userNameElement.textContent = currentUser.email
-            }
+    console.log("Acceso verificado")
+
+    // Mostrar información del usuario
+    const userData = JSON.parse(sessionStorage.getItem("currentUser"))
+    if (userData) {
+        const userNameElement = document.getElementById("userName")
+        if (userNameElement) {
+            userNameElement.textContent = userData.email || ""
         }
-    } catch (error) {
-        console.error("Error al verificar acceso:", error)
+
+        const userRoleElement = document.getElementById("userRole")
+        if (userRoleElement) {
+            userRoleElement.textContent = userData.role === "admin" ? "Administrador" : "Empleado"
+        }
+    }
+
+    // Configurar botón de logout
+    const logoutBtn = document.getElementById("logoutBtn")
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout)
     }
 })
-
-// Event listener para el botón de cerrar sesión
-if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-        logout()
-    })
-}

@@ -13,6 +13,7 @@ import {
     getDoc,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"
+import { checkAdminAccess } from "./auth-check.js"
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -49,6 +50,10 @@ const passwordHelp = document.getElementById("passwordHelp")
 async function loadUsers() {
     try {
         console.log("Cargando usuarios desde Firestore...")
+
+        // Verificar si el usuario es administrador
+        const isAdmin = await checkAdminAccess()
+        if (!isAdmin) return // Si no es admin, la función ya redirigió
 
         // Limpiar la tabla antes de cargar los usuarios
         userTableBody.innerHTML = ""
