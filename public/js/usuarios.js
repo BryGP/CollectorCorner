@@ -1,7 +1,7 @@
 // js/usuarios.js - Versión simplificada sin verificación de roles
 
 // Importar Firebase y Firestore
-import { auth, db } from "./firebase-config"
+import { auth, db } from "./firebase-config.js"
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"
 import { checkAdminAccess } from "./auth-check.js"
 import {
