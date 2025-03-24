@@ -1,0 +1,301 @@
+/*
+ * CSS Cancelaciones / Devoluciones (Formato General)
+ */
+
+/* ======== VARIABLES DE COLOR ======== */
+:root {
+    --primary-color: #2C3E50;
+    /* Color principal para encabezados y acentos */
+    --secondary-color: #ECF0F1;
+    /* Color de fondo */
+    --accent-color: #fbce06;
+    /* Color de resaltado para botones */
+    --danger-color: #e74c3c;
+    /* Color para acciones de peligro */
+    --success-color: #27ae60;
+    /* Color para acciones exitosas */
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    /* Efecto de sombra para elementos */
+}
+
+/* ======== ESTILOS GLOBALES ======== */
+/* Estilos generales para el cuerpo */
+body {
+    font-family: 'Roboto', sans-serif;
+    /* Familia de fuente para toda la página */
+    background-color: var(--secondary-color);
+    /* Color de fondo */
+    margin: 0;
+    /* Elimina el margen predeterminado */
+    padding: 0;
+    /* Elimina el relleno predeterminado */
+}
+
+/* ======== ESTILOS DEL ENCABEZADO ======== */
+/* Estilos para la sección del encabezado */
+header {
+    background-color: var(--primary-color);
+    /* Color de fondo del encabezado */
+    color: #fff;
+    /* Color del texto */
+    padding: 1rem;
+    /* Espaciado interno del encabezado */
+    box-shadow: var(--shadow);
+    /* Agrega efecto de sombra */
+    display: flex;
+    /* Flexbox para el diseño */
+    justify-content: space-between;
+    /* Espacio entre elementos */
+    align-items: center;
+    /* Centra los elementos verticalmente */
+}
+
+/* ======== ESTILOS DEL CONTENIDO PRINCIPAL ======== */
+/* Estilos para el área de contenido principal */
+main {
+    padding: 2rem;
+    /* Espaciado alrededor del contenido principal */
+}
+
+/* ======== ESTILOS DEL CONTENEDOR ======== */
+/* Estilos para el contenedor que contiene el contenido */
+.container {
+    background-color: #fff;
+    /* Fondo blanco */
+    padding: 1.5rem;
+    /* Espaciado interno del contenedor */
+    border-radius: 8px;
+    /* Bordes redondeados */
+    box-shadow: var(--shadow);
+    /* Agrega efecto de sombra */
+    max-width: 1000px;
+    /* Ancho máximo */
+    margin: 0 auto;
+    /* Centra el contenedor */
+}
+
+/* ======== ESTILOS DE LA BARRA DE BÚSQUEDA ======== */
+/* Estilos para la barra de búsqueda */
+.search-bar {
+    display: flex;
+    /* Flexbox para el diseño */
+    justify-content: center;
+    /* Centra los elementos horizontalmente */
+    gap: 10px;
+    /* Espacio entre elementos */
+    margin-bottom: 20px;
+    /* Espacio debajo de la barra de búsqueda */
+}
+
+.search-bar input {
+    padding: 10px;
+    /* Espaciado interno del input */
+    border: 2px solid var(--primary-color);
+    /* Borde del input */
+    border-radius: 4px;
+    /* Bordes redondeados */
+}
+
+.search-bar button {
+    padding: 10px;
+    /* Espaciado interno del botón */
+    background-color: var(--accent-color);
+    /* Color de fondo del botón */
+    color: #fff;
+    /* Color del texto */
+    border: none;
+    /* Sin borde */
+    border-radius: 4px;
+    /* Bordes redondeados */
+    cursor: pointer;
+    /* Cambia el cursor al pasar sobre el botón */
+}
+
+/* ======== ESTILOS DE LA TABLA DE CANCELACIONES ======== */
+/* Estilos para la tabla de cancelaciones */
+.cancel-table {
+    width: 100%;
+    /* Ancho completo */
+    border-collapse: collapse;
+    /* Elimina los espacios entre bordes */
+}
+
+.cancel-table th,
+.cancel-table td {
+    padding: 10px;
+    /* Espaciado interno de las celdas */
+    border-bottom: 1px solid #ddd;
+    /* Borde inferior */
+}
+
+.cancel-table th {
+    background-color: var(--primary-color);
+    /* Color de fondo de los encabezados */
+    color: #fff;
+    /* Color del texto */
+}
+
+.cancel-table tbody tr:hover {
+    background-color: #f2f2f2;
+    /* Color de fondo al pasar el cursor */
+}
+
+/* ======== ESTILOS DE LOS BOTONES DE ACCIÓN ======== */
+/* Estilos para los botones de acción */
+.actions-btn {
+    padding: 6px 10px;
+    /* Espaciado interno */
+    background-color: var(--danger-color);
+    /* Color de fondo */
+    color: #fff;
+    /* Color del texto */
+    border-radius: 4px;
+    /* Bordes redondeados */
+    border: none;
+    /* Sin borde */
+    cursor: pointer;
+    /* Cambia el cursor al pasar sobre el botón */
+}
+
+/* ======== ESTILOS PERSONALIZADOS PARA BOTONES DE ACCIÓN ======== */
+/* Botón para acciones de peligro (Cancelar) */
+.danger-btn {
+    background-color: var(--danger-color);
+    /* Usa el color de peligro definido en las variables */
+    color: #fff;
+    /* Texto blanco */
+    padding: 10px 15px;
+    /* Espaciado interno */
+    border: none;
+    /* Sin borde */
+    border-radius: 4px;
+    /* Bordes redondeados */
+    cursor: pointer;
+    /* Cambia el cursor al pasar sobre el botón */
+    transition: background-color 0.3s ease;
+    /* Transición suave al cambiar el color */
+}
+
+/* Efecto hover para el botón de peligro */
+.danger-btn:hover {
+    background-color: #c0392b;
+    /* Color más oscuro al pasar el cursor */
+}
+
+/* Botón para acciones exitosas (Devolver) */
+.success-btn {
+    background-color: var(--success-color);
+    /* Usa el color de éxito definido en las variables */
+    color: #fff;
+    /* Texto blanco */
+    padding: 10px 15px;
+    /* Espaciado interno */
+    border: none;
+    /* Sin borde */
+    border-radius: 4px;
+    /* Bordes redondeados */
+    cursor: pointer;
+    /* Cambia el cursor al pasar sobre el botón */
+    transition: background-color 0.3s ease;
+    /* Transición suave al cambiar el color */
+}
+
+/* Efecto hover para el botón de éxito */
+.success-btn:hover {
+    background-color: #1e8449;
+    /* Color más oscuro al pasar el cursor */
+}
+
+/* ======== ESTILOS GENERALES PARA LOS BOTONES ======== */
+
+/* Botón base para acciones generales */
+.submit-btn {
+    font-size: 12px;
+    /* Tamaño de fuente */
+    font-weight: bold;
+    /* Texto en negrita */
+    text-transform: uppercase;
+    /* Texto en mayúsculas */
+    box-shadow: var(--shadow);
+    /* Sombra para dar profundidad */
+}
+
+/* ======== ESTILOS DEL MODAL ======== */
+/* Estilos para el modal */
+.modal {
+    display: none;
+    /* Oculta el modal por defecto */
+    position: fixed;
+    /* Posición fija */
+    z-index: 1000;
+    /* Nivel de superposición */
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Ancho completo */
+    height: 100%;
+    /* Alto completo */
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Fondo semitransparente */
+    justify-content: center;
+    /* Centra horizontalmente */
+    align-items: center;
+    /* Centra verticalmente */
+}
+
+.modal-content {
+    background-color: #fff;
+    /* Fondo blanco */
+    padding: 20px;
+    /* Espaciado interno */
+    border-radius: 8px;
+    /* Bordes redondeados */
+    box-shadow: var(--shadow);
+    /* Agrega efecto de sombra */
+    width: 90%;
+    /* Ancho relativo */
+    max-width: 400px;
+    /* Ancho máximo */
+    position: relative;
+    /* Posición relativa */
+}
+
+.close {
+    position: absolute;
+    /* Posición absoluta */
+    top: 10px;
+    /* Distancia desde la parte superior */
+    right: 15px;
+    /* Distancia desde la derecha */
+    cursor: pointer;
+    /* Cambia el cursor al pasar sobre el botón */
+}
+
+.confirm-btn {
+    background-color: var(--danger-color);
+    /* Color de fondo */
+    color: #fff;
+    /* Color del texto */
+    padding: 10px 15px;
+    /* Espaciado interno */
+    border: none;
+    /* Sin borde */
+    border-radius: 4px;
+    /* Bordes redondeados */
+    cursor: pointer;
+    /* Cambia el cursor al pasar sobre el botón */
+}
+
+/* ======== ESTILOS RESPONSIVOS ======== */
+/* Estilos para pantallas pequeñas */
+@media (max-width: 768px) {
+    .search-bar {
+        flex-direction: column;
+        /* Cambia la dirección a columna */
+    }
+
+    .search-btn {
+        width: 100%;
+        /* Ancho completo */
+    }
+}
