@@ -1,9 +1,10 @@
-// js/auth-check.js - Versión segura
+// js/auth-check.js - Versión actualizada para incluir el nombre
 
 // Importar Firebase
-import { auth, db } from "./firebase-config.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"
 import {
+    getFirestore,
     doc,
     getDoc,
     collection,
@@ -12,6 +13,21 @@ import {
     getDocs,
     addDoc,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
+
+// Configuración de Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyAO8AGH8-dAMktpeTUJ8k8YqZDsoykbqTM",
+    authDomain: "rti-collector-corner-1d6a7.firebaseapp.com",
+    projectId: "rti-collector-corner-1d6a7",
+    storageBucket: "rti-collector-corner-1d6a7.firebasestorage.app",
+    messagingSenderId: "357714788669",
+    appId: "1:357714788669:web:80a50e6d32fe4eed5dc554",
+}
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig)
+const auth = getAuth(app)
+const db = getFirestore(app)
 
 // Entorno de desarrollo o producción
 const isDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
@@ -44,6 +60,11 @@ export function checkAuth() {
             userData.rol = userRole
             userData.role = userRole
 
+            // Asegurarnos de que tenga un nombre
+            if (!userData.name) {
+                userData.name = userData.email ? userData.email.split("@")[0] : "Usuario"
+            }
+
             resolve(userData)
             return
         }
@@ -53,8 +74,9 @@ export function checkAuth() {
             if (user) {
                 secureLog("Usuario autenticado")
 
-                // Obtener rol del usuario directamente de Firestore
+                // Obtener datos completos del usuario directamente de Firestore
                 let userRole = "employee" // Valor por defecto
+                let userName = user.displayName || (user.email ? user.email.split("@")[0] : "Usuario")
 
                 try {
                     // Buscar por uid en la colección Users
@@ -65,11 +87,16 @@ export function checkAuth() {
                     if (!querySnapshot.empty) {
                         const userData = querySnapshot.docs[0].data()
 
-                        // Verificar explícitamente si existe el campo 'rol'
+                        // Verificar explícitamente si existe el campo 'rol' o 'role'
                         if (userData.rol) {
                             userRole = userData.rol
                         } else if (userData.role) {
                             userRole = userData.role
+                        }
+
+                        // Obtener el nombre si existe
+                        if (userData.name) {
+                            userName = userData.name
                         }
                     } else {
                         // Intentar buscar por ID directo
@@ -77,11 +104,16 @@ export function checkAuth() {
                         if (userDoc.exists()) {
                             const userData = userDoc.data()
 
-                            // Verificar explícitamente si existe el campo 'rol'
+                            // Verificar explícitamente si existe el campo 'rol' o 'role'
                             if (userData.rol) {
                                 userRole = userData.rol
                             } else if (userData.role) {
                                 userRole = userData.role
+                            }
+
+                            // Obtener el nombre si existe
+                            if (userData.name) {
+                                userName = userData.name
                             }
                         }
                     }
@@ -93,11 +125,13 @@ export function checkAuth() {
                 const userData = {
                     uid: user.uid,
                     email: user.email,
+                    name: userName,
                     role: userRole,
                     rol: userRole,
                 }
 
                 sessionStorage.setItem("currentUser", JSON.stringify(userData))
+                secureLog("Datos guardados en sessionStorage:", userData)
 
                 resolve(userData)
             } else {
@@ -174,11 +208,14 @@ export async function handleAuthOnlyUser(user) {
         if (querySnapshot.empty) {
             secureLog("Usuario existe solo en Auth, creando registro en Firestore")
 
+            // Crear un nombre por defecto a partir del email
+            const defaultName = user.email ? user.email.split("@")[0] : "Usuario"
+
             // Crear un registro básico en Firestore
             await addDoc(collection(db, "Users"), {
                 uid: user.uid,
                 email: user.email,
-                name: user.displayName || user.email.split("@")[0],
+                name: user.displayName || defaultName,
                 rol: "employee", // Por defecto, asignar rol de empleado
                 createdAt: new Date(),
                 authOnly: true, // Marcar que fue creado automáticamente

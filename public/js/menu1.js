@@ -1,6 +1,7 @@
 // js/menu1.js - Página principal para administradores
 
 import { checkAdminAccess, logout } from "./auth-check.js"
+import { displayUserInfo } from "./login.js"
 
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("Cargando página de menú principal...")
@@ -11,23 +12,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     console.log("Acceso de administrador verificado")
 
-    // Mostrar información del usuario
-    const userData = JSON.parse(sessionStorage.getItem("currentUser"))
-    if (userData) {
-        const userNameElement = document.getElementById("userName")
-        if (userNameElement) {
-            userNameElement.textContent = userData.email || ""
-        }
-
-        const userRoleElement = document.getElementById("userRole")
-        if (userRoleElement) {
-            userRoleElement.textContent = "Administrador"
-        }
-    }
+    // Mostrar información del usuario (usando la función centralizada)
+    displayUserInfo()
 
     // Configurar botón de logout
     const logoutBtn = document.getElementById("logoutBtn")
     if (logoutBtn) {
         logoutBtn.addEventListener("click", logout)
     }
+
+    // Animación para los botones del menú
+    const menuButtons = document.querySelectorAll(".dashboard-card")
+    menuButtons.forEach((button) => {
+        button.addEventListener("mouseenter", () => {
+            const icon = button.querySelector(".card-icon i")
+            if (icon) {
+                icon.classList.add("fa-beat")
+                setTimeout(() => {
+                    icon.classList.remove("fa-beat")
+                }, 500)
+            }
+        })
+    })
 })
