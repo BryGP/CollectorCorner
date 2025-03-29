@@ -6,7 +6,7 @@
 /* ======== IMPORTACIÓN DE FUENTES ======== */
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Racing+Sans+One&display=swap");
 
-/* ======== VARIABLES DE COLOR ======== */
+/* ======== VARIABLES Y MIXINS ======== */
 :root {
     --primary-red: #e61e25;
     --primary-blue: #1e5799;
@@ -17,6 +17,19 @@
     --black: #000000;
     --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* ======== ANIMACIONES ======== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ======== ESTILOS GENERALES ======== */
@@ -65,6 +78,11 @@ header {
     justify-content: center;
     color: var(--white);
     font-size: 1.5em;
+    transition: var(--transition);
+}
+
+.logo:hover .logo-icon {
+    transform: rotate(15deg) scale(1.1);
 }
 
 .logo-text h1 {
@@ -234,6 +252,19 @@ main {
     height: 200px;
     display: flex;
     flex-direction: column;
+    animation: fadeIn 0.6s ease-out backwards;
+}
+
+.dashboard-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.dashboard-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.dashboard-card:nth-child(3) {
+    animation-delay: 0.3s;
 }
 
 .dashboard-card:hover {
@@ -417,4 +448,17 @@ footer {
     .user-details {
         text-align: center;
     }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+button:focus,
+a:focus {
+    outline: 2px solid var(--accent-yellow);
+    outline-offset: 2px;
 }
