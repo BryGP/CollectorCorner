@@ -1,8 +1,8 @@
-/*
+/* ==========================
  * CSS Inventory (General Format)
- */
- 
- /* ======== VARIABLES DE COLOR ======== */
+ ========================== */
+
+/* ======== VARIABLES DE COLOR ======== */
 :root {
     --primary-color: #2C3E50;
     --secondary-color: #ECF0F1;
@@ -16,37 +16,35 @@
 
 /* ======== ESTILOS GENERALES ======== */
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     background-color: var(--secondary-color);
     margin: 0;
     padding: 0;
 }
 
-/* ======== HEADER ======== */
-header {
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
-    padding: 20px 40px;
-    text-align: center;
-    box-shadow: var(--shadow);
+/* ======== ANIMACIÓN DE ENTRADA ======== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -45%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
 }
 
-header .logo h2 {
-    margin: 0;
-    font-size: 1.8em;
-    color: var(--accent-color);
-}
-
-header .logo h1 {
-    margin: 10px 0;
-    font-size: 2.5em;
-    font-weight: bold;
-}
-
-nav a {
-    color: white;
-    text-decoration: none;
-    font-size: 16px;
+/* ======== BACKDROP (FONDO OSCURO) ======== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
 }
 
 /* ======== CONTENEDOR PRINCIPAL ======== */
@@ -101,7 +99,6 @@ nav a {
     flex-wrap: wrap;
 }
 
-/* Estilos para la barra de búsqueda */
 .search-bar input,
 .search-bar select {
     padding: 12px;
@@ -109,7 +106,7 @@ nav a {
     border-radius: 8px;
     transition: all 0.3s ease-in-out;
     font-size: 16px;
-    width: 250px; /* Ajusta el ancho */
+    width: 250px;
 }
 
 .search-bar input:focus,
@@ -141,7 +138,7 @@ nav a {
     font-size: 14px;
     font-weight: bold;
     background-color: var(--accent-color);
-    color: #fff;
+    color: #000000;
     border: none;
     transition: all 0.3s ease-in-out;
 }
@@ -153,16 +150,17 @@ nav a {
 /* ======== GRID DE PRODUCTOS Y CATEGORÍAS ======== */
 .inventory-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Ajuste dinámico */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 15px;
     justify-content: center;
     align-items: stretch;
     padding: 20px;
-    max-width: 90vw; /* Limita el ancho para evitar márgenes grandes */
+    max-width: 90vw;
 }
 
 /* ======== TARJETAS DE PRODUCTOS Y CATEGORÍAS ======== */
-.producto-item, .categoria-item {
+.producto-item,
+.categoria-item {
     background-color: white;
     border-radius: 10px;
     box-shadow: var(--shadow);
@@ -171,12 +169,14 @@ nav a {
     text-align: center;
 }
 
-.producto-item:hover, .categoria-item:hover {
+.producto-item:hover,
+.categoria-item:hover {
     transform: translateY(-5px);
     box-shadow: 4px 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-.producto-item h3, .categoria-item h3 {
+.producto-item h3,
+.categoria-item h3 {
     font-size: 20px;
     color: var(--primary-color);
     margin-bottom: 10px;
@@ -224,14 +224,16 @@ nav a {
 
 /* ======== MODALES MEJORADOS ======== */
 .modal {
-    display: none; /* Oculto por defecto */
+    display: none;
+    /* Oculto por defecto */
     position: fixed;
     z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro con transparencia */
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Fondo oscuro con transparencia */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -243,7 +245,8 @@ nav a {
     padding: 20px;
     border-radius: 10px;
     width: 90%;
-    max-width: 500px; /* Máximo tamaño del modal */
+    max-width: 500px;
+    /* Máximo tamaño del modal */
     text-align: center;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     position: relative;
@@ -326,7 +329,8 @@ nav a {
         padding: 8px 15px;
     }
 
-    .producto-item, .categoria-item {
+    .producto-item,
+    .categoria-item {
         padding: 12px;
     }
 
@@ -361,7 +365,8 @@ nav a {
         padding: 6px 10px;
     }
 
-    .producto-item, .categoria-item {
+    .producto-item,
+    .categoria-item {
         padding: 10px;
     }
 
@@ -399,7 +404,8 @@ nav a {
         font-size: 10px;
     }
 
-    .producto-item, .categoria-item {
+    .producto-item,
+    .categoria-item {
         padding: 8px;
     }
 

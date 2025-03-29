@@ -19,12 +19,23 @@
 
 <body>
     <header>
-        <div class="logo">
-            <h2>Collector's Corner</h2>
-            <h1>Inventario General</h1>
+        <div class="header-top">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Toy Garage</h1>
+                    <h2>Collector's Corner - Inventario General</h2>
+                </div>
+            </div>
         </div>
+
         <nav>
-            <a href="menu1.html">Volver al Menú</a>
+            <ul>
+                <li><a href="menu1.html"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="usuarios.html"><i class="fas fa-users"></i> Usuarios</a></li>
+            </ul>
         </nav>
     </header>
 
@@ -94,9 +105,39 @@
         </div>
     </div>
 
+    <!-- Modal para agregar usuarios -->
+    <div class="modal" id="userModal">
+        <div class="modal-header">
+            Añadir Nuevo Usuario
+            <button class="close">&times;</button>
+        </div>
+        <div class="modal-content">
+            <form>
+                <div class="form-group">
+                    <label for="userName">Nombre:</label>
+                    <input type="text" id="userName" placeholder="Ingrese el nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Correo:</label>
+                    <input type="email" id="userEmail" placeholder="Ingrese el correo" required>
+                </div>
+                <div class="form-group">
+                    <label for="userRole">Rol:</label>
+                    <select id="userRole">
+                        <option value="admin">Administrador</option>
+                        <option value="employee">Empleado</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="submit">Guardar</button>
+        </div>
+    </div>
+
     <!-- Scripts al final del body para asegurar que el DOM esté cargado -->
-    <script type="module" src="./js/firebase-config.js"></script>
-    <script type="module" src="./js/inventory.js"></script>
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/inventory.js"></script>
     <script>
         // Asegurarse de que los modales estén ocultos al cargar la página
         window.addEventListener('load', function () {
