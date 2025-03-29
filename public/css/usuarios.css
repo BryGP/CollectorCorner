@@ -1,0 +1,356 @@
+/* ==========================
+   CSS PARA GESTIÓN DE USUARIOS
+   ========================== */
+
+:root {
+    --primary-color: #2C3E50;
+    --secondary-color: #ECF0F1;
+    --accent-color: #fbce06;
+    --danger-color: #e74c3c;
+    --text-color: #333;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--secondary-color);
+    margin: 0;
+    padding: 0;
+    color: var(--text-color);
+}
+
+header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .logo {
+    text-align: left;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: normal;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+header nav a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+main {
+    padding: 2rem;
+}
+
+.container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* ========================== */
+/* ESTILOS PARA LA TABLA */
+/* ========================== */
+
+.table-container {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+}
+
+.employee-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+.employee-table th,
+.employee-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.employee-table th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
+}
+
+.employee-table tr:hover {
+    background-color: rgba(236, 240, 241, 0.5);
+}
+
+.employee-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* ========================== */
+/* BOTONES DE ACCIÓN */
+/* ========================== */
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.edit-btn,
+.delete-btn {
+    border: none;
+    border-radius: 4px;
+    padding: 0.4rem 0.6rem;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #2980b9;
+}
+
+.delete-btn {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #c0392b;
+}
+
+.edit-btn:active,
+.delete-btn:active {
+    transform: scale(0.95);
+}
+
+/* ========================== */
+/* BOTÓN PARA AÑADIR USUARIO */
+/* ========================== */
+
+.add-btn {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.add-btn:hover {
+    background-color: #e6bc05;
+}
+
+.add-btn:active {
+    transform: scale(0.98);
+}
+
+.add-btn i {
+    font-size: 1.1rem;
+}
+
+/* ========================== */
+/* ESTILOS DEL MODAL */
+/* ========================== */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close:hover {
+    color: var(--text-color);
+}
+
+#modalTitle {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+    outline: none;
+}
+
+.form-text {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+#saveUserBtn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#saveUserBtn:hover {
+    background-color: #1a2530;
+}
+
+/* ========================== */
+/* ESTILOS RESPONSIVOS */
+/* ========================== */
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+        padding: 1rem 0.5rem;
+    }
+
+    header .logo {
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+
+    main {
+        padding: 1rem;
+    }
+
+    .container {
+        padding: 1.5rem;
+    }
+
+    .employee-table th,
+    .employee-table td {
+        padding: 0.6rem 0.75rem;
+    }
+
+    .modal-content {
+        margin: 15% auto;
+        padding: 1.5rem;
+        width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .employee-table {
+        font-size: 0.9rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .add-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .modal-content {
+        padding: 1.25rem;
+    }
+
+    #modalTitle {
+        font-size: 1.3rem;
+    }
+}

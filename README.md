@@ -2,7 +2,7 @@
 
 ## Descripción
 
-Collector POS es un sistema de punto de venta (POS) diseñado para facilitar la gestión de ventas y el control de inventarios en negocios de cualquier tamaño. Este sistema permite a los usuarios realizar transacciones de manera eficiente, gestionar productos, y generar reportes detallados.
+Collector POS es un sistema de punto de venta (POS) diseñado para facilitar la gestión de ventas y el control de inventarios en negocios de cualquier tamaño. Este sistema permite a los usuarios realizar transacciones de manera eficiente, gestionar productos y generar reportes detallados.
 
 ## Características
 
@@ -13,37 +13,12 @@ Collector POS es un sistema de punto de venta (POS) diseñado para facilitar la 
 
 ## Construcción
 
-Collector POS está siendo desarrollado utilizando Firebase como backend, lo que proporciona una infraestructura escalable y segura. A continuación se detallan algunos de los componentes clave:
+Collector POS está siendo desarrollado como una aplicación web utilizando tecnologías modernas para garantizar escalabilidad y seguridad. Algunos de los componentes clave incluyen:
 
-- **Firebase Authentication**: Gestión de usuarios y autenticación segura.
-- **Firebase Firestore**: Base de datos NoSQL para almacenar información de productos, ventas y usuarios.
-- **Firebase Hosting**: Hospedaje del frontend de la aplicación.
-- **Firebase Functions**: Funciones serverless para lógica de negocio y operaciones complejas.
-
-## Instalación
-
-Para instalar y ejecutar Collector POS localmente, sigue estos pasos:
-
-1. Clona el repositorio:
-    ```sh
-    git clone https://github.com/tu-usuario/collector-pos.git
-    ```
-2. Navega al directorio del proyecto:
-    ```sh
-    cd collector-pos
-    ```
-3. Instala las dependencias:
-    ```sh
-    npm install
-    ```
-4. Configura Firebase con tus credenciales:
-    - Crea un proyecto en Firebase.
-    - Configura Firebase Authentication, Firestore y Hosting.
-    - Descarga el archivo `google-services.json` y colócalo en el directorio adecuado.
-5. Ejecuta la aplicación:
-    ```sh
-    npm start
-    ```
+- **Autenticación segura**: Gestión de usuarios y autenticación.
+- **Base de datos en tiempo real**: Almacenamiento de información de productos, ventas y usuarios.
+- **Hosting web**: Hospedaje del frontend de la aplicación.
+- **Funciones serverless**: Lógica de negocio y operaciones complejas.
 
 ## Contribuciones
 

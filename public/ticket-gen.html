@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Tickets - Collector's Corner</title>
+    <link rel="stylesheet" href="css/menu1.css">
+    <link rel="stylesheet" href="css/ticket-gen.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <h2>Toy Garaje</h2>
+            <h1>Tickets</h1>
+        </div>
+        <nav>
+            <a href="menu1.html">Volver al Menú</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="generator-section">
+                <h2>Datos de la Venta</h2>
+
+                <div class="form-group">
+                    <label for="cashierName">Cajero:</label>
+                    <input type="text" id="cashierName" value="Juan Pérez" readonly>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ticketDate">Fecha:</label>
+                        <input type="text" id="ticketDate" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticketTime">Hora:</label>
+                        <input type="text" id="ticketTime" readonly>
+                    </div>
+                </div>
+
+                <h3>Productos</h3>
+
+                <div class="products-table-container">
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <!-- Los productos se añadirán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="add-product-section">
+                    <h3>Añadir Producto</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productSelect">Producto:</label>
+                            <select id="productSelect">
+                                <option value="">Seleccionar producto...</option>
+                                <option value="Hot Wheels Ferrari F40" data-price="25.00">Hot Wheels Ferrari F40
+                                </option>
+                                <option value="Funko Pop Batman" data-price="150.00">Funko Pop Batman</option>
+                                <option value="Cartas Pokémon Serie Limitada" data-price="35.00">Cartas Pokémon Serie
+                                    Limitada</option>
+                                <option value="Figura Acción Star Wars" data-price="120.00">Figura Acción Star Wars
+                                </option>
+                                <option value="Cómic Edición Especial" data-price="85.00">Cómic Edición Especial
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="productPrice">Precio:</label>
+                            <input type="number" id="productPrice" step="0.01" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="productQuantity">Cantidad:</label>
+                            <input type="number" id="productQuantity" value="1" min="1">
+                        </div>
+                    </div>
+                    <button id="addProductBtn" class="add-btn">
+                        <i class="fas fa-plus"></i> Añadir Producto
+                    </button>
+                </div>
+
+                <div class="payment-section">
+                    <h3>Información de Pago</h3>
+                    <div class="totals">
+                        <div class="total-line">
+                            <span>Subtotal:</span>
+                            <span id="subtotalAmount">$0.00</span>
+                        </div>
+                        <div class="total-line">
+                            <span>IVA (16%):</span>
+                            <span id="taxAmount">$0.00</span>
+                        </div>
+                        <div class="total-line total-final">
+                            <span>TOTAL:</span>
+                            <span id="totalAmount">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="paymentMethod">Forma de pago:</label>
+                            <select id="paymentMethod">
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                                <option value="Tarjeta de Débito">Tarjeta de Débito</option>
+                                <option value="Transferencia">Transferencia</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="cashReceivedGroup">
+                            <label for="cashReceived">Efectivo recibido:</label>
+                            <input type="number" id="cashReceived" step="0.01" value="0">
+                        </div>
+                        <div class="form-group" id="changeGroup">
+                            <label for="change">Cambio:</label>
+                            <input type="text" id="change" value="$0.00" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button id="generateTicketBtn" class="primary-btn">
+                        <i class="fas fa-receipt"></i> Generar Ticket
+                    </button>
+                    <button id="clearFormBtn" class="secondary-btn">
+                        <i class="fas fa-trash"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h2>Vista Previa</h2>
+                <div class="ticket-preview">
+                    <iframe id="ticketFrame" src="ticket.html" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/ticket-gen.js"></script>
+</body>
+
+</html>

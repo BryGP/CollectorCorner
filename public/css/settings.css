@@ -1,0 +1,167 @@
+/* ==========================================
+   Configuraciones Generales - settings.css
+   ========================================== */
+
+/* ======== VARIABLES Y CONFIGURACIÓN GLOBAL ======== */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --accent-color: #1abc9c;
+    --hover-color: #16a085;
+    --text-color: #34495e;
+    --background-color: #f5f5f5;
+    --white-color: #ffffff;
+}
+
+/* ======== ESTILOS GENERALES ======== */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+}
+
+/* ======== HEADER ======== */
+header {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    padding: 20px;
+    text-align: center;
+}
+
+/* ======== MENÚ DE NAVEGACIÓN ======== */
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    background-color: var(--secondary-color);
+}
+
+nav ul li {
+    margin: 0 10px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: var(--white-color);
+    padding: 10px 15px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover {
+    background-color: var(--accent-color);
+}
+
+/* ======== CONTENIDO PRINCIPAL ======== */
+main {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: transparent;
+}
+
+/* ======== CONTENEDOR MODAL ======== */
+.modal-content {
+    background-color: var(--white-color);
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 150%;
+    /* Ancho del modal en porcentaje */
+    max-width: 1600px;
+    /* Ancho máximo más amplio */
+    margin: 30px auto;
+    padding: 2rem;
+    position: relative;
+    left: 50%;
+    /* Centra horizontalmente */
+    transform: translateX(-50%);
+    /* Ajusta el desplazamiento para centrar */
+}
+
+.modal-title {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    font-size: 1.6em;
+}
+
+/* ======== FORMULARIOS ======== */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-top: 0.8rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-top: 0.3rem;
+    box-sizing: border-box;
+}
+
+/* Eliminar flechas del input number */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* ======== BOTONES ======== */
+.submit-btn {
+    background-color: var(--accent-color);
+    color: var(--white-color);
+    border: none;
+    border-radius: 5px;
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: var(--hover-color);
+}
+
+/* ======== PIE DE PÁGINA ======== */
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+/* ======== RESPONSIVE DESIGN ======== */
+@media (max-width: 1024px) {
+    .modal-content {
+        max-width: 800px;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        max-width: 600px;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        max-width: 95%;
+        padding: 1rem;
+    }
+}
