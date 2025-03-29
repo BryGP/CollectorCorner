@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Inventario - Collector's Corner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Racing+Sans+One&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/inventorybasic.css">
+    <!-- Firebase SDK (versión compatibilidad) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <h2>Collector's Corner</h2>
+            <h1>Toy Garaje</h1>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="ventas-principal.html"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="#"><i class="fas fa-calendar-alt"></i> Calendario</a></li>
+            <li><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
+        </ul>
+    </nav>
+
+    <div class="contenedor-principal">
+        <div class="menu-lateral">
+            <button onclick="location.href='ventas-principal.html'">
+                <i class="fas fa-shopping-cart"></i> Ventas
+            </button>
+
+            <div class="dropdown">
+                <button>
+                    <i class="fas fa-calendar-check"></i> Apartado
+                </button>
+                <div class="dropdown-contenido">
+                    <button onclick="location.href='Apartado-nuevo.html'">
+                        <i class="fas fa-plus-circle"></i> Nuevo
+                    </button>
+                    <button onclick="location.href='Apartado-seguimiento.html'">
+                        <i class="fas fa-search-dollar"></i> Seguimiento
+                    </button>
+                    <button onclick="location.href='Apartado-finalizar.html'">
+                        <i class="fas fa-check-circle"></i> Finalizar
+                    </button>
+                </div>
+            </div>
+
+            <button onclick="location.href='consulta-inventario.html'">
+                <i class="fas fa-boxes"></i> Inventario
+            </button>
+        </div>
+
+        <div class="container">
+            <h2><i class="fas fa-search"></i> Consulta de Inventario</h2>
+
+            <!-- Loading indicator -->
+            <div id="loading" style="display: none; text-align: center; margin: 20px 0;">
+                <i class="fas fa-spinner fa-spin"></i> Cargando productos...
+            </div>
+
+            <div class="formulario-busqueda">
+                <input type="text" id="busqueda" placeholder="Buscar producto por nombre, código o descripción...">
+                <button id="btnBuscar" class="btn-primario">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+                <button id="btnActualizar" class="btn-secundario">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+            </div>
+
+            <div class="filtros">
+                <div>
+                    <label for="filtro-categoria">Categoría:</label>
+                    <select id="filtro-categoria">
+                        <option value="todas">Todas las categorías</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="filtro-stock">Estado de stock:</label>
+                    <select id="filtro-stock">
+                        <option value="todos">Todos</option>
+                        <option value="disponible">Disponible</option>
+                        <option value="agotado">Agotado</option>
+                        <option value="stock-bajo">Stock bajo</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="ordenar-por">Ordenar por:</label>
+                    <select id="ordenar-por">
+                        <option value="nombre-asc">Nombre (A-Z)</option>
+                        <option value="nombre-desc">Nombre (Z-A)</option>
+                        <option value="precio-asc">Precio (Menor a Mayor)</option>
+                        <option value="precio-desc">Precio (Mayor a Menor)</option>
+                        <option value="stock-asc">Stock (Menor a Mayor)</option>
+                        <option value="stock-desc">Stock (Mayor a Menor)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="estado-stock">
+                <div class="estado-item">
+                    <span id="total-productos">0</span>
+                    Productos totales
+                </div>
+                <div class="estado-item">
+                    <span id="productos-disponibles">0</span>
+                    Disponibles
+                </div>
+                <div class="estado-item">
+                    <span id="productos-agotados">0</span>
+                    Agotados
+                </div>
+                <div class="estado-item">
+                    <span id="productos-bajos">0</span>
+                    Stock bajo
+                </div>
+            </div>
+
+            <div class="tabla-container">
+                <table class="tabla-inventario">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body">
+                        <!-- Los datos se cargarán dinámicamente desde Firebase -->
+                        <tr>
+                            <td colspan="7">Cargando inventario...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="paginacion">
+                <button id="btnAnterior" disabled>&laquo; Anterior</button>
+                <span id="pagina-actual">1</span>
+                <button id="btnSiguiente">Siguiente &raquo;</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/inventorybasic.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,354 @@
+/* Estilos Base - Toy Garage */
+:root {
+    --primary-red: #e61e25;
+    --primary-blue: #1e5799;
+    --accent-yellow: #fbce06;
+    --dark-gray: #333333;
+    --light-gray: #f5f5f5;
+    --white: #ffffff;
+    --black: #000000;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+    line-height: 1.6;
+}
+
+/* HEADER CENTRADO */
+header {
+    background-color: var(--primary-red);
+    color: var(--white);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: center;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.logo h1 {
+    font-family: 'Racing Sans One', cursive;
+    margin: 0;
+    font-size: 2.2em;
+    color: var(--white);
+    letter-spacing: 1px;
+}
+
+.logo h2 {
+    margin: 5px 0 0 0;
+    font-size: 1em;
+    color: var(--accent-yellow);
+    font-weight: 400;
+}
+
+/* NAV SUPERIOR CENTRADO */
+nav {
+    background-color: var(--primary-blue);
+    padding: 12px 0;
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: center;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 25px;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--white);
+    font-weight: 600;
+    transition: var(--transition);
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+nav a:hover {
+    color: var(--accent-yellow);
+}
+
+nav i {
+    font-size: 1.1em;
+}
+
+/* CONTENEDOR PRINCIPAL */
+.contenedor-principal {
+    display: flex;
+    gap: 20px;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* MENU LATERAL - ESTILO FLOTANTE */
+.menu-lateral {
+    width: 250px;
+    background-color: var(--white);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+}
+
+.menu-lateral button {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    padding: 12px 15px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: left;
+    width: 100%;
+}
+
+.menu-lateral button:hover {
+    background-color: var(--primary-red);
+    transform: translateX(5px);
+}
+
+/* DROPDOWN DE APARTADOS */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-contenido {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 100%;
+    background-color: var(--white);
+    box-shadow: var(--shadow);
+    border-radius: 0 0 6px 6px;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.dropdown:hover .dropdown-contenido {
+    display: block;
+}
+
+.dropdown-contenido button {
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+    border-radius: 0;
+    text-align: left;
+    padding-left: 25px;
+}
+
+.dropdown-contenido button:hover {
+    background-color: var(--accent-yellow);
+    color: var(--dark-gray);
+    transform: none;
+}
+
+/* CONTENEDOR DE VENTAS */
+.container {
+    background-color: var(--white);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    flex-grow: 1;
+}
+
+.fecha-actual {
+    color: var(--primary-blue);
+    font-weight: 600;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+}
+
+.container h2 {
+    color: var(--primary-blue);
+    font-size: 1.5em;
+    margin-top: 0;
+    border-bottom: 2px solid var(--accent-yellow);
+    padding-bottom: 10px;
+    display: inline-block;
+}
+
+/* FORMULARIO DE VENTA */
+.campos-ventas {
+    border: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.campos-ventas>div {
+    margin-bottom: 15px;
+}
+
+.campos-ventas label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--primary-blue);
+}
+
+.campos-ventas input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: var(--transition);
+    box-sizing: border-box;
+}
+
+.campos-ventas input:focus {
+    border-color: var(--primary-blue);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(30, 87, 153, 0.2);
+}
+
+/* LISTA DE PRODUCTOS */
+.lista-productos {
+    margin: 25px 0;
+    background-color: var(--light-gray);
+    padding: 15px;
+    border-radius: 8px;
+    min-height: 100px;
+}
+
+.lista-productos h3 {
+    margin-top: 0;
+    color: var(--primary-blue);
+    font-size: 1.1em;
+}
+
+.lista-productos ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.lista-productos li {
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+/* BOTONES DE ACCIÓN */
+.botones-ventas {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.botones-ventas button {
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    min-width: 120px;
+}
+
+.botones-ventas button:nth-child(1) {
+    /* Agregar */
+    background-color: var(--primary-blue);
+    color: var(--white);
+}
+
+.botones-ventas button:nth-child(2) {
+    /* Pagar */
+    background-color: var(--primary-red);
+    color: var(--white);
+}
+
+.botones-ventas button:nth-child(3) {
+    /* Borrar */
+    background-color: var(--dark-gray);
+    color: var(--white);
+}
+
+.botones-ventas button:nth-child(4) {
+    /* Cancelar */
+    background-color: var(--accent-yellow);
+    color: var(--dark-gray);
+}
+
+.botones-ventas button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .contenedor-principal {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .menu-lateral {
+        width: auto;
+        position: static;
+        margin-bottom: 20px;
+    }
+
+    .dropdown-contenido {
+        position: static;
+        box-shadow: none;
+    }
+
+    nav ul {
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .botones-ventas {
+        gap: 8px;
+    }
+
+    .botones-ventas button {
+        padding: 10px 15px;
+        min-width: 100px;
+        font-size: 0.8em;
+    }
+}
+
+/* ACCESIBILIDAD */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+[aria-required="true"]::after {
+    content: " *";
+    color: var(--primary-red);
+}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Apartado</title>
+    <link rel="stylesheet" href="css/apartado-seguimiento.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Racing+Sans+One&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <h2>Collector's Corner</h2>
+            <h1>Toy Garaje</h1>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="ventas-principal.html"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="#"><i class="fas fa-calendar-alt"></i> Calendario</a></li>
+            <li><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
+        </ul>
+    </nav>
+
+    <!-- Contenedor Principal -->
+    <div class="contenedor-principal">
+        <!-- Menú Lateral -->
+        <div class="menu-lateral">
+            <button id="btn-ventas">
+                <i class="fas fa-shopping-cart"></i> Ventas
+            </button>
+
+            <!-- Botón de Apartado con Menú Flotante -->
+            <div class="dropdown">
+                <button>
+                    <i class="fas fa-calendar-check"></i> Apartado
+                </button>
+                <div class="dropdown-contenido">
+                    <button id="btn-nuevo-apartado">
+                        <i class="fas fa-plus-circle"></i> Nuevo
+                    </button>
+                    <button id="btn-seguimiento">
+                        <i class="fas fa-search-dollar"></i> Seguimiento
+                    </button>
+                    <button id="btn-finalizar">
+                        <i class="fas fa-check-circle"></i> Finalizar
+                    </button>
+                </div>
+            </div>
+            <button id="btn-inventario">
+                <i class="fas fa-boxes"></i> Inventario
+            </button>
+        </div>
+
+        <!-- Contenedor de Nuevo Apartado -->
+        <div class="container">
+            <!-- Fechas -->
+            <div class="fecha-actual" id="fecha-actual"></div>
+            <div class="fecha-limite" id="fecha-limite"></div>
+
+            <h2><i class="fas fa-plus-circle"></i> NUEVO APARTADO</h2>
+
+            <!-- Campos del Formulario -->
+            <div class="campos-ventas">
+                <div>
+                    <label for="articulo"><i class="fas fa-barcode"></i> Artículo (Código/Nombre):</label>
+                    <input type="text" id="articulo" placeholder="Ingrese el artículo">
+                </div>
+                <div>
+                    <label for="precio"><i class="fas fa-tag"></i> Precio:</label>
+                    <input type="number" id="precio" placeholder="Precio" readonly>
+                </div>
+                <div>
+                    <label for="descuento"><i class="fas fa-percentage"></i> Descuento (%):</label>
+                    <input type="number" id="descuento" placeholder="Descuento">
+                </div>
+                <div>
+                    <label for="total"><i class="fas fa-calculator"></i> Total:</label>
+                    <input type="number" id="total" placeholder="Total" readonly>
+                </div>
+                <div>
+                    <label for="porcentaje"><i class="fas fa-hand-holding-usd"></i> Anticipo (10%):</label>
+                    <input type="number" id="porcentaje" placeholder="Anticipo" readonly>
+                </div>
+                <div>
+                    <label for="cantidad"><i class="fas fa-money-bill-wave"></i> Cantidad Dada:</label>
+                    <input type="number" id="cantidad" placeholder="Cantidad">
+                </div>
+            </div>
+
+            <!-- Lista de Productos -->
+            <div class="lista-productos">
+                <h3><i class="fas fa-box-open"></i> Productos Seleccionados</h3>
+                <ul id="lista-productos">
+                    <li><i class="fas fa-info-circle"></i> Lista vacía - Aún no se han agregado productos.</li>
+                </ul>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="botones-ventas">
+                <button id="btn-registrar">
+                    <i class="fas fa-save"></i> Registrar
+                </button>
+                <button id="btn-borrar">
+                    <i class="fas fa-trash-alt"></i> Borrar
+                </button>
+                <button id="btn-cancelar">
+                    <i class="fas fa-times-circle"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/apartado-nuevo.js"></script>
+</body>
+
+</html>

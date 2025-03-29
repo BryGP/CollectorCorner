@@ -4,64 +4,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ventas</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="Sistema de ventas para Collector's Corner Toy Garaje">
+    <title>Sistema de Ventas | Toy Garaje</title>
+    <link rel="stylesheet" href="css/ventas-principal.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Racing+Sans+One&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
     <header>
-        <h1>CollectorCorner</h1>
-        <nav>
-            <ul>
-            <li><a href="menu1.html">Inicio</a></li>
-            <li><a href="inventory.html">Productos</a></li>
-            <li><a href="cancelaciones.html" class="active">Cancelar u Devolver</a></li>
-            <li><a href="login.html" class="logout-button">Cerrar Sesión</a></li>
-            </ul>
-        </nav>
+        <div class="logo">
+            <h2>Collector's Corner</h2>
+            <h1>Toy Garaje</h1>
+        </div>
     </header>
-    <main>
-        <section>
-            <h2>Registro de Ventas</h2>
-            <form action="/procesar-venta" method="POST">
-                <label for="producto">Producto:</label>
-                <input type="text" id="producto" name="producto" required>
 
-                <label for="cantidad">Cantidad:</label>
-                <input type="number" id="cantidad" name="cantidad" required>
+    <nav aria-label="Navegación principal">
+        <ul role="menu">
+            <li role="menuitem"><a href="ventas.html"><i class="fas fa-home"></i> Inicio</a></li>
+            <li role="menuitem"><a href="#"><i class="fas fa-calendar-alt"></i> Calendario</a></li>
+            <li role="menuitem"><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
+        </ul>
+    </nav>
 
-                <label for="precio">Precio:</label>
-                <input type="number" id="precio" name="precio" step="0.01" required>
+    <main class="contenedor-principal">
+        <aside class="menu-lateral" aria-label="Menú lateral">
+            <button type="button" onclick="location.href='ventas-principal.html'">
+                <i class="fas fa-shopping-cart"></i> Ventas
+            </button>
 
-                <button type="submit">Registrar Venta</button>
+            <div class="dropdown">
+                <button type="button">
+                    <i class="fas fa-calendar-check"></i> Apartado
+                </button>
+                <div class="dropdown-contenido" role="menu">
+                    <button type="button" onclick="location.href='Apartado-nuevo.html'">
+                        <i class="fas fa-plus-circle"></i> Nuevo
+                    </button>
+                    <button type="button" onclick="location.href='Apartado-seguimiento.html'">
+                        <i class="fas fa-search-dollar"></i> Seguimiento
+                    </button>
+                    <button type="button" onclick="location.href='Apartado-finalizar.html'">
+                        <i class="fas fa-check-circle"></i> Finalizar
+                    </button>
+                </div>
+            </div>
+            <button type="button" onclick="location.href='consulta-inventario.html'">
+                <i class="fas fa-boxes"></i> Inventario
+            </button>
+        </aside>
+
+        <article class="container">
+            <div class="fecha-actual" id="fecha-actual" aria-live="polite"></div>
+
+            <h2><i class="fas fa-cash-register"></i> MENÚ VENTAS</h2>
+
+            <form id="form-venta" novalidate>
+                <fieldset class="campos-ventas">
+                    <legend class="sr-only">Datos de la venta</legend>
+                    <div>
+                        <label for="articulo" aria-required="true"><i class="fas fa-barcode"></i> Artículo
+                            (Código/Nombre):</label>
+                        <input type="text" id="articulo" name="articulo" placeholder="Ingrese el artículo" required>
+                    </div>
+                    <div>
+                        <label for="precio"><i class="fas fa-tag"></i> Precio:</label>
+                        <input type="number" id="precio" name="precio" placeholder="Precio" readonly>
+                    </div>
+                    <div>
+                        <label for="descuento"><i class="fas fa-percentage"></i> Descuento (%):</label>
+                        <input type="number" id="descuento" name="descuento" placeholder="Descuento" min="0" max="100">
+                    </div>
+                    <div>
+                        <label for="total"><i class="fas fa-calculator"></i> Total:</label>
+                        <input type="number" id="total" name="total" placeholder="Total" readonly>
+                    </div>
+                </fieldset>
             </form>
-        </section>
-        <section>
-            <h2>Historial de Ventas</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Precio</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Ejemplo Producto</td>
-                        <td>2</td>
-                        <td>$10.00</td>
-                        <td>$20.00</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+
+            <section class="lista-productos" aria-live="polite">
+                <h3><i class="fas fa-box-open"></i> Productos Seleccionados</h3>
+                <ul id="lista-productos">
+                    <li><i class="fas fa-info-circle"></i> Lista vacía - Aún no se han agregado productos.</li>
+                </ul>
+            </section>
+
+            <div class="botones-ventas">
+                <button type="button" onclick="agregarProducto()">
+                    <i class="fas fa-plus"></i> Agregar
+                </button>
+                <button type="button" onclick="pagar()">
+                    <i class="fas fa-money-bill-wave"></i> Pagar
+                </button>
+                <button type="button" onclick="borrar()">
+                    <i class="fas fa-trash-alt"></i> Borrar
+                </button>
+                <button type="button" onclick="cancelar()">
+                    <i class="fas fa-times-circle"></i> Cancelar
+                </button>
+            </div>
+        </article>
     </main>
-    <footer>
-        <p>&copy; 2023 CollectorCorner</p>
-    </footer>
-    <script type="module" src="js/ventas.js"></script>
+
+    <script src="js/ventas-principal.js" defer></script>
 </body>
 
 </html>

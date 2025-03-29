@@ -1,0 +1,411 @@
+/* estilos-unificados.css - Versión solo consulta */
+
+:root {
+    /* Paleta de colores principal */
+    --primary-red: #e61e25;
+    --primary-blue: #1e5799;
+    --accent-yellow: #fbce06;
+    --dark-gray: #333333;
+    --light-gray: #f5f5f5;
+    --white: #ffffff;
+
+    /* Efectos visuales */
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Estructura base */
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+    line-height: 1.6;
+}
+
+/* Encabezado */
+header {
+    background-color: var(--primary-red);
+    color: var(--white);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: center;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.logo h1 {
+    font-family: 'Racing Sans One', cursive;
+    margin: 0;
+    font-size: 2.2em;
+    color: var(--white);
+    letter-spacing: 1px;
+}
+
+.logo h2 {
+    margin: 5px 0 0 0;
+    font-size: 1em;
+    color: var(--accent-yellow);
+    font-weight: 400;
+}
+
+/* Navegación principal */
+nav {
+    background-color: var(--primary-blue);
+    padding: 12px 0;
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: center;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 25px;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--white);
+    font-weight: 600;
+    transition: var(--transition);
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+nav a:hover {
+    color: var(--accent-yellow);
+}
+
+/* Contenedor principal */
+.contenedor-principal {
+    display: flex;
+    gap: 20px;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Menú lateral */
+.menu-lateral {
+    width: 250px;
+    background-color: var(--white);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+}
+
+.menu-lateral button {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    padding: 12px 15px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: left;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menu-lateral button:hover {
+    background-color: var(--primary-red);
+    transform: translateX(5px);
+}
+
+/* Dropdown del menú */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-contenido {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 100%;
+    background-color: var(--white);
+    box-shadow: var(--shadow);
+    border-radius: 0 0 6px 6px;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.dropdown:hover .dropdown-contenido {
+    display: block;
+}
+
+.dropdown-contenido button {
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+    border-radius: 0;
+    text-align: left;
+    padding-left: 25px;
+    width: 100%;
+}
+
+.dropdown-contenido button:hover {
+    background-color: var(--accent-yellow);
+    color: var(--dark-gray);
+    transform: none;
+}
+
+/* Contenido principal */
+.container {
+    background-color: var(--white);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    flex-grow: 1;
+}
+
+.container h2 {
+    color: var(--primary-blue);
+    font-size: 1.5em;
+    margin-top: 0;
+    border-bottom: 2px solid var(--accent-yellow);
+    padding-bottom: 10px;
+    display: inline-block;
+}
+
+/* Búsqueda */
+.formulario-busqueda {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.formulario-busqueda input {
+    flex-grow: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+    max-width: 500px;
+}
+
+.formulario-busqueda button {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.formulario-busqueda button:hover {
+    background-color: var(--primary-red);
+}
+
+/* Filtros */
+.filtros {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filtros>div {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filtros label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--primary-blue);
+    font-size: 0.9em;
+}
+
+.filtros select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+/* Estado del stock */
+.estado-stock {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: var(--light-gray);
+    border-radius: 8px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.estado-item {
+    text-align: center;
+    padding: 10px;
+    min-width: 120px;
+    flex: 1;
+}
+
+.estado-item span {
+    display: block;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--primary-blue);
+}
+
+/* Tabla de inventario */
+.tabla-container {
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+.tabla-inventario {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: var(--shadow);
+}
+
+.tabla-inventario th,
+.tabla-inventario td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-inventario th {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+}
+
+.tabla-inventario tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.tabla-inventario tr:hover {
+    background-color: rgba(251, 206, 6, 0.1);
+}
+
+/* Estados de stock en tabla */
+.stock-bajo {
+    color: var(--primary-red);
+    font-weight: bold;
+}
+
+.stock-normal {
+    color: #27ae60;
+}
+
+.stock-agotado {
+    color: var(--dark-gray);
+    font-style: italic;
+}
+
+/* Paginación */
+.paginacion {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 20px;
+}
+
+.paginacion button {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    min-width: 40px;
+}
+
+.paginacion button.active {
+    background-color: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
+}
+
+.paginacion button:hover:not(:disabled) {
+    background-color: #f1f1f1;
+}
+
+.paginacion button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .contenedor-principal {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .menu-lateral {
+        width: auto;
+        position: static;
+        margin-bottom: 20px;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .dropdown {
+        width: 100%;
+    }
+
+    .dropdown-contenido {
+        position: static;
+        box-shadow: none;
+    }
+
+    .formulario-busqueda input {
+        max-width: 100%;
+    }
+
+    .estado-item {
+        min-width: calc(50% - 20px);
+    }
+}
+
+@media (max-width: 480px) {
+    nav ul {
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .filtros>div {
+        min-width: 100%;
+    }
+
+    .paginacion {
+        flex-wrap: wrap;
+    }
+}
