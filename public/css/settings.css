@@ -1,114 +1,255 @@
-/* ==========================================
-   Configuraciones Generales - settings.css
-   ========================================== */
+/* ==========================
+ CSS PARA CONFIGURACIONES - Toy Garage
+ ========================== */
 
-/* ======== VARIABLES Y CONFIGURACIÓN GLOBAL ======== */
+/* ======== VARIABLES DE COLOR ======== */
 :root {
-    --primary-color: #2c3e50;
-    --secondary-color: #34495e;
-    --accent-color: #1abc9c;
-    --hover-color: #16a085;
-    --text-color: #34495e;
-    --background-color: #f5f5f5;
-    --white-color: #ffffff;
+    --primary-red: #e61e25;
+    --primary-blue: #1e5799;
+    --accent-yellow: #fbce06;
+    --dark-gray: #333333;
+    --light-gray: #f5f5f5;
+    --white: #ffffff;
+    --black: #000000;
+    --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 /* ======== ESTILOS GENERALES ======== */
 body {
-    font-family: Arial, sans-serif;
-    background-color: var(--background-color);
+    font-family: "Montserrat", sans-serif;
+    background-color: var(--light-gray);
     margin: 0;
     padding: 0;
+    color: var(--dark-gray);
 }
 
 /* ======== HEADER ======== */
 header {
-    background-color: var(--primary-color);
-    color: var(--white-color);
-    padding: 20px;
-    text-align: center;
-}
-
-/* ======== MENÚ DE NAVEGACIÓN ======== */
-nav ul {
-    list-style: none;
+    background-color: var(--white);
     padding: 0;
-    margin: 0;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-top {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-icon {
+    width: 50px;
+    height: 50px;
+    background-color: var(--primary-red);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    background-color: var(--secondary-color);
+    color: var(--white);
+    font-size: 1.5em;
 }
 
-nav ul li {
-    margin: 0 10px;
+.logo-text h1 {
+    font-family: "Racing Sans One", cursive;
+    margin: 0;
+    font-size: 1.8em;
+    color: var(--primary-red);
+    line-height: 1;
 }
 
-nav ul li a {
-    text-decoration: none;
-    color: var(--white-color);
-    padding: 10px 15px;
+.logo-text h2 {
+    margin: 0;
+    font-size: 0.8em;
+    color: var(--dark-gray);
+    font-weight: 400;
+}
+
+/* ======== USER INFO ======== */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+}
+
+.user-details {
+    text-align: right;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.user-role {
+    font-size: 0.8em;
+    color: #777;
+}
+
+.logout-btn {
+    background-color: transparent;
+    border: 1px solid var(--primary-red);
+    color: var(--primary-red);
+    padding: 8px 15px;
     border-radius: 4px;
-    transition: background-color 0.3s ease;
+    cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    font-size: 0.8em;
+    transition: var(--transition);
+    margin-left: 10px;
 }
 
-nav ul li a:hover {
-    background-color: var(--accent-color);
+.logout-btn:hover {
+    background-color: var(--primary-red);
+    color: var(--white);
+}
+
+/* ======== NAVBAR ======== */
+nav {
+    background-color: var(--white);
+    padding: 0 40px;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+nav li {
+    margin: 0;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--dark-gray);
+    font-weight: 600;
+    display: block;
+    padding: 15px 20px;
+    transition: var(--transition);
+    position: relative;
+    font-size: 0.9em;
+}
+
+nav a::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background-color: var(--primary-red);
+    transition: var(--transition);
+}
+
+nav a:hover {
+    color: var(--primary-red);
+}
+
+nav a:hover::after,
+nav a.active::after {
+    width: 100%;
+}
+
+nav a i {
+    margin-right: 8px;
 }
 
 /* ======== CONTENIDO PRINCIPAL ======== */
 main {
-    padding: 20px;
+    flex-grow: 1;
+    padding: 40px;
     max-width: 800px;
     margin: 0 auto;
-    background-color: transparent;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* ======== CONTENEDOR MODAL ======== */
 .modal-content {
-    background-color: var(--white-color);
+    background-color: var(--white);
     border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    width: 150%;
-    /* Ancho del modal en porcentaje */
-    max-width: 1600px;
-    /* Ancho máximo más amplio */
-    margin: 30px auto;
-    padding: 2rem;
-    position: relative;
-    left: 50%;
-    /* Centra horizontalmente */
-    transform: translateX(-50%);
-    /* Ajusta el desplazamiento para centrar */
+    box-shadow: var(--shadow);
+    width: 100%;
+    margin: 0 auto;
+    padding: 30px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .modal-title {
-    color: var(--primary-color);
-    border-bottom: 2px solid var(--accent-color);
-    padding-bottom: 5px;
-    margin-bottom: 15px;
-    font-size: 1.6em;
+    color: var(--primary-blue);
+    border-bottom: 2px solid var(--accent-yellow);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 1.4em;
+    font-weight: 600;
 }
 
 /* ======== FORMULARIOS ======== */
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 30px;
 }
 
 .form-group label {
     display: block;
-    margin-top: 0.8rem;
-    font-weight: bold;
-    color: var(--text-color);
+    margin-top: 15px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--dark-gray);
 }
 
 .form-group input,
 .form-group select {
     width: 100%;
-    padding: 0.8rem;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    margin-top: 0.3rem;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+    transition: all 0.3s ease;
     box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(30, 87, 153, 0.1);
+    outline: none;
 }
 
 /* Eliminar flechas del input number */
@@ -118,50 +259,103 @@ input[type="number"]::-webkit-outer-spin-button {
     margin: 0;
 }
 
-/* ======== BOTONES ======== */
-.submit-btn {
-    background-color: var(--accent-color);
-    color: var(--white-color);
+/* ======== BOTONES DE ACCIÓN ======== */
+.actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.primary-btn,
+.secondary-btn {
+    padding: 12px 20px;
     border: none;
-    border-radius: 5px;
-    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 600;
     cursor: pointer;
-    width: 100%;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.submit-btn:hover {
-    background-color: var(--hover-color);
+.primary-btn {
+    background-color: var(--primary-blue);
+    color: white;
+    flex: 2;
 }
 
-/* ======== PIE DE PÁGINA ======== */
-footer {
-    text-align: center;
-    padding: 10px;
-    background-color: var(--primary-color);
-    color: var(--white-color);
-    margin-top: 20px;
-    font-size: 14px;
+.primary-btn:hover {
+    background-color: #154360;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* ======== RESPONSIVE DESIGN ======== */
-@media (max-width: 1024px) {
-    .modal-content {
-        max-width: 800px;
-    }
+.secondary-btn {
+    background-color: #e0e0e0;
+    color: var(--dark-gray);
+    flex: 1;
 }
 
+.secondary-btn:hover {
+    background-color: #d0d0d0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ======== RESPONSIVE ======== */
 @media (max-width: 768px) {
+    .header-top {
+        flex-direction: column;
+        padding: 15px 20px;
+    }
+
+    .logo {
+        margin-bottom: 15px;
+    }
+
+    nav {
+        padding: 0 20px;
+    }
+
+    nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    nav a {
+        padding: 10px 15px;
+    }
+
+    main {
+        padding: 20px;
+    }
+
     .modal-content {
-        max-width: 600px;
-        padding: 1.5rem;
+        padding: 20px;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+        width: 100%;
     }
 }
 
 @media (max-width: 480px) {
     .modal-content {
-        max-width: 95%;
-        padding: 1rem;
+        padding: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .modal-title {
+        font-size: 1.2em;
     }
 }

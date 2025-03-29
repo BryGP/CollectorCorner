@@ -4,67 +4,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuraciones Generales</title>
+    <title>Configuraciones Generales - Toy Garage</title>
     <link rel="stylesheet" href="css/menu1.css">
     <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Racing+Sans+One&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
+    <!-- Encabezado adaptado exactamente como en las capturas -->
     <header>
-        <h1>Configuraciones Generales</h1>
+        <div class="header-top">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Toy Garage</h1>
+                    <h2>Collector's Corner - Configuración</h2>
+                </div>
+            </div>
+
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Bryan GP</div>
+                    <div class="user-role" id="userRole">Administrador</div>
+                </div>
+                <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <nav>
+            <ul>
+                <li><a href="menu1.html"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="usuarios.html"><i class="fas fa-users"></i> Usuarios</a></li>
+                <li><a href="settings.html" class="active"><i class="fas fa-cog"></i> Configuración</a></li>
+            </ul>
+        </nav>
     </header>
-    <nav>
-        <ul>
-            <li><a href="menu1.html">Inicio</a></li>
-            <li><a href="home.html">Cerrar Sesión</a></li>
-        </ul>
-    </nav>
+
+    <!-- Contenido principal -->
     <main>
         <div class="modal-content">
             <section class="form-group">
                 <h3 class="modal-title">General</h3>
-                <label>Idioma</label>
-                <select>
-                    <option>Español</option>
-                    <option>Inglés</option>
+                <label for="language">Idioma</label>
+                <select id="language">
+                    <option value="es">Español</option>
+                    <option value="en">Inglés</option>
                 </select>
             </section>
 
             <section class="form-group">
                 <h3 class="modal-title">Fiscal y Financiera</h3>
-                <label>Impuesto (%)</label>
-                <input type="number" placeholder="16.00">
-                <label>Tipo de Cambio (Opcional)</label>
-                <input type="number" placeholder="18.50">
+                <label for="taxRate">Impuesto (%)</label>
+                <input type="number" id="taxRate" placeholder="16.00" step="0.01" min="0" max="100">
+                <label for="exchangeRate">Tipo de Cambio (Opcional)</label>
+                <input type="number" id="exchangeRate" placeholder="18.50" step="0.01" min="0">
             </section>
 
             <section class="form-group">
                 <h3 class="modal-title">Inventario y Stock</h3>
-                <label>Aviso Stock Bajo (unidades)</label>
-                <input type="number" placeholder="5">
+                <label for="lowStockAlert">Aviso Stock Bajo (unidades)</label>
+                <input type="number" id="lowStockAlert" placeholder="5" min="1">
             </section>
 
             <section class="form-group">
                 <h3 class="modal-title">Impresión y Ticket</h3>
-                <label>Impresora Predeterminada</label>
-                <select>
-                    <option>Impresora del Sistema</option>
+                <label for="defaultPrinter">Impresora Predeterminada</label>
+                <select id="defaultPrinter">
+                    <option value="system">Impresora del Sistema</option>
                 </select>
-                <label>Formato Ticket</label>
-                <select>
-                    <option>Compacto</option>
-                    <option>Detallado</option>
+                <label for="ticketFormat">Formato Ticket</label>
+                <select id="ticketFormat">
+                    <option value="compact">Compacto</option>
+                    <option value="detailed">Detallado</option>
                 </select>
-                <label>Mensaje Personalizado Ticket</label>
-                <input type="text" placeholder="Gracias por tu compra">
+                <label for="ticketMessage">Mensaje Personalizado Ticket</label>
+                <input type="text" id="ticketMessage" placeholder="Gracias por tu compra">
             </section>
 
-            <button class="submit-btn">Guardar Cambios</button>
+            <div class="actions">
+                <button id="saveSettingsBtn" class="primary-btn">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+                <button id="resetSettingsBtn" class="secondary-btn">
+                    <i class="fas fa-undo"></i> Restablecer
+                </button>
+            </div>
         </div>
     </main>
+
     <footer>
         <p>&copy; 2024 RARITY TECH INNOVATIONS. Todos los derechos reservados.</p>
     </footer>
+
+    <!-- Scripts de módulos -->
+    <script type="module">
+        import { checkAdminAccess, logout } from "./js/auth-check.js";
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Verificar si el usuario es administrador
+            const isAdmin = await checkAdminAccess();
+            if (!isAdmin) return; // Si no es admin, la función ya redirigió
+
+            // Mostrar información del usuario
+            const userData = JSON.parse(sessionStorage.getItem("currentUser"));
+            if (userData) {
+                const userNameElement = document.getElementById("userName");
+                if (userNameElement) {
+                    userNameElement.textContent = userData.name || "";
+                }
+
+                const userRoleElement = document.getElementById("userRole");
+                if (userRoleElement) {
+                    userRoleElement.textContent = userData.role === "admin" ? "Administrador" : "Empleado";
+                }
+            }
+
+            // Configurar botón de logout
+            const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", logout);
+            }
+        });
+    </script>
+    <script type="module" src="js/settings.js"></script>
+    <script type="module" src="js/config.js"></script>
+    <script type="module" src="js/security.js"></script>
 </body>
 
 </html>
