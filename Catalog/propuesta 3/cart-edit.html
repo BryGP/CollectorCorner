@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Carrito - Carritos Coleccionables a Escala</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <h1>Carritos Coleccionables</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="#">Nosotros</a></li>
+                <li><a href="#">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="cart-edit-page">
+        <h2>Tu Carrito</h2>
+        
+        <div class="cart-items-list" id="cart-items-container">
+            <!-- Los items del carrito se cargarán dinámicamente aquí -->
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Cargando carrito...</p>
+            </div>
+        </div>
+        
+        <div class="cart-edit-total">
+            <span>Total:</span>
+            <span id="cart-edit-total-amount">$0.00</span>
+        </div>
+        
+        <button id="order-button" class="order-button">Ordenar</button>
+    </main>
+
+    <!-- Lightbox para resumen de orden -->
+    <div id="order-summary-lightbox" class="lightbox">
+        <div class="lightbox-content">
+            <button id="close-order-summary" class="close-lightbox"><i class="fas fa-times"></i></button>
+            <div class="order-summary">
+                <h2>Resumen</h2>
+                
+                <div class="summary-products">
+                    <h3>Productos</h3>
+                    <div id="summary-products-list">
+                        <!-- Los productos se cargarán dinámicamente aquí -->
+                    </div>
+                </div>
+                
+                <div class="summary-total">
+                    <span>Total:</span>
+                    <span id="summary-total-amount">$0.00</span>
+                </div>
+                
+                <div class="customer-info">
+                    <h3>Información de contacto</h3>
+                    <form id="customer-info-form">
+                        <div class="form-group">
+                            <label for="customer-name">Nombre completo: <span class="required">*</span></label>
+                            <input type="text" id="customer-name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="customer-email">Correo electrónico: <span class="required">*</span></label>
+                            <input type="email" id="customer-email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="customer-phone">Número de celular: <span class="required">*</span></label>
+                            <input type="tel" id="customer-phone" required>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" id="generate-ticket" class="form-button" disabled>Generar boleto</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox para confirmación de boleto -->
+    <div id="ticket-confirmation-lightbox" class="lightbox">
+        <div class="lightbox-content">
+            <div class="ticket-confirmation">
+                <!-- El contenido del boleto se generará dinámicamente aquí -->
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay" class="overlay"></div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Carritos Coleccionables</h3>
+                <p>Tu tienda especializada en modelos a escala</p>
+            </div>
+            <div class="footer-section">
+                <h3>Enlaces</h3>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="#">Nosotros</a></li>
+                    <li><a href="#">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <p>Email: info@carritoscoleccionables.com</p>
+                <p>Teléfono: (123) 456-7890</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Carritos Coleccionables. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts de Firebase -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="cart-edit.js"></script>
+</body>
+</html>
+
