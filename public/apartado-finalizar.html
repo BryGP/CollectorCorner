@@ -7,7 +7,9 @@
     <title>Finalizar Apartado</title>
     <link rel="stylesheet" href="css/apartado-seguimiento.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Racing+Sans+One&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Racing+Sans+One&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
@@ -18,11 +20,11 @@
         </div>
     </header>
 
-    <nav>
-        <ul>
-            <li><a href="ventas-principal.html"><i class="fas fa-home"></i> Inicio</a></li>
-            <li><a href="#"><i class="fas fa-calendar-alt"></i> Calendario</a></li>
-            <li><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
+    <nav aria-label="Navegación principal">
+        <ul role="menu">
+            <li role="menuitem"><a href="ventas.html"><i class="fas fa-home"></i> Inicio</a></li>
+            <li role="menuitem"><a href="cancelaciones.html"><i class="fas fa-ban"></i> Cancelaciones</a></li>
+            <li role="menuitem"><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
         </ul>
     </nav>
 
@@ -30,7 +32,7 @@
     <div class="contenedor-principal">
         <!-- Menú Lateral -->
         <div class="menu-lateral">
-            <button onclick="location.href='ventas-principal.html'">
+            <button onclick="location.href='ventas.html'">
                 <i class="fas fa-shopping-cart"></i> Ventas
             </button>
 
@@ -40,13 +42,13 @@
                     <i class="fas fa-calendar-check"></i> Apartado
                 </button>
                 <div class="dropdown-contenido">
-                    <button onclick="location.href='Apartado-nuevo.html'">
+                    <button onclick="location.href='apartado-nuevo.html'">
                         <i class="fas fa-plus-circle"></i> Nuevo
                     </button>
-                    <button onclick="location.href='Apartado-seguimiento.html'">
+                    <button onclick="location.href='apartado-seguimiento.html'">
                         <i class="fas fa-search-dollar"></i> Seguimiento
                     </button>
-                    <button onclick="location.href='Apartado-finalizar.html'">
+                    <button onclick="location.href='apartado-finalizar.html'">
                         <i class="fas fa-check-circle"></i> Finalizar
                     </button>
                 </div>
