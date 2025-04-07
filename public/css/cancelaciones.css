@@ -1,301 +1,296 @@
-/*
- * CSS Cancelaciones / Devoluciones (Formato General)
- */
+/* ==========================
+  CSS PARA CANCELACIONES - Toy Garage
+  ========================== */
 
 /* ======== VARIABLES DE COLOR ======== */
 :root {
-    --primary-color: #2C3E50;
-    /* Color principal para encabezados y acentos */
-    --secondary-color: #ECF0F1;
-    /* Color de fondo */
-    --accent-color: #fbce06;
-    /* Color de resaltado para botones */
+    --primary-red: #e61e25;
+    --primary-blue: #1e5799;
+    --dark-blue: #2c3e50;
+    --secondary-color: #ffffff;
+    --accent-yellow: #fbce06;
+    --text-color: #ffffff;
+    --text-dark: #333333;
+    --hover-color: #d4ac0d;
+    --shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    --card-bg: #f8f9fa;
     --danger-color: #e74c3c;
-    /* Color para acciones de peligro */
-    --success-color: #27ae60;
-    /* Color para acciones exitosas */
-    --shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    /* Efecto de sombra para elementos */
+    --success-color: #2ecc71;
 }
 
-/* ======== ESTILOS GLOBALES ======== */
-/* Estilos generales para el cuerpo */
+/* ======== ESTILOS GENERALES ======== */
 body {
-    font-family: 'Roboto', sans-serif;
-    /* Familia de fuente para toda la página */
-    background-color: var(--secondary-color);
-    /* Color de fondo */
+    font-family: "Montserrat", sans-serif;
+    background-color: #f5f5f5;
     margin: 0;
-    /* Elimina el margen predeterminado */
     padding: 0;
-    /* Elimina el relleno predeterminado */
+    color: var(--text-dark);
 }
 
-/* ======== ESTILOS DEL ENCABEZADO ======== */
-/* Estilos para la sección del encabezado */
-header {
-    background-color: var(--primary-color);
-    /* Color de fondo del encabezado */
-    color: #fff;
-    /* Color del texto */
-    padding: 1rem;
-    /* Espaciado interno del encabezado */
-    box-shadow: var(--shadow);
-    /* Agrega efecto de sombra */
-    display: flex;
-    /* Flexbox para el diseño */
-    justify-content: space-between;
-    /* Espacio entre elementos */
-    align-items: center;
-    /* Centra los elementos verticalmente */
-}
-
-/* ======== ESTILOS DEL CONTENIDO PRINCIPAL ======== */
-/* Estilos para el área de contenido principal */
+/* ======== CONTENIDO PRINCIPAL ======== */
 main {
-    padding: 2rem;
-    /* Espaciado alrededor del contenido principal */
-}
-
-/* ======== ESTILOS DEL CONTENEDOR ======== */
-/* Estilos para el contenedor que contiene el contenido */
-.container {
-    background-color: #fff;
-    /* Fondo blanco */
-    padding: 1.5rem;
-    /* Espaciado interno del contenedor */
-    border-radius: 8px;
-    /* Bordes redondeados */
-    box-shadow: var(--shadow);
-    /* Agrega efecto de sombra */
-    max-width: 1000px;
-    /* Ancho máximo */
+    padding: 20px;
+    max-width: 1400px;
     margin: 0 auto;
-    /* Centra el contenedor */
 }
 
-/* ======== ESTILOS DE LA BARRA DE BÚSQUEDA ======== */
-/* Estilos para la barra de búsqueda */
+.container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 1.8em;
+    color: var(--text-dark);
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+/* ======== TABLA DE USUARIOS (ESTILO IGUAL A USUARIOS.CSS) ======== */
+.table-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.employee-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+.employee-table th {
+    background-color: var(--dark-blue);
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.employee-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.employee-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* ======== BOTONES DE ACCIÓN ======== */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.cancel-btn,
+.return-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cancel-btn {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.return-btn {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.return-btn:hover {
+    background-color: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Botones deshabilitados */
+.cancel-btn.disabled,
+.return-btn.disabled,
+.cancel-btn[disabled],
+.return-btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ======== BARRA DE BÚSQUEDA ======== */
 .search-bar {
     display: flex;
-    /* Flexbox para el diseño */
-    justify-content: center;
-    /* Centra los elementos horizontalmente */
     gap: 10px;
-    /* Espacio entre elementos */
     margin-bottom: 20px;
-    /* Espacio debajo de la barra de búsqueda */
+    flex-wrap: wrap;
 }
 
-.search-bar input {
-    padding: 10px;
-    /* Espaciado interno del input */
-    border: 2px solid var(--primary-color);
-    /* Borde del input */
-    border-radius: 4px;
-    /* Bordes redondeados */
-}
-
-.search-bar button {
-    padding: 10px;
-    /* Espaciado interno del botón */
-    background-color: var(--accent-color);
-    /* Color de fondo del botón */
-    color: #fff;
-    /* Color del texto */
-    border: none;
-    /* Sin borde */
-    border-radius: 4px;
-    /* Bordes redondeados */
-    cursor: pointer;
-    /* Cambia el cursor al pasar sobre el botón */
-}
-
-/* ======== ESTILOS DE LA TABLA DE CANCELACIONES ======== */
-/* Estilos para la tabla de cancelaciones */
-.cancel-table {
-    width: 100%;
-    /* Ancho completo */
-    border-collapse: collapse;
-    /* Elimina los espacios entre bordes */
-}
-
-.cancel-table th,
-.cancel-table td {
-    padding: 10px;
-    /* Espaciado interno de las celdas */
-    border-bottom: 1px solid #ddd;
-    /* Borde inferior */
-}
-
-.cancel-table th {
-    background-color: var(--primary-color);
-    /* Color de fondo de los encabezados */
-    color: #fff;
-    /* Color del texto */
-}
-
-.cancel-table tbody tr:hover {
-    background-color: #f2f2f2;
-    /* Color de fondo al pasar el cursor */
-}
-
-/* ======== ESTILOS DE LOS BOTONES DE ACCIÓN ======== */
-/* Estilos para los botones de acción */
-.actions-btn {
-    padding: 6px 10px;
-    /* Espaciado interno */
-    background-color: var(--danger-color);
-    /* Color de fondo */
-    color: #fff;
-    /* Color del texto */
-    border-radius: 4px;
-    /* Bordes redondeados */
-    border: none;
-    /* Sin borde */
-    cursor: pointer;
-    /* Cambia el cursor al pasar sobre el botón */
-}
-
-/* ======== ESTILOS PERSONALIZADOS PARA BOTONES DE ACCIÓN ======== */
-/* Botón para acciones de peligro (Cancelar) */
-.danger-btn {
-    background-color: var(--danger-color);
-    /* Usa el color de peligro definido en las variables */
-    color: #fff;
-    /* Texto blanco */
+.search-input {
+    flex: 1;
+    min-width: 200px;
     padding: 10px 15px;
-    /* Espaciado interno */
-    border: none;
-    /* Sin borde */
+    border: 1px solid #ddd;
     border-radius: 4px;
-    /* Bordes redondeados */
-    cursor: pointer;
-    /* Cambia el cursor al pasar sobre el botón */
-    transition: background-color 0.3s ease;
-    /* Transición suave al cambiar el color */
+    font-size: 1em;
 }
 
-/* Efecto hover para el botón de peligro */
-.danger-btn:hover {
-    background-color: #c0392b;
-    /* Color más oscuro al pasar el cursor */
-}
-
-/* Botón para acciones exitosas (Devolver) */
-.success-btn {
-    background-color: var(--success-color);
-    /* Usa el color de éxito definido en las variables */
-    color: #fff;
-    /* Texto blanco */
+.filter-select {
+    min-width: 150px;
     padding: 10px 15px;
-    /* Espaciado interno */
-    border: none;
-    /* Sin borde */
+    border: 1px solid #ddd;
     border-radius: 4px;
-    /* Bordes redondeados */
+    font-size: 1em;
+}
+
+.search-btn {
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
     cursor: pointer;
-    /* Cambia el cursor al pasar sobre el botón */
-    transition: background-color 0.3s ease;
-    /* Transición suave al cambiar el color */
-}
-
-/* Efecto hover para el botón de éxito */
-.success-btn:hover {
-    background-color: #1e8449;
-    /* Color más oscuro al pasar el cursor */
-}
-
-/* ======== ESTILOS GENERALES PARA LOS BOTONES ======== */
-
-/* Botón base para acciones generales */
-.submit-btn {
-    font-size: 12px;
-    /* Tamaño de fuente */
     font-weight: bold;
-    /* Texto en negrita */
-    text-transform: uppercase;
-    /* Texto en mayúsculas */
-    box-shadow: var(--shadow);
-    /* Sombra para dar profundidad */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s;
 }
 
-/* ======== ESTILOS DEL MODAL ======== */
-/* Estilos para el modal */
+.search-btn:hover {
+    background-color: #154360;
+}
+
+/* ======== MODAL ======== */
 .modal {
     display: none;
-    /* Oculta el modal por defecto */
     position: fixed;
-    /* Posición fija */
     z-index: 1000;
-    /* Nivel de superposición */
     left: 0;
     top: 0;
     width: 100%;
-    /* Ancho completo */
     height: 100%;
-    /* Alto completo */
     background-color: rgba(0, 0, 0, 0.5);
-    /* Fondo semitransparente */
-    justify-content: center;
-    /* Centra horizontalmente */
-    align-items: center;
-    /* Centra verticalmente */
+    overflow: auto;
 }
 
 .modal-content {
-    background-color: #fff;
-    /* Fondo blanco */
+    background-color: white;
+    margin: 10% auto;
     padding: 20px;
-    /* Espaciado interno */
     border-radius: 8px;
-    /* Bordes redondeados */
-    box-shadow: var(--shadow);
-    /* Agrega efecto de sombra */
     width: 90%;
-    /* Ancho relativo */
-    max-width: 400px;
-    /* Ancho máximo */
+    max-width: 500px;
     position: relative;
-    /* Posición relativa */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .close {
     position: absolute;
-    /* Posición absoluta */
     top: 10px;
-    /* Distancia desde la parte superior */
     right: 15px;
-    /* Distancia desde la derecha */
+    font-size: 24px;
+    font-weight: bold;
+    color: #aaa;
     cursor: pointer;
-    /* Cambia el cursor al pasar sobre el botón */
+}
+
+.close:hover {
+    color: var(--danger-color);
+}
+
+.modal h3 {
+    margin-top: 0;
+    color: var(--dark-blue);
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
 .confirm-btn {
-    background-color: var(--danger-color);
-    /* Color de fondo */
-    color: #fff;
-    /* Color del texto */
+    background-color: var(--primary-blue);
+    color: white;
     padding: 10px 15px;
-    /* Espaciado interno */
     border: none;
-    /* Sin borde */
     border-radius: 4px;
-    /* Bordes redondeados */
     cursor: pointer;
-    /* Cambia el cursor al pasar sobre el botón */
+    font-size: 1em;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 10px;
+    transition: background-color 0.3s;
 }
 
-/* ======== ESTILOS RESPONSIVOS ======== */
-/* Estilos para pantallas pequeñas */
+.confirm-btn:hover {
+    background-color: #154360;
+}
+
+.danger-btn {
+    background-color: var(--danger-color);
+}
+
+.danger-btn:hover {
+    background-color: #c0392b;
+}
+
+.success-btn {
+    background-color: var(--success-color);
+}
+
+.success-btn:hover {
+    background-color: #27ae60;
+}
+
+/* ======== RESPONSIVE ======== */
 @media (max-width: 768px) {
-    .search-bar {
+    header {
         flex-direction: column;
-        /* Cambia la dirección a columna */
+        text-align: center;
+        padding: 15px 10px;
     }
 
+    .logo {
+        margin-bottom: 10px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .cancel-btn,
+    .return-btn {
+        width: 100%;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 20% auto;
+    }
+
+    .search-bar {
+        flex-direction: column;
+    }
+
+    .search-input,
+    .filter-select,
     .search-btn {
         width: 100%;
-        /* Ancho completo */
     }
 }

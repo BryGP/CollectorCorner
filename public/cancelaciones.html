@@ -4,33 +4,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cancelaciones y Devoluciones - Collector's Corner</title>
+    <title>Gestión de Ventas - Toy Garage</title>
     <link rel="stylesheet" href="css/menu1.css">
     <link rel="stylesheet" href="css/cancelaciones.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Asegurarse de que los modales estén ocultos por defecto */
+        .modal {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
+    <!-- Encabezado adaptado de menu1.html -->
     <header>
-        <div class="logo">
-            <h2>Collector's Corner</h2>
-            <h1>Cancelaciones y Devoluciones</h1>
+        <div class="header-top">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Toy Garage</h1>
+                    <h2>Collector's Corner - Cancelaciones y Devoluciones </h2>
+                </div>
+            </div>
         </div>
+
         <nav>
-            <a href="ventas.html" class="btn-nav"><i class="fas fa-shopping-cart"></i> Volver a Ventas</a>
-            <a href="menu1.html" class="btn-nav"><i class="fas fa-home"></i> Volver al Menú</a>
+            <ul>
+                <li><a href="menu1.html"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
+            </ul>
         </nav>
     </header>
 
+    <!-- Contenido principal -->
     <main>
         <div class="container">
-            <div class="search-bar">
-                <input type="text" placeholder="Buscar por ID, usuario o fecha..." id="searchInput">
-                <button class="search-btn"><i class="fas fa-search"></i> Buscar</button>
-            </div>
+            <h2 class="section-title">Gestión de Ventas</h2>
+
+            <!-- La barra de búsqueda se agregará dinámicamente con JavaScript -->
 
             <div class="table-container">
-                <table class="cancel-table">
+                <table class="employee-table">
                     <thead>
                         <tr>
                             <th>ID Ticket</th>
@@ -41,44 +59,12 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="cancelTableBody">
-                        <!-- Ejemplo 1 -->
+                    <tbody>
+                        <!-- Los datos se cargarán dinámicamente desde Firebase -->
                         <tr>
-                            <td>001</td>
-                            <td>2025-03-20</td>
-                            <td>Juan Pérez</td>
-                            <td>150.00</td>
-                            <td>Completado</td>
-                            <td>
-                                <button class="submit-btn danger-btn"><i class="fas fa-times-circle"></i>
-                                    Cancelar</button>
-                                <button class="submit-btn success-btn"><i class="fas fa-undo"></i> Devolver</button>
-                            </td>
-                        </tr>
-                        <!-- Ejemplo 2 -->
-                        <tr>
-                            <td>002</td>
-                            <td>2025-03-21</td>
-                            <td>María López</td>
-                            <td>200.00</td>
-                            <td>Pendiente</td>
-                            <td>
-                                <button class="submit-btn danger-btn"><i class="fas fa-times-circle"></i>
-                                    Cancelar</button>
-                                <button class="submit-btn success-btn"><i class="fas fa-undo"></i> Devolver</button>
-                            </td>
-                        </tr>
-                        <!-- Ejemplo 3 -->
-                        <tr>
-                            <td>003</td>
-                            <td>2025-03-22</td>
-                            <td>Carlos García</td>
-                            <td>300.00</td>
-                            <td>Completado</td>
-                            <td>
-                                <button class="submit-btn danger-btn"><i class="fas fa-times-circle"></i>
-                                    Cancelar</button>
-                                <button class="submit-btn success-btn"><i class="fas fa-undo"></i> Devolver</button>
+                            <td colspan="6" style="text-align: center; padding: 20px;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
+                                <p>Cargando ventas...</p>
                             </td>
                         </tr>
                     </tbody>
@@ -91,9 +77,9 @@
     <div id="cancelModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h3>Confirmar Cancelación/Devolución</h3>
-            <p id="cancelDetails">¿Estás seguro que deseas cancelar/devolver este ticket?</p>
-            <button class="confirm-btn">Confirmar</button>
+            <h3 id="modalTitle">Confirmar Acción</h3>
+            <p id="modalMessage">¿Estás seguro de continuar?</p>
+            <button class="confirm-btn" id="confirmAction">Confirmar</button>
         </div>
     </div>
 
