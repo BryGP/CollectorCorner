@@ -35,39 +35,132 @@
                     <input type="text" id="busqueda-producto" placeholder="Buscar producto por nombre o código...">
                     <div id="sugerencias-container" class="sugerencias-container"></div>
                 </div>
+
+                <div class="carrito-panel">
+                    <h3><i class="fas fa-shopping-cart"></i> Productos en venta</h3>
+
+                    <div class="carrito-lista" id="carrito-lista">
+                        <div class="carrito-vacio">
+                            <i class="fas fa-shopping-basket"></i>
+                            <p>No hay productos agregados</p>
+                        </div>
+                    </div>
+
+                    <div class="carrito-totales">
+                        <div class="total-line">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="total-line">
+                            <span>IVA (16%):</span>
+                            <span id="iva">$0.00</span>
+                        </div>
+                        <div class="total-line total-final">
+                            <span>TOTAL:</span>
+                            <span id="total">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="carrito-acciones">
+                        <button id="btn-pagar" class="btn-primary">
+                            <i class="fas fa-money-bill-wave"></i> Pagar
+                        </button>
+                        <button id="btn-cancelar" class="btn-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div class="carrito-panel">
-                <h3><i class="fas fa-shopping-cart"></i> Productos en venta</h3>
+            <div class="ticket-preview-panel">
+                <h3><i class="fas fa-receipt"></i> Vista Previa del Ticket</h3>
+                <div class="ticket-container">
+                    <div class="ticket">
+                        <!-- Encabezado del ticket -->
+                        <div class="ticket-header">
+                            <h1>Collector's Corner</h1>
+                            <p>Tienda de Coleccionables</p>
+                            <p>Av. Siempre Viva 123, Springfield</p>
+                            <p>Tel: (555) 123-4567</p>
+                            <div class="ticket-divider"></div>
+                            <p class="ticket-info">
+                                <span id="ticket-numero">Ticket #: 00000000</span>
+                                <span id="ticket-fecha">Fecha: 00/00/0000</span>
+                            </p>
+                            <p class="ticket-info">
+                                <span id="ticket-hora">Hora: 00:00:00</span>
+                                <span id="ticket-cajero">Cajero: Usuario</span>
+                            </p>
+                            <div class="ticket-divider"></div>
+                        </div>
 
-                <div class="carrito-lista" id="carrito-lista">
-                    <div class="carrito-vacio">
-                        <i class="fas fa-shopping-basket"></i>
-                        <p>No hay productos agregados</p>
+                        <!-- Contenido del ticket (productos) -->
+                        <div class="ticket-content">
+                            <table class="ticket-items">
+                                <thead>
+                                    <tr>
+                                        <th class="item-qty">Cant</th>
+                                        <th class="item-name">Descripción</th>
+                                        <th class="item-price">Precio</th>
+                                        <th class="item-total">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ticket-items-body">
+                                    <tr class="empty-ticket">
+                                        <td colspan="4" class="empty-message">Agregue productos a la venta</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="ticket-divider"></div>
+                        </div>
+
+                        <!-- Pie del ticket (totales) -->
+                        <div class="ticket-footer">
+                            <div class="ticket-totals">
+                                <div class="total-line">
+                                    <span class="total-label">Subtotal:</span>
+                                    <span class="total-value" id="ticket-subtotal">$0.00</span>
+                                </div>
+                                <div class="total-line">
+                                    <span class="total-label">IVA (16%):</span>
+                                    <span class="total-value" id="ticket-iva">$0.00</span>
+                                </div>
+                                <div class="total-line total-final">
+                                    <span class="total-label">TOTAL:</span>
+                                    <span class="total-value" id="ticket-total">$0.00</span>
+                                </div>
+                            </div>
+
+                            <div class="ticket-divider"></div>
+
+                            <div class="payment-info">
+                                <p><strong>Forma de pago:</strong> <span id="ticket-forma-pago">Efectivo</span></p>
+                                <p id="ticket-recibido-container"><strong>Recibido:</strong> <span
+                                        id="ticket-recibido">$0.00</span></p>
+                                <p id="ticket-cambio-container"><strong>Cambio:</strong> <span
+                                        id="ticket-cambio">$0.00</span></p>
+                            </div>
+
+                            <div class="ticket-divider"></div>
+
+                            <div class="ticket-barcode">
+                                <div class="barcode-placeholder"></div>
+                                <p class="barcode-text" id="ticket-barcode-text">*00000000*</p>
+                            </div>
+
+                            <div class="ticket-footer-msg">
+                                <p>¡Gracias por su compra!</p>
+                                <p>Vuelva pronto</p>
+                                <p class="small-text">Este ticket es su comprobante de compra</p>
+                                <p class="small-text">www.collectorscorner.com</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="carrito-totales">
-                    <div class="total-line">
-                        <span>Subtotal:</span>
-                        <span id="subtotal">$0.00</span>
-                    </div>
-                    <div class="total-line">
-                        <span>IVA (16%):</span>
-                        <span id="iva">$0.00</span>
-                    </div>
-                    <div class="total-line total-final">
-                        <span>TOTAL:</span>
-                        <span id="total">$0.00</span>
-                    </div>
-                </div>
-
-                <div class="carrito-acciones">
-                    <button id="btn-pagar" class="btn-primary">
-                        <i class="fas fa-money-bill-wave"></i> Pagar
-                    </button>
-                    <button id="btn-cancelar" class="btn-secondary">
-                        <i class="fas fa-times"></i> Cancelar
+                <div class="ticket-actions">
+                    <button id="btn-imprimir" class="btn-primary">
+                        <i class="fas fa-print"></i> Imprimir Ticket
                     </button>
                 </div>
             </div>

@@ -16,6 +16,8 @@ import {
 let productosVenta = []
 let usuarioActual = null
 let impuestoGlobal = 0.16 // 16% por defecto
+let ticketNumero = generarNumeroTicket()
+let efectivoRecibidoValor = 0
 
 // Elementos del DOM
 const busquedaInput = document.getElementById("busqueda-producto")
@@ -25,6 +27,22 @@ const subtotalElement = document.getElementById("subtotal")
 const ivaElement = document.getElementById("iva")
 const totalElement = document.getElementById("total")
 const fechaActualElement = document.getElementById("fecha-actual")
+
+// Elementos del ticket
+const ticketItemsBody = document.getElementById("ticket-items-body")
+const ticketNumeroElement = document.getElementById("ticket-numero")
+const ticketFechaElement = document.getElementById("ticket-fecha")
+const ticketHoraElement = document.getElementById("ticket-hora")
+const ticketCajeroElement = document.getElementById("ticket-cajero")
+const ticketSubtotalElement = document.getElementById("ticket-subtotal")
+const ticketIvaElement = document.getElementById("ticket-iva")
+const ticketTotalElement = document.getElementById("ticket-total")
+const ticketFormaPagoElement = document.getElementById("ticket-forma-pago")
+const ticketRecibidoElement = document.getElementById("ticket-recibido")
+const ticketCambioElement = document.getElementById("ticket-cambio")
+const ticketRecibidoContainer = document.getElementById("ticket-recibido-container")
+const ticketCambioContainer = document.getElementById("ticket-cambio-container")
+const ticketBarcodeText = document.getElementById("ticket-barcode-text")
 
 // Inicializar la página
 document.addEventListener("DOMContentLoaded", () => {
@@ -41,7 +59,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Configurar eventos
     configurarEventos()
+
+    // Inicializar ticket
+    inicializarTicket()
 })
+
+// Función para generar número de ticket aleatorio
+function generarNumeroTicket() {
+    return Math.floor(10000 + Math.random() * 90000)
+}
 
 // Función para mostrar la fecha actual
 function mostrarFechaActual() {
@@ -107,9 +133,49 @@ function configurarEventos() {
     // Botones de acción
     document.getElementById("btn-pagar").addEventListener("click", mostrarModalPago)
     document.getElementById("btn-cancelar").addEventListener("click", cancelarVenta)
+    document.getElementById("btn-imprimir").addEventListener("click", imprimirTicket)
 
     // Configurar modal de pago
     configurarModalPago()
+}
+
+// Inicializar ticket
+function inicializarTicket() {
+    // Actualizar número de ticket
+    ticketNumeroElement.textContent = `Ticket #: ${ticketNumero.toString().padStart(8, "0")}`
+    ticketBarcodeText.textContent = `*${ticketNumero.toString().padStart(8, "0")}*`
+
+    // Actualizar fecha y hora
+    actualizarFechaHoraTicket()
+
+    // Actualizar cajero
+    if (usuarioActual && usuarioActual.email) {
+        ticketCajeroElement.textContent = `Cajero: ${usuarioActual.email}`
+    }
+
+    // Iniciar actualización de hora cada segundo
+    setInterval(actualizarFechaHoraTicket, 1000)
+}
+
+// Actualizar fecha y hora en el ticket
+function actualizarFechaHoraTicket() {
+    const now = new Date()
+
+    // Formatear fecha: DD/MM/YYYY
+    const day = String(now.getDate()).padStart(2, "0")
+    const month = String(now.getMonth() + 1).padStart(2, "0")
+    const year = now.getFullYear()
+    const dateStr = `${day}/${month}/${year}`
+
+    // Formatear hora: HH:MM:SS
+    const hours = String(now.getHours()).padStart(2, "0")
+    const minutes = String(now.getMinutes()).padStart(2, "0")
+    const seconds = String(now.getSeconds()).padStart(2, "0")
+    const timeStr = `${hours}:${minutes}:${seconds}`
+
+    // Actualizar en el ticket
+    ticketFechaElement.textContent = `Fecha: ${dateStr}`
+    ticketHoraElement.textContent = `Hora: ${timeStr}`
 }
 
 // Función para buscar productos
@@ -234,6 +300,9 @@ function agregarProductoAlCarrito(producto) {
     // Actualizar carrito
     actualizarCarrito()
 
+    // Actualizar ticket
+    actualizarTicket()
+
     // Mostrar mensaje de éxito
     mostrarAlerta(`${nombre} agregado al carrito`, "success")
 }
@@ -329,12 +398,81 @@ function actualizarCarrito() {
     })
 }
 
+// Función para actualizar el ticket
+function actualizarTicket() {
+    // Limpiar items del ticket
+    ticketItemsBody.innerHTML = ""
+
+    if (productosVenta.length === 0) {
+        ticketItemsBody.innerHTML = `
+      <tr class="empty-ticket">
+        <td colspan="4" class="empty-message">Agregue productos a la venta</td>
+      </tr>
+    `
+
+        // Actualizar totales
+        ticketSubtotalElement.textContent = "$0.00"
+        ticketIvaElement.textContent = "$0.00"
+        ticketTotalElement.textContent = "$0.00"
+
+        return
+    }
+
+    // Calcular totales
+    let subtotal = 0
+
+    // Agregar cada producto al ticket
+    productosVenta.forEach((producto) => {
+        const tr = document.createElement("tr")
+
+        // Calcular subtotal
+        const subtotalProducto = Number.parseFloat(producto.subtotal)
+        subtotal += subtotalProducto
+
+        tr.innerHTML = `
+      <td class="item-qty">${producto.cantidad}</td>
+      <td class="item-name">${producto.nombre}</td>
+      <td class="item-price">$${producto.precioUnitario.toFixed(2)}</td>
+      <td class="item-total">$${subtotalProducto.toFixed(2)}</td>
+    `
+
+        ticketItemsBody.appendChild(tr)
+    })
+
+    // Calcular IVA y total
+    const iva = subtotal * impuestoGlobal
+    const total = subtotal + iva
+
+    // Actualizar totales en el ticket
+    ticketSubtotalElement.textContent = `$${subtotal.toFixed(2)}`
+    ticketIvaElement.textContent = `$${iva.toFixed(2)}`
+    ticketTotalElement.textContent = `$${total.toFixed(2)}`
+
+    // Actualizar forma de pago y efectivo/cambio
+    const metodoPago = document.getElementById("metodo-pago").value
+    ticketFormaPagoElement.textContent = metodoPago
+
+    if (metodoPago === "Efectivo" && efectivoRecibidoValor > 0) {
+        const cambio = efectivoRecibidoValor - total
+
+        ticketRecibidoElement.textContent = `$${efectivoRecibidoValor.toFixed(2)}`
+        ticketCambioElement.textContent = `$${cambio.toFixed(2)}`
+
+        ticketRecibidoContainer.style.display = "block"
+        ticketCambioContainer.style.display = "block"
+    } else {
+        ticketRecibidoContainer.style.display = "none"
+        ticketCambioContainer.style.display = "none"
+    }
+}
+
 // Función para eliminar producto
 function eliminarProducto(index) {
     if (index >= 0 && index < productosVenta.length) {
         const producto = productosVenta[index]
         productosVenta.splice(index, 1)
         actualizarCarrito()
+        actualizarTicket()
         mostrarAlerta(`${producto.nombre} eliminado del carrito`, "info")
     }
 }
@@ -348,6 +486,7 @@ function restarCantidad(index) {
                 2,
             )
             actualizarCarrito()
+            actualizarTicket()
         } else {
             eliminarProducto(index)
         }
@@ -372,6 +511,7 @@ function sumarCantidad(index) {
                             productosVenta[index].cantidad * productosVenta[index].precioUnitario
                         ).toFixed(2)
                         actualizarCarrito()
+                        actualizarTicket()
                     } else {
                         mostrarAlerta("No hay suficiente stock disponible", "error")
                     }
@@ -393,8 +533,19 @@ function cancelarVenta() {
     if (confirm("¿Está seguro de cancelar la venta actual?")) {
         productosVenta = []
         actualizarCarrito()
+        actualizarTicket()
         mostrarAlerta("Venta cancelada", "info")
     }
+}
+
+// Función para imprimir ticket
+function imprimirTicket() {
+    if (productosVenta.length === 0) {
+        mostrarAlerta("No hay productos para imprimir", "error")
+        return
+    }
+
+    window.print()
 }
 
 // ==================== FUNCIONES PARA MODAL DE PAGO ====================
@@ -426,6 +577,9 @@ function configurarModalPago() {
         } else {
             efectivoContainer.style.display = "none"
         }
+
+        // Actualizar ticket con nueva forma de pago
+        actualizarTicket()
     })
 
     // Evento para calcular cambio
@@ -450,6 +604,7 @@ function mostrarModalPago() {
     // Resetear campos de efectivo
     document.getElementById("efectivo-recibido").value = ""
     document.getElementById("cambio").value = ""
+    efectivoRecibidoValor = 0
 
     // Mostrar el modal
     const modal = document.getElementById("modal-pago")
@@ -472,6 +627,8 @@ function cerrarModalPago() {
 // Calcular cambio
 function calcularCambio() {
     const efectivoRecibido = Number.parseFloat(document.getElementById("efectivo-recibido").value) || 0
+    efectivoRecibidoValor = efectivoRecibido
+
     const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0)
     const impuesto = subtotal * impuestoGlobal
     const totalConImpuesto = subtotal + impuesto
@@ -484,6 +641,9 @@ function calcularCambio() {
         document.getElementById("cambio").value = `$${cambio.toFixed(2)}`
         document.getElementById("btn-confirmar-pago").disabled = false
     }
+
+    // Actualizar ticket con el efectivo recibido
+    actualizarTicket()
 }
 
 // Procesar pago
@@ -525,6 +685,7 @@ async function procesarPago() {
             total: total,
             metodoPago: metodoPago,
             estado: "Completada",
+            numeroTicket: ticketNumero,
         }
 
         // Guardar venta en Firestore
@@ -551,34 +712,28 @@ async function procesarPago() {
         cerrarModalPago()
 
         // Mostrar mensaje de éxito
-        mostrarAlerta(`Venta realizada con éxito. ID: ${ventaRef.id}`, "success")
+        mostrarAlerta(`Venta realizada con éxito. Ticket: ${ticketNumero}`, "success")
 
-        // Generar ticket
-        generarTicket(ventaRef.id, venta)
+        // Imprimir ticket automáticamente si se desea
+        if (confirm("¿Desea imprimir el ticket ahora?")) {
+            imprimirTicket()
+        }
+
+        // Generar nuevo número de ticket para la próxima venta
+        ticketNumero = generarNumeroTicket()
+
+        // Actualizar ticket con nuevo número
+        ticketNumeroElement.textContent = `Ticket #: ${ticketNumero.toString().padStart(8, "0")}`
+        ticketBarcodeText.textContent = `*${ticketNumero.toString().padStart(8, "0")}*`
 
         // Limpiar venta
         productosVenta = []
         actualizarCarrito()
+        actualizarTicket()
     } catch (error) {
         console.error("Error al procesar venta:", error)
         mostrarAlerta("Error al procesar venta: " + error.message, "error")
     }
-}
-
-// Función para generar ticket
-function generarTicket(ventaId, venta) {
-    // Guardar datos de venta en sessionStorage
-    sessionStorage.setItem(
-        "ultimaVenta",
-        JSON.stringify({
-            id: ventaId,
-            ...venta,
-            fecha: new Date().toISOString(), // Convertir timestamp a string
-        }),
-    )
-
-    // Redireccionar a página de ticket
-    window.open("ticket.html", "_blank")
 }
 
 // Función para mostrar alertas
@@ -610,3 +765,4 @@ function mostrarAlerta(mensaje, tipo) {
 // Exportar funciones para uso en HTML
 window.pagar = mostrarModalPago
 window.cancelar = cancelarVenta
+window.imprimirTicket = imprimirTicket

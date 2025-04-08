@@ -83,7 +83,7 @@ nav a:hover {
 /* Contenedor principal */
 main {
     flex: 1;
-    padding: 30px;
+    padding: 20px;
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
@@ -99,25 +99,22 @@ main {
 /* Panel de ventas */
 .ventas-panel {
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
     height: calc(100vh - 180px);
 }
 
 /* Panel de búsqueda */
 .busqueda-panel {
-    background-color: var(--white);
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    padding: 20px;
     display: flex;
     flex-direction: column;
+    gap: 20px;
 }
 
 .busqueda-panel h2 {
     color: var(--primary-blue);
     font-size: 1.5em;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     border-bottom: 2px solid var(--accent-yellow);
     padding-bottom: 10px;
     display: inline-block;
@@ -125,7 +122,10 @@ main {
 
 .search-box {
     position: relative;
-    margin-bottom: 20px;
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 20px;
 }
 
 .search-box input {
@@ -219,6 +219,8 @@ main {
     border-radius: 6px;
     padding: 10px;
     background-color: #fafafa;
+    min-height: 200px;
+    max-height: 300px;
 }
 
 .carrito-vacio {
@@ -229,6 +231,7 @@ main {
     height: 100%;
     color: #aaa;
     text-align: center;
+    min-height: 150px;
 }
 
 .carrito-vacio i {
@@ -385,6 +388,163 @@ main {
 .btn-primary:active,
 .btn-secondary:active {
     transform: translateY(0);
+}
+
+/* Panel de vista previa del ticket */
+.ticket-preview-panel {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ticket-preview-panel h3 {
+    color: var(--primary-blue);
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--accent-yellow);
+    padding-bottom: 8px;
+    display: inline-block;
+}
+
+.ticket-container {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.ticket {
+    background-color: white;
+    width: 100%;
+    max-width: 350px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-family: "Courier New", Courier, monospace;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.ticket-header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.ticket-header h1 {
+    font-size: 16px;
+    margin: 0 0 5px 0;
+    font-weight: bold;
+}
+
+.ticket-header p {
+    margin: 2px 0;
+}
+
+.ticket-divider {
+    border-top: 1px dashed #ccc;
+    margin: 8px 0;
+}
+
+.ticket-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+}
+
+.ticket-items {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+
+.ticket-items th {
+    text-align: left;
+    padding: 3px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.ticket-items td {
+    padding: 3px 0;
+}
+
+.item-qty {
+    width: 10%;
+    text-align: center;
+}
+
+.item-name {
+    width: 50%;
+}
+
+.item-price,
+.item-total {
+    width: 20%;
+    text-align: right;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 10px;
+    color: #999;
+    font-style: italic;
+}
+
+.ticket-totals {
+    margin: 10px 0;
+}
+
+.total-line {
+    display: flex;
+    justify-content: space-between;
+    margin: 3px 0;
+}
+
+.payment-info {
+    margin: 10px 0;
+}
+
+.payment-info p {
+    margin: 3px 0;
+}
+
+.ticket-barcode {
+    text-align: center;
+    margin: 10px 0;
+}
+
+.barcode-placeholder {
+    height: 40px;
+    background: repeating-linear-gradient(90deg, #000, #000 2px, #fff 2px, #fff 4px);
+    margin: 0 auto 5px;
+    max-width: 200px;
+}
+
+.barcode-text {
+    font-size: 12px;
+    letter-spacing: 2px;
+}
+
+.ticket-footer-msg {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.small-text {
+    font-size: 10px;
+    color: #666;
+    margin: 2px 0;
+}
+
+.ticket-actions {
+    display: flex;
+    justify-content: center;
 }
 
 /* Modal de pago */
@@ -551,18 +711,40 @@ main {
     }
 }
 
+/* Estilos para impresión */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .ticket,
+    .ticket * {
+        visibility: visible;
+    }
+
+    .ticket {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 80mm;
+        /* Ancho estándar para tickets térmicos */
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .ticket-actions {
+        display: none;
+    }
+}
+
 /* Responsive */
 @media (max-width: 992px) {
     .ventas-panel {
         grid-template-columns: 1fr;
     }
 
-    .carrito-panel {
+    .ticket-preview-panel {
         height: auto;
-    }
-
-    .carrito-lista {
-        max-height: 300px;
     }
 }
 
