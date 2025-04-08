@@ -391,6 +391,74 @@ footer {
     color: var(--accent-yellow);
 }
 
+/* ======== Calendario ======== */
+
+.calendar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.calendar {
+    width: 100%;
+    max-width: 400px;
+    border-collapse: collapse;
+}
+
+.calendar th,
+.calendar td {
+    border: 0px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.calendar th {
+    background-color: #f4f4f4;
+}
+
+.boton-mes {
+    background-color: var(--accent-color);
+    color: var(--secondary-text-color);
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.event-form {
+    margin: 20px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.event-form form {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.event-form label {
+    margin: 5px 0;
+}
+
+.event-form input,
+.event-form button {
+    margin: 5px 0;
+    padding: 5px;
+}
+
+
 /* ======== RESPONSIVE ======== */
 @media (max-width: 992px) {
     .dashboard {
