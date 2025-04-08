@@ -86,6 +86,11 @@ function verificarUsuario() {
         try {
             usuarioActual = JSON.parse(userDataStr)
             console.log("Usuario autenticado:", usuarioActual.email)
+
+            // Obtener datos adicionales del usuario desde Firestore si es necesario
+            if (usuarioActual.uid) {
+                obtenerDatosUsuario(usuarioActual.uid)
+            }
         } catch (error) {
             console.error("Error al parsear datos de usuario:", error)
         }
@@ -93,6 +98,41 @@ function verificarUsuario() {
         console.log("No hay usuario autenticado")
         // Para pruebas, no redirigimos
         // window.location.href = "login.html";
+    }
+}
+
+// Función para obtener datos adicionales del usuario
+async function obtenerDatosUsuario(uid) {
+    try {
+        const usersRef = collection(db, "Users")
+        const q = query(usersRef, where("uid", "==", uid))
+        const querySnapshot = await getDocs(q)
+
+        if (!querySnapshot.empty) {
+            const userData = querySnapshot.docs[0].data()
+            console.log("Datos de usuario:", userData)
+
+            // Actualizar datos del usuario
+            usuarioActual = {
+                ...usuarioActual,
+                nombre: userData.name || userData.nombre || usuarioActual.email,
+                rol: userData.role || userData.rol || "employee",
+            }
+
+            // Actualizar nombre en el ticket
+            actualizarNombreCajero()
+        }
+    } catch (error) {
+        console.error("Error al obtener datos del usuario:", error)
+    }
+}
+
+// Función para actualizar el nombre del cajero en el ticket
+function actualizarNombreCajero() {
+    if (usuarioActual && ticketCajeroElement) {
+        // Usar el nombre si está disponible, de lo contrario usar el email
+        const nombreMostrar = usuarioActual.nombre || usuarioActual.email || "Usuario"
+        ticketCajeroElement.textContent = `Cajero: ${nombreMostrar}`
     }
 }
 
@@ -149,9 +189,7 @@ function inicializarTicket() {
     actualizarFechaHoraTicket()
 
     // Actualizar cajero
-    if (usuarioActual && usuarioActual.email) {
-        ticketCajeroElement.textContent = `Cajero: ${usuarioActual.email}`
-    }
+    actualizarNombreCajero()
 
     // Iniciar actualización de hora cada segundo
     setInterval(actualizarFechaHoraTicket, 1000)
