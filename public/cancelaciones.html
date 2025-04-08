@@ -8,13 +8,6 @@
     <link rel="stylesheet" href="css/menu1.css">
     <link rel="stylesheet" href="css/cancelaciones.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <style>
-        /* Asegurarse de que los modales estén ocultos por defecto */
-        .modal {
-            display: none;
-        }
-    </style>
 </head>
 
 <body>
@@ -47,6 +40,29 @@
 
             <!-- La barra de búsqueda se agregará dinámicamente con JavaScript -->
 
+            <!-- Botones de administración -->
+            <div class="admin-actions">
+                <div class="export-actions">
+                    <button id="exportBtn" class="admin-btn export-btn">
+                        <i class="fas fa-file-export"></i> Exportar Ventas
+                    </button>
+                    <div id="exportOptions" class="dropdown-content">
+                        <button id="exportCSV" class="dropdown-item">
+                            <i class="fas fa-file-csv"></i> Exportar a CSV
+                        </button>
+                        <button id="exportExcel" class="dropdown-item">
+                            <i class="fas fa-file-excel"></i> Exportar a Excel
+                        </button>
+                        <button id="exportPDF" class="dropdown-item">
+                            <i class="fas fa-file-pdf"></i> Exportar a PDF
+                        </button>
+                    </div>
+                </div>
+                <button id="deleteBtn" class="admin-btn delete-btn">
+                    <i class="fas fa-trash-alt"></i> Borrar Ventas Antiguas
+                </button>
+            </div>
+
             <div class="table-container">
                 <table class="employee-table">
                     <thead>
@@ -70,6 +86,39 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Paginación -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Mostrando <span id="currentRange">0-0</span> de <span id="totalItems">0</span> ventas
+                </div>
+                <div class="pagination-controls">
+                    <button id="firstPageBtn" class="pagination-btn" disabled>
+                        <i class="fas fa-angle-double-left"></i>
+                    </button>
+                    <button id="prevPageBtn" class="pagination-btn" disabled>
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                    <div class="pagination-pages" id="paginationPages">
+                        <!-- Los números de página se generarán dinámicamente -->
+                    </div>
+                    <button id="nextPageBtn" class="pagination-btn">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                    <button id="lastPageBtn" class="pagination-btn">
+                        <i class="fas fa-angle-double-right"></i>
+                    </button>
+                </div>
+                <div class="pagination-size">
+                    <label for="pageSize">Ventas por página:</label>
+                    <select id="pageSize">
+                        <option value="10">10</option>
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -78,14 +127,108 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3 id="modalTitle">Confirmar Acción</h3>
-            <p id="modalMessage">¿Estás seguro de continuar?</p>
+
+            <div class="form-group">
+                <label for="motivo">Motivo:</label>
+                <select id="motivo" required>
+                    <option value="">Seleccione un motivo</option>
+                    <option value="Error en precio">Error en precio</option>
+                    <option value="Producto defectuoso">Producto defectuoso</option>
+                    <option value="Cliente insatisfecho">Cliente insatisfecho</option>
+                    <option value="Error en cantidad">Error en cantidad</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="otroMotivoGroup" style="display: none;">
+                <label for="otroMotivo">Especifique:</label>
+                <input type="text" id="otroMotivo" placeholder="Describa el motivo">
+            </div>
+
+            <div class="form-group">
+                <label for="pinSeguridad">PIN de Seguridad:</label>
+                <input type="password" id="pinSeguridad" placeholder="Ingrese el PIN de seguridad" required>
+            </div>
+
+            <div class="form-group">
+                <label for="comentarios">Comentarios adicionales:</label>
+                <textarea id="comentarios" rows="3" placeholder="Comentarios opcionales"></textarea>
+            </div>
+
             <button class="confirm-btn" id="confirmAction">Confirmar</button>
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2024 RARITY TECH INNOVATIONS. Todos los derechos reservados.</p>
-    </footer>
+    <!-- Modal para vista previa de ticket -->
+    <div id="ticketPreviewModal" class="modal">
+        <div class="modal-content ticket-preview-modal">
+            <span class="close">&times;</span>
+            <h3>Vista Previa del Ticket</h3>
+
+            <div class="ticket-container">
+                <div class="ticket" id="ticketPreview">
+                    <!-- El contenido del ticket se cargará dinámicamente -->
+                    <div class="loading-ticket">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Cargando ticket...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ticket-actions">
+                <button id="printTicketBtn" class="action-btn print-btn">
+                    <i class="fas fa-print"></i> Imprimir Ticket
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para borrar ventas antiguas -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Borrar Ventas Antiguas</h3>
+
+            <div class="form-group">
+                <label for="deleteStartDate">Desde:</label>
+                <input type="date" id="deleteStartDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="deleteEndDate">Hasta:</label>
+                <input type="date" id="deleteEndDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="keepRecentDays">Mantener ventas recientes:</label>
+                <select id="keepRecentDays">
+                    <option value="0">No mantener ninguna</option>
+                    <option value="7" selected>Últimos 7 días</option>
+                    <option value="14">Últimos 14 días</option>
+                    <option value="30">Últimos 30 días</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="deletePinSeguridad">PIN de Seguridad:</label>
+                <input type="password" id="deletePinSeguridad" placeholder="Ingrese el PIN de seguridad" required>
+            </div>
+
+            <div class="warning-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>¡Atención! Esta acción eliminará permanentemente las ventas seleccionadas. Esta acción no se puede
+                    deshacer.</p>
+            </div>
+
+            <button class="confirm-btn danger-btn" id="confirmDelete">Borrar Ventas</button>
+        </div>
+    </div>
+
+    <!-- Incluir librería para exportar a Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Incluir librería para exportar a PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
     <script type="module" src="js/cancelaciones.js"></script>
     <script type="module" src="js/config.js"></script>

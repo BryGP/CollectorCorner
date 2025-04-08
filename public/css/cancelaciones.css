@@ -16,6 +16,8 @@
     --card-bg: #f8f9fa;
     --danger-color: #e74c3c;
     --success-color: #2ecc71;
+    --info-color: #3498db;
+    --warning-color: #f39c12;
 }
 
 /* ======== ESTILOS GENERALES ======== */
@@ -50,6 +52,84 @@ main {
     margin-bottom: 30px;
 }
 
+/* ======== BOTONES DE ADMINISTRACIÓN ======== */
+.admin-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.admin-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.export-btn {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.export-btn:hover {
+    background-color: #2980b9;
+}
+
+.delete-btn {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Dropdown para opciones de exportación */
+.export-actions {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dropdown-content.show {
+    display: block;
+}
+
+.dropdown-item {
+    padding: 12px 15px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+}
+
 /* ======== TABLA DE USUARIOS (ESTILO IGUAL A USUARIOS.CSS) ======== */
 .table-container {
     overflow-x: auto;
@@ -80,6 +160,91 @@ main {
     background-color: #f9f9f9;
 }
 
+/* ======== PAGINACIÓN ======== */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.pagination-info {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.pagination-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: #f5f5f5;
+    border-color: #ccc;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-pages {
+    display: flex;
+    gap: 5px;
+}
+
+.page-number {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.page-number:hover {
+    background-color: #f5f5f5;
+}
+
+.page-number.active {
+    background-color: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
+}
+
+.pagination-size {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-size select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
 /* ======== BOTONES DE ACCIÓN ======== */
 .action-buttons {
     display: flex;
@@ -88,7 +253,8 @@ main {
 }
 
 .cancel-btn,
-.return-btn {
+.return-btn,
+.preview-btn {
     width: 40px;
     height: 40px;
     border: none;
@@ -123,11 +289,24 @@ main {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+.preview-btn {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.preview-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
 /* Botones deshabilitados */
 .cancel-btn.disabled,
 .return-btn.disabled,
+.preview-btn.disabled,
 .cancel-btn[disabled],
-.return-btn[disabled] {
+.return-btn[disabled],
+.preview-btn[disabled] {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
@@ -201,6 +380,10 @@ main {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
+.ticket-preview-modal {
+    max-width: 400px;
+}
+
 .close {
     position: absolute;
     top: 10px;
@@ -221,6 +404,52 @@ main {
     font-size: 1.5em;
     margin-bottom: 20px;
     text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--dark-blue);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.warning-message {
+    background-color: #fff3cd;
+    border-left: 4px solid var(--warning-color);
+    padding: 15px;
+    margin: 15px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.warning-message i {
+    color: var(--warning-color);
+    font-size: 1.2em;
+    margin-top: 2px;
+}
+
+.warning-message p {
+    margin: 0;
+    color: #856404;
 }
 
 .confirm-btn {
@@ -257,6 +486,176 @@ main {
     background-color: #27ae60;
 }
 
+/* ======== TICKET PREVIEW ======== */
+.ticket-container {
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+}
+
+.ticket {
+    background-color: white;
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-family: "Courier New", Courier, monospace;
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.loading-ticket {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: #666;
+}
+
+.loading-ticket i {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.ticket-header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.ticket-header h1 {
+    font-size: 14px;
+    margin: 0 0 3px 0;
+    font-weight: bold;
+}
+
+.ticket-header p {
+    margin: 1px 0;
+    font-size: 10px;
+}
+
+.ticket-divider {
+    border-top: 1px dashed #ccc;
+    margin: 8px 0;
+}
+
+.ticket-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+}
+
+.ticket-items {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+}
+
+.ticket-items th {
+    text-align: left;
+    padding: 2px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.ticket-items td {
+    padding: 2px 0;
+}
+
+.item-qty {
+    width: 10%;
+    text-align: center;
+}
+
+.item-name {
+    width: 50%;
+}
+
+.item-price,
+.item-total {
+    width: 20%;
+    text-align: right;
+}
+
+.ticket-totals {
+    margin: 10px 0;
+}
+
+.total-line {
+    display: flex;
+    justify-content: space-between;
+    margin: 3px 0;
+}
+
+.payment-info {
+    margin: 10px 0;
+}
+
+.payment-info p {
+    margin: 3px 0;
+}
+
+.ticket-barcode {
+    text-align: center;
+    margin: 10px 0;
+}
+
+.barcode-placeholder {
+    height: 30px;
+    background: repeating-linear-gradient(90deg, #000, #000 2px, #fff 2px, #fff 4px);
+    margin: 0 auto 3px;
+    max-width: 180px;
+}
+
+.barcode-text {
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+
+.ticket-footer-msg {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.small-text {
+    font-size: 9px;
+    color: #666;
+    margin: 1px 0;
+}
+
+.ticket-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.action-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.print-btn {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+.print-btn:hover {
+    background-color: #154360;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
 /* ======== RESPONSIVE ======== */
 @media (max-width: 768px) {
     header {
@@ -275,7 +674,8 @@ main {
     }
 
     .cancel-btn,
-    .return-btn {
+    .return-btn,
+    .preview-btn {
         width: 100%;
     }
 
@@ -292,5 +692,53 @@ main {
     .filter-select,
     .search-btn {
         width: 100%;
+    }
+
+    .admin-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pagination-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .pagination-controls {
+        order: 1;
+    }
+
+    .pagination-info {
+        order: 2;
+    }
+
+    .pagination-size {
+        order: 3;
+    }
+}
+
+/* Estilos para impresión */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .ticket,
+    .ticket * {
+        visibility: visible;
+    }
+
+    .ticket {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 80mm;
+        /* Ancho estándar para tickets térmicos */
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .ticket-actions {
+        display: none;
     }
 }
