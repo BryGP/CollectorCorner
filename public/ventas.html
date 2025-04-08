@@ -4,10 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sistema de ventas para Collector's Corner Toy Garaje">
-    <title>Sistema de Ventas | Toy Garaje</title>
+    <title>Sistema de Ventas | Toy Garage</title>
     <link rel="stylesheet" href="css/ventas.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Racing+Sans+One&display=swap"
@@ -18,98 +16,102 @@
     <header>
         <div class="logo">
             <h2>Collector's Corner</h2>
-            <h1>Toy Garaje</h1>
+            <h1>Toy Garage</h1>
         </div>
+        <nav>
+            <a href="menu1.html"><i class="fas fa-home"></i> Menú Principal</a>
+            <a href="cancelaciones.html"><i class="fas fa-ban"></i> Cancelaciones</a>
+        </nav>
     </header>
 
-    <nav aria-label="Navegación principal">
-        <ul role="menu">
-            <li role="menuitem"><a href="ventas.html"><i class="fas fa-home"></i> Inicio</a></li>
-            <li role="menuitem"><a href="#"><i class="fas fa-calendar-alt"></i> Calendario</a></li>
-            <li role="menuitem"><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
-        </ul>
-    </nav>
+    <main class="ventas-container">
+        <div class="fecha-actual" id="fecha-actual"></div>
 
-    <main class="contenedor">
-        <aside class="menu-lateral" aria-label="Menú lateral">
-            <button type="button" onclick="location.href='ventas.html'">
-                <i class="fas fa-shopping-cart"></i> Ventas
-            </button>
+        <div class="ventas-panel">
+            <div class="busqueda-panel">
+                <h2><i class="fas fa-cash-register"></i> Punto de Venta</h2>
 
-            <div class="dropdown">
-                <button type="button">
-                    <i class="fas fa-calendar-check"></i> Apartado
-                </button>
-                <div class="dropdown-contenido" role="menu">
-                    <button type="button" onclick="location.href='apartado-nuevo.html'">
-                        <i class="fas fa-plus-circle"></i> Nuevo
+                <div class="search-box">
+                    <input type="text" id="busqueda-producto" placeholder="Buscar producto por nombre o código...">
+                    <div id="sugerencias-container" class="sugerencias-container"></div>
+                </div>
+            </div>
+
+            <div class="carrito-panel">
+                <h3><i class="fas fa-shopping-cart"></i> Productos en venta</h3>
+
+                <div class="carrito-lista" id="carrito-lista">
+                    <div class="carrito-vacio">
+                        <i class="fas fa-shopping-basket"></i>
+                        <p>No hay productos agregados</p>
+                    </div>
+                </div>
+
+                <div class="carrito-totales">
+                    <div class="total-line">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="total-line">
+                        <span>IVA (16%):</span>
+                        <span id="iva">$0.00</span>
+                    </div>
+                    <div class="total-line total-final">
+                        <span>TOTAL:</span>
+                        <span id="total">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="carrito-acciones">
+                    <button id="btn-pagar" class="btn-primary">
+                        <i class="fas fa-money-bill-wave"></i> Pagar
                     </button>
-                    <button type="button" onclick="location.href='apartado-seguimiento.html'">
-                        <i class="fas fa-search-dollar"></i> Seguimiento
-                    </button>
-                    <button type="button" onclick="location.href='apartado-finalizar.html'">
-                        <i class="fas fa-check-circle"></i> Finalizar
+                    <button id="btn-cancelar" class="btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
                     </button>
                 </div>
             </div>
-            <button type="button" onclick="location.href='consulta-inventario.html'">
-                <i class="fas fa-boxes"></i> Inventario
-            </button>
-        </aside>
-
-        <article class="container">
-            <div class="fecha-actual" id="fecha-actual" aria-live="polite"></div>
-
-            <h2><i class="fas fa-cash-register"></i> MENÚ VENTAS</h2>
-
-            <form id="form-venta" novalidate>
-                <fieldset class="campos-ventas">
-                    <legend class="sr-only">Datos de la venta</legend>
-                    <div>
-                        <label for="articulo" aria-required="true"><i class="fas fa-barcode"></i> Artículo
-                            (Código/Nombre):</label>
-                        <input type="text" id="articulo" name="articulo" placeholder="Ingrese el artículo" required>
-                    </div>
-                    <div>
-                        <label for="precio"><i class="fas fa-tag"></i> Precio:</label>
-                        <input type="number" id="precio" name="precio" placeholder="Precio" readonly>
-                    </div>
-                    <div>
-                        <label for="descuento"><i class="fas fa-percentage"></i> Descuento (%):</label>
-                        <input type="number" id="descuento" name="descuento" placeholder="Descuento" min="0" max="100">
-                    </div>
-                    <div>
-                        <label for="total"><i class="fas fa-calculator"></i> Total:</label>
-                        <input type="number" id="total" name="total" placeholder="Total" readonly>
-                    </div>
-                </fieldset>
-            </form>
-
-            <section class="lista-productos" aria-live="polite">
-                <h3><i class="fas fa-box-open"></i> Productos Seleccionados</h3>
-                <ul id="lista-productos">
-                    <li><i class="fas fa-info-circle"></i> Lista vacía - Aún no se han agregado productos.</li>
-                </ul>
-            </section>
-
-            <div class="botones-ventas">
-                <button type="button" onclick="agregarProducto()">
-                    <i class="fas fa-plus"></i> Agregar
-                </button>
-                <button type="button" onclick="pagar()">
-                    <i class="fas fa-money-bill-wave"></i> Pagar
-                </button>
-                <button type="button" onclick="borrar()">
-                    <i class="fas fa-trash-alt"></i> Borrar
-                </button>
-                <button type="button" onclick="cancelar()">
-                    <i class="fas fa-times-circle"></i> Cancelar
-                </button>
-            </div>
-        </article>
+        </div>
     </main>
 
-    <script src="js/ventas.js" defer></script>
+    <!-- Modal de pago -->
+    <div id="modal-pago" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Finalizar Venta</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="forma-pago">
+                    <h4>Forma de pago</h4>
+                    <select id="metodo-pago">
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                        <option value="Tarjeta de Débito">Tarjeta de Débito</option>
+                        <option value="Transferencia">Transferencia</option>
+                    </select>
+
+                    <div id="efectivo-container">
+                        <div class="input-group">
+                            <label for="efectivo-recibido">Efectivo recibido:</label>
+                            <input type="number" id="efectivo-recibido" min="0" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="cambio">Cambio:</label>
+                            <input type="text" id="cambio" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-confirmar-pago" class="btn-primary">Confirmar Pago</button>
+                <button id="btn-cancelar-pago" class="btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal-overlay"></div>
+
+    <script type="module" src="js/ventas.js"></script>
 </body>
 
 </html>
