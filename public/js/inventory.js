@@ -10,114 +10,263 @@ import {
     getDoc,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
 
+// Variables para paginación
+let currentProductPage = 1
+let currentCategoryPage = 1
+let productsPerPage = 10
+let categoriesPerPage = 10
+let allProducts = []
+let allCategories = []
+let filteredProducts = []
+let filteredCategories = []
+
 // ==================== FUNCIONES PARA PRODUCTOS ====================
 
 // Función para obtener productos de Firestore
 async function loadProductos() {
     try {
+        console.log("Cargando productos...")
         const productosRef = collection(db, "Productos")
         const productosSnapshot = await getDocs(productosRef)
-        const productosList = productosSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
 
-        // Limpiar el contenedor antes de cargar
-        const productosGrid = document.getElementById("productosGrid")
-        productosGrid.innerHTML = ""
+        // Guardar todos los productos en la variable global
+        allProducts = productosSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
 
-        // Renderizar productos
-        productosList.forEach((producto) => {
-            const div = document.createElement("div")
-            div.classList.add("producto-item")
-            div.setAttribute("data-producto-id", producto.id)
-            div.innerHTML = `
-                <h3>${producto.name || "Sin nombre"}</h3>
-                <p class="categoria-label">${producto.categoria || "No especificada"}</p>
-                <p>Precio: $${producto.precio || 0}</p>
-                <p>Stock: ${producto.stock || 0}</p>
-                <div class="actions">
-                    <button class="edit-btn" data-producto-id="${producto.id}">Editar</button>
-                    <button class="delete-btn" data-producto-id="${producto.id}">Eliminar</button>
-                </div>
-            `
-            productosGrid.appendChild(div)
-        })
+        // Ordenar productos alfabéticamente
+        allProducts.sort((a, b) => (a.name || "").localeCompare(b.name || ""))
 
-        // ==================== FUNCIÓN PARA FILTRAR PRODUCTOS ====================
-        function filterProductos() {
-            const searchTerm = document.getElementById("searchProducto").value.toLowerCase();
-            const productos = document.querySelectorAll(".producto-item");
+        // Inicializar productos filtrados con todos los productos
+        filteredProducts = [...allProducts]
 
-            productos.forEach(producto => {
-                const nombre = producto.querySelector("h3").textContent.toLowerCase();
-                if (nombre.includes(searchTerm)) {
-                    producto.style.display = "block";
-                } else {
-                    producto.style.display = "none";
-                }
-            });
-        }
+        console.log(`${allProducts.length} productos cargados`)
 
-        // Evento de entrada en el campo de búsqueda
-        document.getElementById("searchProducto").addEventListener("input", filterProductos);
+        // Renderizar productos con paginación
+        renderProductos()
 
-        // ==================== FUNCIÓN PARA FILTRAR POR CATEGORÍA ====================
-        function filterByCategoria() {
-            const selectedCategoria = document.getElementById("filterCategoria").value.toLowerCase();
-            const productos = document.querySelectorAll(".producto-item");
-
-            productos.forEach(producto => {
-                const categoriaElemento = producto.querySelector(".categoria-label");
-                if (!categoriaElemento) return;
-
-                const categoria = categoriaElemento.textContent.trim().toLowerCase();
-
-                // Si no hay filtro seleccionado, muestra todos
-                if (selectedCategoria === "" || categoria === selectedCategoria) {
-                    producto.style.display = "block";
-                } else {
-                    producto.style.display = "none";
-                }
-            });
-        }
-
-        // Evento de cambio en el filtro de categorías
-        document.getElementById("filterCategoria").addEventListener("change", filterByCategoria);
-
-        // Añadir el hover effect a los productos
-        const productoItems = document.querySelectorAll(".producto-item")
-        productoItems.forEach((item) => {
-            item.addEventListener("mouseover", () => {
-                item.classList.add("hover")
-            })
-            item.addEventListener("mouseout", () => {
-                item.classList.remove("hover")
-            })
-        })
+        // Crear controles de paginación
+        createProductPagination()
 
         // Cargar categorías para el dropdown
         loadCategoriasForDropdown()
-
-        // Añadir listeners para editar y eliminar productos
-        const editButtons = document.querySelectorAll(".producto-item .edit-btn")
-        const deleteButtons = document.querySelectorAll(".producto-item .delete-btn")
-
-        editButtons.forEach((button) => {
-            button.addEventListener("click", function () {
-                const productoId = this.getAttribute("data-producto-id")
-                console.log("Editando producto con ID:", productoId)
-                editProducto(productoId)
-            })
-        })
-
-        deleteButtons.forEach((button) => {
-            button.addEventListener("click", function () {
-                const productoId = this.getAttribute("data-producto-id")
-                console.log("Eliminando producto con ID:", productoId)
-                deleteProducto(productoId)
-            })
-        })
     } catch (error) {
         console.error("Error al cargar productos:", error)
+        showErrorMessage("Error al cargar productos. Por favor, recarga la página.")
     }
+}
+
+// Función para mostrar mensaje de error
+function showErrorMessage(message) {
+    const errorDiv = document.createElement("div")
+    errorDiv.className = "error-message"
+    errorDiv.textContent = message
+    errorDiv.style.backgroundColor = "#ffdddd"
+    errorDiv.style.color = "#ff0000"
+    errorDiv.style.padding = "10px"
+    errorDiv.style.borderRadius = "5px"
+    errorDiv.style.margin = "10px 0"
+    errorDiv.style.textAlign = "center"
+
+    // Insertar al inicio de la página
+    document.querySelector("main").prepend(errorDiv)
+
+    // Eliminar después de 5 segundos
+    setTimeout(() => {
+        errorDiv.remove()
+    }, 5000)
+}
+
+// Renderizar productos con paginación
+function renderProductos() {
+    console.log(`Renderizando página ${currentProductPage} de productos`)
+    const productosGrid = document.getElementById("productosGrid")
+    productosGrid.innerHTML = ""
+
+    // Calcular índices para la página actual
+    const startIndex = (currentProductPage - 1) * productsPerPage
+    const endIndex = startIndex + productsPerPage
+    const productsToShow = filteredProducts.slice(startIndex, endIndex)
+
+    if (productsToShow.length === 0) {
+        productosGrid.innerHTML = '<div class="no-results">No se encontraron productos</div>'
+        return
+    }
+
+    productsToShow.forEach((producto) => {
+        const div = document.createElement("div")
+        div.classList.add("producto-item")
+        div.setAttribute("data-producto-id", producto.id)
+        div.innerHTML = `
+            <h3>${producto.name || "Sin nombre"}</h3>
+            <p class="categoria-label">${producto.categoria || "No especificada"}</p>
+            <p>Precio: $${producto.precio || 0}</p>
+            <p>Stock: ${producto.stock || 0}</p>
+            <div class="actions">
+                <button class="edit-btn" data-producto-id="${producto.id}">Editar</button>
+                <button class="delete-btn" data-producto-id="${producto.id}">Eliminar</button>
+            </div>
+        `
+        productosGrid.appendChild(div)
+    })
+
+    // Añadir el hover effect a los productos
+    const productoItems = document.querySelectorAll(".producto-item")
+    productoItems.forEach((item) => {
+        item.addEventListener("mouseover", () => {
+            item.classList.add("hover")
+        })
+        item.addEventListener("mouseout", () => {
+            item.classList.remove("hover")
+        })
+    })
+
+    // Añadir listeners para editar y eliminar productos
+    const editButtons = document.querySelectorAll(".producto-item .edit-btn")
+    const deleteButtons = document.querySelectorAll(".producto-item .delete-btn")
+
+    editButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const productoId = this.getAttribute("data-producto-id")
+            console.log("Editando producto con ID:", productoId)
+            editProducto(productoId)
+        })
+    })
+
+    deleteButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const productoId = this.getAttribute("data-producto-id")
+            console.log("Eliminando producto con ID:", productoId)
+            deleteProducto(productoId)
+        })
+    })
+
+    // Actualizar información de paginación
+    updateProductPaginationInfo()
+}
+
+// Crear controles de paginación para productos
+function createProductPagination() {
+    // Eliminar paginación existente si hay
+    const existingPagination = document.getElementById("productPagination")
+    if (existingPagination) {
+        existingPagination.remove()
+    }
+
+    // Crear contenedor de paginación
+    const paginationContainer = document.createElement("div")
+    paginationContainer.id = "productPagination"
+    paginationContainer.className = "pagination-container"
+
+    // Crear controles de paginación
+    const paginationControls = document.createElement("div")
+    paginationControls.className = "pagination-controls"
+
+    // Botón primera página
+    const firstPageBtn = document.createElement("button")
+    firstPageBtn.innerHTML = '<i class="fas fa-angle-double-left"></i>'
+    firstPageBtn.className = "pagination-btn"
+    firstPageBtn.addEventListener("click", () => {
+        if (currentProductPage !== 1) {
+            currentProductPage = 1
+            renderProductos()
+        }
+    })
+
+    // Botón página anterior
+    const prevPageBtn = document.createElement("button")
+    prevPageBtn.innerHTML = '<i class="fas fa-angle-left"></i>'
+    prevPageBtn.className = "pagination-btn"
+    prevPageBtn.addEventListener("click", () => {
+        if (currentProductPage > 1) {
+            currentProductPage--
+            renderProductos()
+        }
+    })
+
+    // Información de página actual
+    const pageInfo = document.createElement("span")
+    pageInfo.className = "page-info"
+    pageInfo.id = "productPageInfo"
+
+    // Botón página siguiente
+    const nextPageBtn = document.createElement("button")
+    nextPageBtn.innerHTML = '<i class="fas fa-angle-right"></i>'
+    nextPageBtn.className = "pagination-btn"
+    nextPageBtn.addEventListener("click", () => {
+        const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
+        if (currentProductPage < totalPages) {
+            currentProductPage++
+            renderProductos()
+        }
+    })
+
+    // Botón última página
+    const lastPageBtn = document.createElement("button")
+    lastPageBtn.innerHTML = '<i class="fas fa-angle-double-right"></i>'
+    lastPageBtn.className = "pagination-btn"
+    lastPageBtn.addEventListener("click", () => {
+        const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
+        if (currentProductPage !== totalPages && totalPages > 0) {
+            currentProductPage = totalPages
+            renderProductos()
+        }
+    })
+
+    // Selector de productos por página
+    const perPageContainer = document.createElement("div")
+    perPageContainer.className = "per-page-container"
+
+    const perPageLabel = document.createElement("label")
+    perPageLabel.textContent = "Productos por página: "
+
+    const perPageSelect = document.createElement("select")
+    perPageSelect.id = "productsPerPage"
+        ;[5, 10, 20, 40].forEach((value) => {
+            const option = document.createElement("option")
+            option.value = value
+            option.textContent = value
+            if (value === productsPerPage) {
+                option.selected = true
+            }
+            perPageSelect.appendChild(option)
+        })
+
+    perPageSelect.addEventListener("change", () => {
+        productsPerPage = Number.parseInt(perPageSelect.value)
+        currentProductPage = 1 // Volver a la primera página
+        renderProductos()
+    })
+
+    // Agregar elementos al contenedor
+    perPageContainer.appendChild(perPageLabel)
+    perPageContainer.appendChild(perPageSelect)
+
+    paginationControls.appendChild(firstPageBtn)
+    paginationControls.appendChild(prevPageBtn)
+    paginationControls.appendChild(pageInfo)
+    paginationControls.appendChild(nextPageBtn)
+    paginationControls.appendChild(lastPageBtn)
+
+    paginationContainer.appendChild(paginationControls)
+    paginationContainer.appendChild(perPageContainer)
+
+    // Insertar después del grid de productos
+    const productosGrid = document.getElementById("productosGrid")
+    productosGrid.after(paginationContainer)
+
+    // Actualizar información de paginación
+    updateProductPaginationInfo()
+}
+
+// Actualizar información de paginación de productos
+function updateProductPaginationInfo() {
+    const pageInfo = document.getElementById("productPageInfo")
+    if (!pageInfo) return
+
+    const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
+    const startItem = filteredProducts.length > 0 ? (currentProductPage - 1) * productsPerPage + 1 : 0
+    const endItem = Math.min(startItem + productsPerPage - 1, filteredProducts.length)
+
+    pageInfo.textContent = `${startItem}-${endItem} de ${filteredProducts.length} productos (Página ${currentProductPage} de ${totalPages || 1})`
 }
 
 // Función para editar producto
@@ -154,7 +303,7 @@ async function deleteProducto(productoId) {
         try {
             await deleteDoc(doc(db, "Productos", productoId))
             alert("Producto eliminado exitosamente")
-            loadProductos()
+            await loadProductos()
         } catch (error) {
             console.error("Error al eliminar producto:", error)
             alert("Error al eliminar producto. Intenta de nuevo.")
@@ -197,7 +346,7 @@ async function saveProducto(event) {
             }
 
             closeProductoModal()
-            loadProductos()
+            await loadProductos()
         } catch (error) {
             console.error("Error al procesar producto:", error)
             alert("Error al procesar producto. Intenta de nuevo.")
@@ -212,49 +361,210 @@ async function saveProducto(event) {
 // Función para cargar categorías
 async function loadCategorias() {
     try {
+        console.log("Cargando categorías...")
         const categoriasRef = collection(db, "Categorias")
         const categoriasSnapshot = await getDocs(categoriasRef)
-        const categoriasList = categoriasSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
 
-        const categoriasGrid = document.getElementById("categoriasGrid")
-        categoriasGrid.innerHTML = ""
+        // Guardar todas las categorías en la variable global
+        allCategories = categoriasSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
 
-        categoriasList.forEach((categoria) => {
-            const div = document.createElement("div")
-            div.classList.add("categoria-item")
-            div.setAttribute("data-categoria-id", categoria.id)
-            div.innerHTML = `
-                <h3>${categoria.name || "Sin nombre"}</h3>
-                <div class="actions">
-                    <button class="edit-btn" data-categoria-id="${categoria.id}">Editar</button>
-                    <button class="delete-btn" data-categoria-id="${categoria.id}">Eliminar</button>
-                </div>
-            `
-            categoriasGrid.appendChild(div)
-        })
+        // Ordenar categorías alfabéticamente
+        allCategories.sort((a, b) => (a.name || "").localeCompare(b.name || ""))
 
-        // Agregar event listeners directamente aquí para asegurar que se apliquen
-        const editButtons = document.querySelectorAll(".categoria-item .edit-btn")
-        const deleteButtons = document.querySelectorAll(".categoria-item .delete-btn")
+        // Inicializar categorías filtradas con todas las categorías
+        filteredCategories = [...allCategories]
 
-        editButtons.forEach((button) => {
-            button.addEventListener("click", function () {
-                const categoriaId = this.getAttribute("data-categoria-id")
-                console.log("Editando categoría con ID:", categoriaId)
-                editCategoria(categoriaId)
-            })
-        })
+        console.log(`${allCategories.length} categorías cargadas`)
 
-        deleteButtons.forEach((button) => {
-            button.addEventListener("click", function () {
-                const categoriaId = this.getAttribute("data-categoria-id")
-                console.log("Eliminando categoría con ID:", categoriaId)
-                deleteCategoria(categoriaId)
-            })
-        })
+        // Renderizar categorías con paginación
+        renderCategorias()
+
+        // Crear controles de paginación
+        createCategoryPagination()
     } catch (error) {
         console.error("Error al cargar categorías:", error)
+        showErrorMessage("Error al cargar categorías. Por favor, recarga la página.")
     }
+}
+
+// Renderizar categorías con paginación
+function renderCategorias() {
+    console.log(`Renderizando página ${currentCategoryPage} de categorías`)
+    const categoriasGrid = document.getElementById("categoriasGrid")
+    categoriasGrid.innerHTML = ""
+
+    // Calcular índices para la página actual
+    const startIndex = (currentCategoryPage - 1) * categoriesPerPage
+    const endIndex = startIndex + categoriesPerPage
+    const categoriesToShow = filteredCategories.slice(startIndex, endIndex)
+
+    if (categoriesToShow.length === 0) {
+        categoriasGrid.innerHTML = '<div class="no-results">No se encontraron categorías</div>'
+        return
+    }
+
+    categoriesToShow.forEach((categoria) => {
+        const div = document.createElement("div")
+        div.classList.add("categoria-item")
+        div.setAttribute("data-categoria-id", categoria.id)
+        div.innerHTML = `
+            <h3>${categoria.name || "Sin nombre"}</h3>
+            <div class="actions">
+                <button class="edit-btn" data-categoria-id="${categoria.id}">Editar</button>
+                <button class="delete-btn" data-categoria-id="${categoria.id}">Eliminar</button>
+            </div>
+        `
+        categoriasGrid.appendChild(div)
+    })
+
+    // Agregar event listeners directamente aquí para asegurar que se apliquen
+    const editButtons = document.querySelectorAll(".categoria-item .edit-btn")
+    const deleteButtons = document.querySelectorAll(".categoria-item .delete-btn")
+
+    editButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const categoriaId = this.getAttribute("data-categoria-id")
+            console.log("Editando categoría con ID:", categoriaId)
+            editCategoria(categoriaId)
+        })
+    })
+
+    deleteButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const categoriaId = this.getAttribute("data-categoria-id")
+            console.log("Eliminando categoría con ID:", categoriaId)
+            deleteCategoria(categoriaId)
+        })
+    })
+
+    // Actualizar información de paginación
+    updateCategoryPaginationInfo()
+}
+
+// Crear controles de paginación para categorías
+function createCategoryPagination() {
+    // Eliminar paginación existente si hay
+    const existingPagination = document.getElementById("categoryPagination")
+    if (existingPagination) {
+        existingPagination.remove()
+    }
+
+    // Crear contenedor de paginación
+    const paginationContainer = document.createElement("div")
+    paginationContainer.id = "categoryPagination"
+    paginationContainer.className = "pagination-container"
+
+    // Crear controles de paginación
+    const paginationControls = document.createElement("div")
+    paginationControls.className = "pagination-controls"
+
+    // Botón primera página
+    const firstPageBtn = document.createElement("button")
+    firstPageBtn.innerHTML = '<i class="fas fa-angle-double-left"></i>'
+    firstPageBtn.className = "pagination-btn"
+    firstPageBtn.addEventListener("click", () => {
+        if (currentCategoryPage !== 1) {
+            currentCategoryPage = 1
+            renderCategorias()
+        }
+    })
+
+    // Botón página anterior
+    const prevPageBtn = document.createElement("button")
+    prevPageBtn.innerHTML = '<i class="fas fa-angle-left"></i>'
+    prevPageBtn.className = "pagination-btn"
+    prevPageBtn.addEventListener("click", () => {
+        if (currentCategoryPage > 1) {
+            currentCategoryPage--
+            renderCategorias()
+        }
+    })
+
+    // Información de página actual
+    const pageInfo = document.createElement("span")
+    pageInfo.className = "page-info"
+    pageInfo.id = "categoryPageInfo"
+
+    // Botón página siguiente
+    const nextPageBtn = document.createElement("button")
+    nextPageBtn.innerHTML = '<i class="fas fa-angle-right"></i>'
+    nextPageBtn.className = "pagination-btn"
+    nextPageBtn.addEventListener("click", () => {
+        const totalPages = Math.ceil(filteredCategories.length / categoriesPerPage)
+        if (currentCategoryPage < totalPages) {
+            currentCategoryPage++
+            renderCategorias()
+        }
+    })
+
+    // Botón última página
+    const lastPageBtn = document.createElement("button")
+    lastPageBtn.innerHTML = '<i class="fas fa-angle-double-right"></i>'
+    lastPageBtn.className = "pagination-btn"
+    lastPageBtn.addEventListener("click", () => {
+        const totalPages = Math.ceil(filteredCategories.length / categoriesPerPage)
+        if (currentCategoryPage !== totalPages && totalPages > 0) {
+            currentCategoryPage = totalPages
+            renderCategorias()
+        }
+    })
+
+    // Selector de categorías por página
+    const perPageContainer = document.createElement("div")
+    perPageContainer.className = "per-page-container"
+
+    const perPageLabel = document.createElement("label")
+    perPageLabel.textContent = "Categorías por página: "
+
+    const perPageSelect = document.createElement("select")
+    perPageSelect.id = "categoriesPerPage"
+        ;[6, 12, 24, 48].forEach((value) => {
+            const option = document.createElement("option")
+            option.value = value
+            option.textContent = value
+            if (value === categoriesPerPage) {
+                option.selected = true
+            }
+            perPageSelect.appendChild(option)
+        })
+
+    perPageSelect.addEventListener("change", () => {
+        categoriesPerPage = Number.parseInt(perPageSelect.value)
+        currentCategoryPage = 1 // Volver a la primera página
+        renderCategorias()
+    })
+
+    // Agregar elementos al contenedor
+    perPageContainer.appendChild(perPageLabel)
+    perPageContainer.appendChild(perPageSelect)
+
+    paginationControls.appendChild(firstPageBtn)
+    paginationControls.appendChild(prevPageBtn)
+    paginationControls.appendChild(pageInfo)
+    paginationControls.appendChild(nextPageBtn)
+    paginationControls.appendChild(lastPageBtn)
+
+    paginationContainer.appendChild(paginationControls)
+    paginationContainer.appendChild(perPageContainer)
+
+    // Insertar después del grid de categorías
+    const categoriasGrid = document.getElementById("categoriasGrid")
+    categoriasGrid.after(paginationContainer)
+
+    // Actualizar información de paginación
+    updateCategoryPaginationInfo()
+}
+
+// Actualizar información de paginación de categorías
+function updateCategoryPaginationInfo() {
+    const pageInfo = document.getElementById("categoryPageInfo")
+    if (!pageInfo) return
+
+    const totalPages = Math.ceil(filteredCategories.length / categoriesPerPage)
+    const startItem = filteredCategories.length > 0 ? (currentCategoryPage - 1) * categoriesPerPage + 1 : 0
+    const endItem = Math.min(startItem + categoriesPerPage - 1, filteredCategories.length)
+
+    pageInfo.textContent = `${startItem}-${endItem} de ${filteredCategories.length} categorías (Página ${currentCategoryPage} de ${totalPages || 1})`
 }
 
 // Función para cargar categorías para el dropdown
@@ -310,7 +620,7 @@ async function deleteCategoria(categoriaId) {
             await deleteDoc(doc(db, "Categorias", categoriaId))
             console.log("Categoría eliminada con ID:", categoriaId)
             alert("Categoría eliminada exitosamente")
-            loadCategorias()
+            await loadCategorias()
         } catch (error) {
             console.error("Error al eliminar categoría:", error)
             alert("Error al eliminar categoría. Intenta de nuevo.")
@@ -344,9 +654,9 @@ async function saveCategoria(event) {
             }
 
             closeCategoriaModal()
-            loadCategorias()
+            await loadCategorias()
             // También recargar productos para actualizar los dropdowns
-            loadProductos()
+            await loadProductos()
         } catch (error) {
             console.error("Error al procesar categoría:", error)
             alert("Error al procesar categoría. Intenta de nuevo.")
@@ -473,34 +783,70 @@ tabs.forEach((tab) => {
     })
 })
 
+// ==================== FUNCIONES PARA BÚSQUEDA Y FILTRADO ====================
+
+// Función para filtrar productos
+function filterProductos() {
+    const searchTerm = document.getElementById("searchProducto").value.toLowerCase()
+    const selectedCategoria = document.getElementById("filterCategoria").value.toLowerCase()
+
+    filteredProducts = allProducts.filter((producto) => {
+        const nombreMatch = (producto.name || "").toLowerCase().includes(searchTerm)
+        const categoriaMatch = !selectedCategoria || (producto.categoria || "").toLowerCase() === selectedCategoria
+        return nombreMatch && categoriaMatch
+    })
+
+    // Volver a la primera página cuando se filtra
+    currentProductPage = 1
+    renderProductos()
+}
+
+// Función para filtrar categorías
+function filterCategorias() {
+    const searchTerm = document.getElementById("searchCategoria").value.toLowerCase()
+
+    filteredCategories = allCategories.filter((categoria) => {
+        return (categoria.name || "").toLowerCase().includes(searchTerm)
+    })
+
+    // Volver a la primera página cuando se filtra
+    currentCategoryPage = 1
+    renderCategorias()
+}
+
 // Inicializar la aplicación cuando el DOM esté listo
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM cargado, inicializando aplicación...");
+    console.log("DOM cargado, inicializando aplicación...")
 
     // Ocultar modales al cargar la página
     productoModal.style.display = "none"
     categoriaModal.style.display = "none"
 
-    loadProductos();
-    loadCategorias();
+    // Cargar productos y categorías
+    loadProductos()
+    loadCategorias()
+
+    // Configurar event listeners para búsqueda y filtrado
+    document.getElementById("searchProducto").addEventListener("input", filterProductos)
+    document.getElementById("filterCategoria").addEventListener("change", filterProductos)
+    document.getElementById("searchCategoria").addEventListener("input", filterCategorias)
 
     // Deshabilitar autocompletar en todos los campos de texto
     document.querySelectorAll("input, textarea").forEach((input) => {
-        input.setAttribute("autocomplete", "off");
-    });
-});
+        input.setAttribute("autocomplete", "off")
+    })
+})
 
 // Permitir cerrar modales con la tecla ESC (fuera del DOMContentLoaded)
-document.addEventListener("keydown", function (event) {
+document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" || event.key === "Esc") {
-
         // Verificar si los modales están visibles
         if (productoModal.style.display === "block") {
-            closeProductoModal();
+            closeProductoModal()
         }
 
         if (categoriaModal.style.display === "block") {
-            closeCategoriaModal();
+            closeCategoriaModal()
         }
     }
-});
+})

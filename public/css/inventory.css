@@ -4,8 +4,8 @@
 
 /* ======== VARIABLES DE COLOR ======== */
 :root {
-    --primary-color: #2C3E50;
-    --secondary-color: #ECF0F1;
+    --primary-color: #2c3e50;
+    --secondary-color: #ecf0f1;
     --accent-color: #fbce06cf;
     --text-color: #000000;
     --danger-color: #e74c3c;
@@ -16,7 +16,7 @@
 
 /* ======== ESTILOS GENERALES ======== */
 body {
-    font-family: 'Montserrat', sans-serif;
+    font-family: "Montserrat", sans-serif;
     background-color: var(--secondary-color);
     margin: 0;
     padding: 0;
@@ -222,10 +222,63 @@ body {
     background-color: #c0392b;
 }
 
+/* ======== PAGINACIÓN ======== */
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+    gap: 10px;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination-btn:hover {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+}
+
+.page-info {
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.per-page-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.per-page-container select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid var(--primary-color);
+}
+
+.no-results {
+    text-align: center;
+    padding: 20px;
+    font-size: 16px;
+    color: #777;
+}
+
 /* ======== MODALES MEJORADOS ======== */
 .modal {
     display: none;
-    /* Oculto por defecto */
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -233,7 +286,6 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    /* Fondo oscuro con transparencia */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -246,7 +298,6 @@ body {
     border-radius: 10px;
     width: 90%;
     max-width: 500px;
-    /* Máximo tamaño del modal */
     text-align: center;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     position: relative;
@@ -341,6 +392,14 @@ body {
     .modal-content {
         padding: 15px;
     }
+
+    .pagination-controls {
+        gap: 5px;
+    }
+
+    .pagination-btn {
+        padding: 6px 10px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -376,6 +435,14 @@ body {
 
     .modal-content {
         padding: 10px;
+    }
+
+    .pagination-container {
+        flex-direction: column;
+    }
+
+    .page-info {
+        font-size: 12px;
     }
 }
 
@@ -421,5 +488,10 @@ body {
     .modal-content {
         width: 95%;
         padding: 15px;
+    }
+
+    .pagination-controls {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }
