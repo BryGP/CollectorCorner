@@ -1,7 +1,6 @@
-/* ======== IMPORTACIÓN DE FUENTES ======== */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
-/* ======== ESTILOS GLOBALES ======== */
+/* Estilos globales */
 body {
     margin: 0;
     padding: 0;
@@ -15,7 +14,6 @@ body {
     color: #fff;
 }
 
-/* ======== HEADER ======== */
 /* Estilos para el logo y el menú de navegación */
 header {
     display: flex;
@@ -40,7 +38,7 @@ header nav a:hover {
     color: #d4af37;
 }
 
-/* ======== SECCIÓN CONTAINER ======== */
+/* Estilos para la sección container */
 .container {
     text-align: center;
     margin-top: 100px;
@@ -58,7 +56,6 @@ header nav a:hover {
     margin-bottom: 150px;
 }
 
-/* ======== BOTÓN LOGIN ======== */
 .container .login-btn {
     background-color: #d4af37;
     color: #000;
@@ -68,37 +65,13 @@ header nav a:hover {
     border-radius: 40px;
     cursor: pointer;
     text-decoration: none;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
 }
 
 .container .login-btn:hover {
     background-color: #b18b2f;
-    transform: scale(1.05);
-    box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
 }
 
-/* Pulso suave */
-.pulse {
-    animation: pulseBtn 2.5s infinite;
-}
-
-@keyframes pulseBtn {
-
-    0%,
-    100% {
-        box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-    }
-
-    50% {
-        box-shadow: 0 0 25px rgba(212, 175, 55, 0.7);
-    }
-}
-
-/* ======== REDES SOCIALES ======== */
+/* Estilos para los íconos de redes sociales */
 .social-media {
     position: fixed;
     bottom: 20px;
@@ -111,7 +84,6 @@ header nav a:hover {
     font-size: 1.5em;
 }
 
-/* ======== FORMULARIO DE CONTACTO ======== */
 .form-container {
     display: flex;
     justify-content: center;
@@ -174,7 +146,7 @@ header nav a:hover {
     background-color: #d0be1a;
 }
 
-/* ======== AJUSTES RESPONSIVOS ======== */
+/* Ajustes Responsivos */
 @media (max-width: 768px) {
     header {
         flex-direction: column;
@@ -205,33 +177,4 @@ header nav a:hover {
         font-size: 1.2em;
         margin: 0 5px;
     }
-}
-
-/* ======== ANIMACIONES SUAVES ======== */
-.fade-up {
-    opacity: 0;
-    transform: translateY(30px);
-    animation: fadeInUp 1s forwards;
-}
-
-.fade-up.delay {
-    animation-delay: 0.4s;
-}
-
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ======== PARTICLES BACKGROUND ======== */
-#particles-js {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    z-index: -1;
 }
