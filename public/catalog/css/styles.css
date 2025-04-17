@@ -1,0 +1,1887 @@
+/* Estilos generales */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Racing+Sans+One&display=swap");
+
+:root {
+  --primary-red: #e61e25;
+  --primary-blue: #1e5799;
+  --accent-yellow: #fbce06;
+  --dark-gray: #333333;
+  --light-gray: #f5f5f5;
+  --white: #ffffff;
+  --black: #000000;
+  --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
+}
+
+body {
+  background-color: var(--light-gray);
+  color: var(--dark-gray);
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+/* Header */
+header {
+  background-color: var(--white);
+  padding: 0;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 40px;
+}
+
+.logo-container h1 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.8em;
+  color: var(--primary-red);
+  line-height: 1;
+  margin: 0;
+}
+
+.logo-container p {
+  font-size: 0.8em;
+  color: var(--dark-gray);
+  margin: 0;
+}
+
+nav {
+  background-color: var(--white);
+  padding: 0 40px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+nav ul {
+  display: flex;
+}
+
+nav ul li {
+  margin-left: 0;
+}
+
+nav ul li a {
+  padding: 15px 20px;
+  display: block;
+  transition: var(--transition);
+  position: relative;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+nav ul li a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 3px;
+  background-color: var(--primary-red);
+  transition: var(--transition);
+}
+
+nav ul li a:hover {
+  color: var(--primary-red);
+}
+
+nav ul li a:hover::after {
+  width: 100%;
+}
+
+/* Main content */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.hero h2 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  color: var(--primary-red);
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: var(--dark-gray);
+}
+
+/* Categories */
+.categories {
+  margin-bottom: 3rem;
+}
+
+.category-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.category-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  height: 300px;
+}
+
+.category-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.category-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.category-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  color: white;
+  padding: 1.5rem;
+  transition: var(--transition);
+}
+
+.category-item:hover .category-overlay {
+  background: linear-gradient(to top, rgba(230, 30, 37, 0.9), transparent);
+}
+
+.category-overlay h3 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Footer */
+footer {
+  background-color: var(--dark-gray);
+  color: white;
+  padding: 3rem 2rem 1rem;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.footer-section h3 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--primary-red);
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.footer-section ul li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-section ul li a:hover {
+  color: var(--accent-yellow);
+}
+
+.footer-bottom {
+  max-width: 1200px;
+  margin: 2rem auto 0;
+  padding-top: 1rem;
+  border-top: 1px solid #34495e;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #bdc3c7;
+}
+
+/* Products page specific styles */
+.products-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.top-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.user-options {
+  display: flex;
+  gap: 1rem;
+}
+
+.option-button {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-red);
+  color: white;
+  border-radius: 4px;
+  transition: var(--transition);
+}
+
+.option-button:hover {
+  background-color: var(--primary-blue);
+}
+
+.cart-count {
+  background-color: var(--accent-yellow);
+  color: var(--dark-gray);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+}
+
+.search-container {
+  flex-grow: 1;
+  max-width: 500px;
+}
+
+.search-container form {
+  display: flex;
+}
+
+.search-container input {
+  flex-grow: 1;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  font-size: 1rem;
+}
+
+.search-container button {
+  padding: 0.8rem 1.2rem;
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.search-container button:hover {
+  background-color: var(--primary-red);
+}
+
+.products-container {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 2rem;
+}
+
+/* Filters */
+.filters {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  align-self: start;
+}
+
+.filters h3 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary-red);
+  border-bottom: 2px solid var(--accent-yellow);
+  padding-bottom: 0.5rem;
+}
+
+.filter-section {
+  margin-bottom: 1.5rem;
+}
+
+.filter-section h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  color: var(--dark-gray);
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-options label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.filter-options input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.price-range {
+  padding: 0 0.5rem;
+}
+
+.price-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.filter-button {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 1rem;
+  transition: var(--transition);
+}
+
+.filter-button:hover {
+  background-color: var(--primary-red);
+}
+
+.filter-button.clear {
+  background-color: #95a5a6;
+  margin-top: 0.5rem;
+}
+
+.filter-button.clear:hover {
+  background-color: #7f8c8d;
+}
+
+/* Products grid */
+.products-grid {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.products-grid h2 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary-red);
+  border-bottom: 2px solid var(--accent-yellow);
+  padding-bottom: 0.5rem;
+}
+
+.products-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.product-card {
+  border: 1px solid #ecf0f1;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: var(--transition);
+  cursor: pointer;
+  background-color: white;
+  box-shadow: var(--shadow);
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.product-image {
+  height: 200px;
+  overflow: hidden;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+.product-info {
+  padding: 1rem;
+}
+
+.product-name {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: var(--dark-gray);
+  font-weight: 600;
+}
+
+.product-price {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.current-price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--primary-red);
+}
+
+.original-price {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  text-decoration: line-through;
+  margin-left: 0.5rem;
+}
+
+.discount-badge {
+  background-color: var(--accent-yellow);
+  color: var(--dark-gray);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+  font-weight: bold;
+}
+
+.add-to-cart {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: var(--transition);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-to-cart:hover {
+  background-color: var(--primary-red);
+}
+
+.sold-out {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: not-allowed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pre-order {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: var(--accent-yellow);
+  color: var(--dark-gray);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: var(--transition);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.pre-order:hover {
+  background-color: #f39c12;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagination button {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pagination button:hover {
+  background-color: var(--primary-red);
+}
+
+.pagination button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+#page-info {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+/* Mini cart */
+.mini-cart {
+  position: fixed;
+  top: 0;
+  right: -350px;
+  width: 350px;
+  height: 100vh;
+  background-color: white;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: right 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.mini-cart.active {
+  right: 0;
+}
+
+.mini-cart-header {
+  padding: 1.5rem;
+  background-color: var(--primary-red);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mini-cart-header h3 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.3rem;
+}
+
+#close-cart {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.mini-cart-items {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.cart-item {
+  display: flex;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.cart-item-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-right: 1rem;
+}
+
+.cart-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cart-item-details {
+  flex-grow: 1;
+}
+
+.cart-item-name {
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+  color: var(--dark-gray);
+  font-weight: 600;
+}
+
+.cart-item-price {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.cart-item-current-price {
+  font-weight: bold;
+  color: var(--primary-red);
+}
+
+.cart-item-original-price {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  text-decoration: line-through;
+  margin-left: 0.5rem;
+}
+
+.cart-item-quantity {
+  display: flex;
+  align-items: center;
+}
+
+.cart-item-quantity span {
+  margin: 0 0.5rem;
+}
+
+.quantity-btn {
+  width: 25px;
+  height: 25px;
+  background-color: #ecf0f1;
+  border: none;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.quantity-btn:hover {
+  background-color: #bdc3c7;
+}
+
+.cart-item-remove {
+  background: none;
+  border: none;
+  color: var(--primary-red);
+  cursor: pointer;
+  margin-left: auto;
+  align-self: flex-start;
+}
+
+.mini-cart-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #ecf0f1;
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: var(--dark-gray);
+}
+
+.cart-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.cart-button {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.cart-button.edit {
+  background-color: var(--primary-blue);
+  color: white;
+}
+
+.cart-button.edit:hover {
+  background-color: #2980b9;
+}
+
+.cart-button.checkout {
+  background-color: var(--primary-red);
+  color: white;
+}
+
+.cart-button.checkout:hover {
+  background-color: #c0392b;
+}
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.lightbox.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.lightbox-content {
+  background-color: white;
+  border-radius: 8px;
+  max-width: 900px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-lightbox {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--dark-gray);
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.product-details {
+  padding: 2rem;
+}
+
+.product-details-header {
+  display: flex;
+  margin-bottom: 2rem;
+}
+
+.product-details-image {
+  width: 300px;
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-right: 2rem;
+}
+
+.product-details-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-details-info {
+  flex-grow: 1;
+}
+
+.product-details-name {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--primary-red);
+}
+
+.product-details-price {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.product-details-current-price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-red);
+}
+
+.product-details-original-price {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+  text-decoration: line-through;
+  margin-left: 1rem;
+}
+
+.product-details-discount {
+  background-color: var(--accent-yellow);
+  color: var(--dark-gray);
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  margin-left: 1rem;
+  font-weight: bold;
+}
+
+.product-details-specs {
+  margin-bottom: 2rem;
+}
+
+.product-details-specs h3 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: var(--primary-blue);
+}
+
+.specs-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.spec-item {
+  display: flex;
+}
+
+.spec-label {
+  font-weight: bold;
+  margin-right: 0.5rem;
+  color: #7f8c8d;
+}
+
+.spec-value {
+  color: var(--dark-gray);
+}
+
+.product-details-description {
+  margin-bottom: 2rem;
+}
+
+.product-details-description h3 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: var(--primary-blue);
+}
+
+.product-details-description p {
+  color: #34495e;
+  line-height: 1.7;
+}
+
+.product-details-action {
+  margin-top: 2rem;
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Agregar estilos para la página de edición de carrito */
+.cart-edit-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.cart-edit-page h2 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary-red);
+  border-bottom: 2px solid var(--accent-yellow);
+  padding-bottom: 0.5rem;
+}
+
+.cart-items-list {
+  margin-bottom: 2rem;
+}
+
+.cart-edit-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #ecf0f1;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background-color: white;
+  box-shadow: var(--shadow);
+}
+
+.cart-edit-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-right: 1.5rem;
+}
+
+.cart-edit-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cart-edit-details {
+  flex-grow: 1;
+}
+
+.cart-edit-name {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: var(--dark-gray);
+  font-weight: 600;
+}
+
+.cart-edit-price {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.cart-edit-current-price {
+  font-weight: bold;
+  color: var(--primary-red);
+}
+
+.cart-edit-original-price {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  text-decoration: line-through;
+  margin-left: 0.5rem;
+}
+
+.cart-edit-quantity {
+  display: flex;
+  align-items: center;
+}
+
+.cart-edit-quantity span {
+  margin: 0 0.5rem;
+}
+
+.cart-edit-remove {
+  color: var(--primary-red);
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-left: 1.5rem;
+  transition: color 0.3s;
+}
+
+.cart-edit-remove:hover {
+  color: #c0392b;
+}
+
+.cart-edit-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.order-button {
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--primary-red);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+}
+
+.order-button:hover {
+  background-color: var(--primary-blue);
+}
+
+/* Estilos para el formulario de ticket perdido */
+.lost-ticket-form {
+  padding: 2rem;
+}
+
+.lost-ticket-form h2 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--primary-red);
+  text-align: center;
+}
+
+.lost-ticket-form p {
+  margin-bottom: 1.5rem;
+  color: #7f8c8d;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--dark-gray);
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.form-button {
+  padding: 0.8rem 1rem;
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  flex: 1;
+  min-width: 120px;
+}
+
+.form-button:hover {
+  background-color: var(--primary-red);
+}
+
+.form-button-blue {
+  background-color: #2980b9;
+}
+
+.form-button-blue:hover {
+  background-color: #3498db;
+}
+
+.form-button-red {
+  background-color: #e74c3c;
+}
+
+.form-button-red:hover {
+  background-color: #c0392b;
+}
+
+/* Agregar estilos para el mensaje de error */
+.form-error {
+  color: var(--primary-red);
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Estilos para el resumen de orden */
+.order-summary {
+  padding: 2rem;
+}
+
+.order-summary h2 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary-red);
+  text-align: center;
+}
+
+.summary-products {
+  margin-bottom: 2rem;
+}
+
+.summary-products h3 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: var(--primary-blue);
+  border-bottom: 1px solid #ecf0f1;
+  padding-bottom: 0.5rem;
+}
+
+.summary-product-item {
+  display: flex;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.summary-product-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-right: 1rem;
+}
+
+.summary-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.summary-product-details {
+  flex-grow: 1;
+}
+
+.summary-product-name {
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+  color: var(--dark-gray);
+  font-weight: 600;
+}
+
+.summary-product-price {
+  color: var(--primary-red);
+}
+
+.summary-product-quantity {
+  margin-left: auto;
+  color: #7f8c8d;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+  border-top: 2px solid #ecf0f1;
+  color: var(--primary-red);
+}
+
+.customer-info {
+  margin-top: 2rem;
+}
+
+.customer-info h3 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: var(--primary-blue);
+  border-bottom: 1px solid #ecf0f1;
+  padding-bottom: 0.5rem;
+}
+
+/* Estilos para la confirmación de boleto */
+.ticket-confirmation {
+  padding: 2rem;
+  text-align: center;
+}
+
+.confirmation-icon {
+  font-size: 4rem;
+  color: var(--primary-blue);
+  margin-bottom: 1.5rem;
+}
+
+.ticket-confirmation h2 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--primary-red);
+}
+
+.ticket-confirmation p {
+  margin-bottom: 1rem;
+  color: #7f8c8d;
+}
+
+.ticket-id {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1.5rem 0;
+  font-size: 1.2rem;
+}
+
+.ticket-id span:first-child {
+  font-weight: bold;
+  margin-right: 0.5rem;
+  color: var(--dark-gray);
+}
+
+.ticket-id span:last-child {
+  font-family: monospace;
+  color: var(--primary-red);
+  font-weight: bold;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 1024px) {
+  .products-container {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    margin-bottom: 2rem;
+  }
+
+  .products-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .logo-container {
+    margin-bottom: 1rem;
+  }
+
+  nav ul {
+    justify-content: center;
+  }
+
+  nav ul li {
+    margin: 0 0.5rem;
+  }
+
+  .category-container {
+    grid-template-columns: 1fr;
+  }
+
+  .top-options {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .user-options {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .option-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .search-container {
+    max-width: none;
+    width: 100%;
+  }
+
+  .products-list {
+    grid-template-columns: 1fr;
+  }
+
+  .product-details-header {
+    flex-direction: column;
+  }
+
+  .product-details-image {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .specs-list {
+    grid-template-columns: 1fr;
+  }
+
+  .mini-cart {
+    width: 100%;
+    right: -100%;
+  }
+
+  .cart-edit-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cart-edit-image {
+    width: 100%;
+    height: 200px;
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .cart-edit-remove {
+    margin-left: 0;
+    margin-top: 1rem;
+    align-self: flex-end;
+  }
+
+  .simple-ticket-form,
+  .simple-confirmation {
+    width: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-card {
+    margin-bottom: 1.5rem;
+  }
+
+  .product-image {
+    height: 180px;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .pagination button {
+    width: 100%;
+  }
+
+  .cart-item {
+    flex-direction: column;
+  }
+
+  .cart-item-image {
+    width: 100%;
+    height: 120px;
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .cart-item-remove {
+    margin-top: 0.5rem;
+  }
+
+  .product-details-specs {
+    margin-bottom: 1rem;
+  }
+
+  .product-details-action {
+    margin-top: 1rem;
+  }
+}
+
+/* Estilos para el boleto generado */
+.ticket-container {
+  background-color: #f8f9fa;
+  border: 2px dashed var(--primary-blue);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.ticket-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.ticket-header h3 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.5rem;
+  color: var(--primary-red);
+  margin-bottom: 0.5rem;
+}
+
+.ticket-header p {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.ticket-info {
+  margin-bottom: 1.5rem;
+}
+
+.ticket-info-item {
+  display: flex;
+  margin-bottom: 0.8rem;
+}
+
+.ticket-info-label {
+  font-weight: bold;
+  width: 150px;
+  color: var(--dark-gray);
+}
+
+.ticket-info-value {
+  flex-grow: 1;
+  color: #34495e;
+}
+
+.ticket-products {
+  margin-bottom: 1.5rem;
+}
+
+.ticket-products h4 {
+  font-size: 1.1rem;
+  color: var(--primary-blue);
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #ecf0f1;
+  padding-bottom: 0.5rem;
+}
+
+.ticket-product-item {
+  display: flex;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.ticket-product-name {
+  flex-grow: 1;
+  color: #34495e;
+}
+
+.ticket-product-quantity {
+  margin-right: 1rem;
+  color: #7f8c8d;
+}
+
+.ticket-product-price {
+  width: 100px;
+  text-align: right;
+  color: var(--primary-red);
+  font-weight: bold;
+}
+
+.ticket-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--primary-red);
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #ecf0f1;
+}
+
+.ticket-footer {
+  text-align: center;
+  margin-top: 2rem;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.ticket-qr {
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.ticket-qr img {
+  width: 150px;
+  height: 150px;
+}
+
+/* Estilos para el formulario simple de boleto */
+.simple-ticket-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.simple-ticket-form {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.simple-ticket-header {
+  background-color: var(--primary-red);
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.simple-ticket-header h2 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.5rem;
+  color: white;
+  margin: 0;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+}
+
+.simple-ticket-content {
+  padding: 1.5rem;
+}
+
+.simple-ticket-section {
+  margin-bottom: 1.5rem;
+}
+
+.simple-ticket-section h3 {
+  font-size: 1.2rem;
+  color: var(--primary-blue);
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 0.5rem;
+}
+
+.simple-ticket-products {
+  margin-bottom: 1rem;
+}
+
+.simple-ticket-product {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.simple-ticket-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin: 1rem 0;
+  padding: 1rem 0;
+  border-top: 2px solid #e9ecef;
+  border-bottom: 2px solid #e9ecef;
+  color: var(--primary-red);
+}
+
+.simple-button {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 1rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+}
+
+.simple-button:hover {
+  background-color: var(--primary-red);
+}
+
+/* Estilos para la confirmación simple */
+.simple-confirmation-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.simple-confirmation {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.simple-confirmation-header {
+  background-color: var(--primary-red);
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.simple-confirmation-header h2 {
+  font-family: "Racing Sans One", cursive;
+  font-size: 1.5rem;
+  color: white;
+  margin: 0;
+}
+
+.simple-confirmation-content {
+  padding: 1.5rem;
+}
+
+.simple-confirmation-content p {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.simple-confirmation-details {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.simple-confirmation-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.simple-confirmation-item:last-child {
+  border-bottom: none;
+}
+
+/* Mensaje de no productos */
+.no-products {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+/* Estilos adicionales para mejorar la responsividad */
+@media (max-width: 380px) {
+  .product-details-price {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .product-details-original-price,
+  .product-details-discount {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  .simple-ticket-product {
+    flex-direction: column;
+  }
+
+  .simple-confirmation-item {
+    flex-direction: column;
+  }
+
+  .simple-confirmation-item span:last-child {
+    margin-top: 0.3rem;
+    font-weight: bold;
+  }
+}
+
+/* Estilos para la advertencia del ticket */
+.ticket-warning {
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  color: #856404;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1.5rem 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.ticket-warning i {
+  font-size: 1.5rem;
+  color: var(--accent-yellow);
+}
+
+.ticket-warning p {
+  margin: 0;
+  text-align: left;
+  color: #856404;
+}
+
+/* Mejorar el botón de finalizar */
+#finish-confirmation {
+  margin-top: 1.5rem;
+  background-color: var(--primary-blue);
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  width: 100%;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+}
+
+#finish-confirmation:hover {
+  background-color: var(--primary-red);
+}
+
+/* Mejorar la visibilidad del botón de cerrar en el lightbox */
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.close-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Asegurar que el lightbox de confirmación sea visible y accesible */
+.simple-confirmation-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.simple-confirmation {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Estilos para el spinner de carga */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--primary-blue);
+  font-size: 1.5rem;
+}
+
+.loading-spinner i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Estilos para mensajes de error */
+.error-message {
+  background-color: #ffebee;
+  color: var(--primary-red);
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Asegurar que los botones se vean bien en móviles */
+@media (max-width: 480px) {
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-button {
+    width: 100%;
+  }
+}

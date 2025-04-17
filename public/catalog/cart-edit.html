@@ -1,0 +1,154 @@
+<!-- Fragmento para incluir en la página principal -->
+<div class="tu-canasta">
+    <button class="close-button">×</button>
+    <h2>Tu Canasta</h2>
+
+    <div class="mini-cart-items">
+        <!-- Los items se cargarán dinámicamente aquí -->
+    </div>
+
+    <div class="mini-cart-total">
+        Total: $0.00
+    </div>
+
+    <div class="mini-cart-buttons">
+        <button class="editar">Editar</button>
+        <button class="generar-boleto">Generar boleto</button>
+    </div>
+</div>
+
+<!-- Script para el mini carrito -->
+<script type="module">
+    document.addEventListener("DOMContentLoaded", () => {
+        // Obtener elementos
+        const closeButton = document.querySelector(".tu-canasta .close-button");
+        const editButton = document.querySelector(".tu-canasta .editar");
+        const generateButton = document.querySelector(".tu-canasta .generar-boleto");
+        const miniCartItems = document.querySelector(".tu-canasta .mini-cart-items");
+        const totalElement = document.querySelector(".tu-canasta .mini-cart-total");
+
+        // Cargar carrito desde localStorage
+        let cart = [];
+        try {
+            const storedCart = localStorage.getItem("cart");
+            if (storedCart) {
+                cart = JSON.parse(storedCart);
+            }
+        } catch (error) {
+            console.error("Error al cargar el carrito:", error);
+        }
+
+        // Renderizar items
+        function renderMiniCartItems() {
+            miniCartItems.innerHTML = "";
+
+            if (cart.length === 0) {
+                miniCartItems.innerHTML = '<p>Tu canasta está vacía</p>';
+                totalElement.textContent = "Total: $0.00";
+                return;
+            }
+
+            let total = 0;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+
+                const itemElement = document.createElement("div");
+                itemElement.className = "mini-cart-item";
+                itemElement.innerHTML = `
+            <img src="${item.image || 'https://placehold.co/60x60/e2e8f0/1e293b?text=Sin+Imagen'}" alt="${item.name}">
+            <div class="mini-cart-item-details">
+              <h4 class="mini-cart-item-name">${item.name}</h4>
+              <span class="mini-cart-item-price">$${item.price.toFixed(2)}</span>
+            </div>
+            <div class="mini-cart-quantity-controls">
+              <button class="mini-cart-quantity-btn decrease" data-id="${item.id}">-</button>
+              <span class="mini-cart-quantity">${item.quantity}</span>
+              <button class="mini-cart-quantity-btn increase" data-id="${item.id}">+</button>
+            </div>
+            <button class="mini-cart-remove" data-id="${item.id}">
+              <i class="fas fa-trash"></i>
+            </button>
+          `;
+
+                miniCartItems.appendChild(itemElement);
+            });
+
+            totalElement.textContent = `Total: $${total.toFixed(2)}`;
+
+            // Agregar eventos a los botones
+            document.querySelectorAll(".mini-cart-quantity-btn.decrease").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const id = btn.getAttribute("data-id");
+                    decreaseQuantity(id);
+                });
+            });
+
+            document.querySelectorAll(".mini-cart-quantity-btn.increase").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const id = btn.getAttribute("data-id");
+                    increaseQuantity(id);
+                });
+            });
+
+            document.querySelectorAll(".mini-cart-remove").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const id = btn.getAttribute("data-id");
+                    removeItem(id);
+                });
+            });
+        }
+
+        // Funciones para manipular el carrito
+        function decreaseQuantity(id) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                item.quantity--;
+                if (item.quantity <= 0) {
+                    removeItem(id);
+                } else {
+                    updateCart();
+                }
+            }
+        }
+
+        function increaseQuantity(id) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                item.quantity++;
+                updateCart();
+            }
+        }
+
+        function removeItem(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCart();
+        }
+
+        function updateCart() {
+            localStorage.setItem("cart", JSON.stringify(cart));
+            renderMiniCartItems();
+        }
+
+        // Eventos de los botones principales
+        closeButton.addEventListener("click", () => {
+            document.querySelector(".tu-canasta").style.display = "none";
+        });
+
+        editButton.addEventListener("click", () => {
+            window.location.href = "cart-edit.html";
+        });
+
+        generateButton.addEventListener("click", () => {
+            if (cart.length === 0) {
+                alert("Tu canasta está vacía");
+                return;
+            }
+            window.location.href = "cart-edit.html?action=checkout";
+        });
+
+        // Inicializar
+        renderMiniCartItems();
+    });
+</script>
