@@ -12,9 +12,9 @@ import {
 
 // Variables para paginación
 let currentProductPage = 1
-let currentCategoryPage = 1
+// let currentCategoryPage = 1 --> Variable para ir a la página de categorías (opcional)
 let productsPerPage = 10
-let categoriesPerPage = 10
+// let categoriesPerPage = 10 --> Variable para mostrar categorias por pagina (opcional)
 let allProducts = []
 let allCategories = []
 let filteredProducts = []
@@ -380,68 +380,66 @@ async function loadCategorias() {
         renderCategorias()
 
         // Crear controles de paginación
-        createCategoryPagination()
+        // createCategoryPagination()
     } catch (error) {
         console.error("Error al cargar categorías:", error)
         showErrorMessage("Error al cargar categorías. Por favor, recarga la página.")
     }
 }
 
-// Renderizar categorías con paginación
+// Renderizar categorías sin paginación
 function renderCategorias() {
-    console.log(`Renderizando página ${currentCategoryPage} de categorías`)
-    const categoriasGrid = document.getElementById("categoriasGrid")
-    categoriasGrid.innerHTML = ""
+    console.log("Renderizando todas las categorías");
+    const categoriasGrid = document.getElementById("categoriasGrid");
+    categoriasGrid.innerHTML = "";
 
-    // Calcular índices para la página actual
-    const startIndex = (currentCategoryPage - 1) * categoriesPerPage
-    const endIndex = startIndex + categoriesPerPage
-    const categoriesToShow = filteredCategories.slice(startIndex, endIndex)
+    // Mostrar todas las categorías sin paginación
+    const categoriesToShow = filteredCategories; // Mostrar todas las categorías
 
     if (categoriesToShow.length === 0) {
-        categoriasGrid.innerHTML = '<div class="no-results">No se encontraron categorías</div>'
-        return
+        categoriasGrid.innerHTML = '<div class="no-results">No se encontraron categorías</div>';
+        return;
     }
 
     categoriesToShow.forEach((categoria) => {
-        const div = document.createElement("div")
-        div.classList.add("categoria-item")
-        div.setAttribute("data-categoria-id", categoria.id)
+        const div = document.createElement("div");
+        div.classList.add("categoria-item");
+        div.setAttribute("data-categoria-id", categoria.id);
         div.innerHTML = `
             <h3>${categoria.name || "Sin nombre"}</h3>
             <div class="actions">
                 <button class="edit-btn" data-categoria-id="${categoria.id}">Editar</button>
                 <button class="delete-btn" data-categoria-id="${categoria.id}">Eliminar</button>
             </div>
-        `
-        categoriasGrid.appendChild(div)
-    })
+        `;
+        categoriasGrid.appendChild(div);
+    });
 
     // Agregar event listeners directamente aquí para asegurar que se apliquen
-    const editButtons = document.querySelectorAll(".categoria-item .edit-btn")
-    const deleteButtons = document.querySelectorAll(".categoria-item .delete-btn")
+    const editButtons = document.querySelectorAll(".categoria-item .edit-btn");
+    const deleteButtons = document.querySelectorAll(".categoria-item .delete-btn");
 
     editButtons.forEach((button) => {
         button.addEventListener("click", function () {
-            const categoriaId = this.getAttribute("data-categoria-id")
-            console.log("Editando categoría con ID:", categoriaId)
-            editCategoria(categoriaId)
-        })
-    })
+            const categoriaId = this.getAttribute("data-categoria-id");
+            console.log("Editando categoría con ID:", categoriaId);
+            editCategoria(categoriaId);
+        });
+    });
 
     deleteButtons.forEach((button) => {
         button.addEventListener("click", function () {
-            const categoriaId = this.getAttribute("data-categoria-id")
-            console.log("Eliminando categoría con ID:", categoriaId)
-            deleteCategoria(categoriaId)
-        })
-    })
+            const categoriaId = this.getAttribute("data-categoria-id");
+            console.log("Eliminando categoría con ID:", categoriaId);
+            deleteCategoria(categoriaId);
+        });
+    });
 
-    // Actualizar información de paginación
-    updateCategoryPaginationInfo()
+    // Comentar la actualización de información de paginación
+    // updateCategoryPaginationInfo();
 }
 
-// Crear controles de paginación para categorías
+/* Crear controles de paginación para categorías --FUNCIONANDO (OPCIONAL)
 function createCategoryPagination() {
     // Eliminar paginación existente si hay
     const existingPagination = document.getElementById("categoryPagination")
@@ -553,9 +551,9 @@ function createCategoryPagination() {
 
     // Actualizar información de paginación
     updateCategoryPaginationInfo()
-}
+} */
 
-// Actualizar información de paginación de categorías
+/* Actualizar información de paginación de categorías  --FUNCIONANDO (OPCIONAL)
 function updateCategoryPaginationInfo() {
     const pageInfo = document.getElementById("categoryPageInfo")
     if (!pageInfo) return
@@ -565,7 +563,7 @@ function updateCategoryPaginationInfo() {
     const endItem = Math.min(startItem + categoriesPerPage - 1, filteredCategories.length)
 
     pageInfo.textContent = `${startItem}-${endItem} de ${filteredCategories.length} categorías (Página ${currentCategoryPage} de ${totalPages || 1})`
-}
+} */
 
 // Función para cargar categorías para el dropdown
 async function loadCategoriasForDropdown() {
