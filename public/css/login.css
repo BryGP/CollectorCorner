@@ -1,15 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
 
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Montserrat', sans-serif;
+    font-family: "Montserrat", sans-serif;
     background-color: #000;
     color: #fff;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-image: url('../Img/Logo.jpeg');
+    background-image: url("../Img/Logo.jpeg");
     /* Asegurar ruta correcta */
     background-size: cover;
     background-position: center;
@@ -22,6 +22,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px;
 }
 
 /* Estilos del formulario de Login */
@@ -44,6 +45,12 @@ body {
     max-width: 150px;
 }
 
+h1 {
+    font-size: 1.8em;
+    margin-bottom: 5px;
+    color: #d4af37;
+}
+
 h2 {
     font-size: 2em;
     margin-bottom: 10px;
@@ -60,34 +67,59 @@ form {
     flex-direction: column;
 }
 
-input {
-    padding: 10px;
+.form-group {
     margin-bottom: 15px;
+    position: relative;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #d4af37;
+}
+
+input {
+    padding: 12px 12px 12px 40px;
     border: 2px solid #d4af37;
     border-radius: 5px;
-    background-color: transparent;
+    background-color: rgba(0, 0, 0, 0.5);
     color: #fff;
     width: 100%;
+    box-sizing: border-box;
+    font-size: 1em;
 }
 
 input::placeholder {
     color: #999;
 }
 
+input:focus {
+    outline: none;
+    border-color: #fff;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
 /* Botón de Login */
-button {
+.login-btn {
     background-color: #d4af37;
     color: #000;
-    padding: 10px;
+    padding: 12px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
     margin-top: 10px;
     transition: background-color 0.3s ease;
+    font-size: 1em;
 }
 
-button:hover {
+.login-btn:hover {
     background-color: #b8960c;
 }
 
@@ -95,29 +127,65 @@ button:hover {
 a {
     color: #d4af37;
     text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 a:hover {
-    text-decoration: underline;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Estilos para el enlace de olvidar contraseña */
+.forgot-password {
+    text-align: right;
+    margin-bottom: 15px;
+}
+
+.forgot-password a {
+    font-size: 0.9em;
+    color: #d4af37;
+}
+
+.forgot-password a:hover {
+    color: #fff;
+}
+
+/* Estilos para el enlace de volver al login */
+.back-to-login {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.back-to-login a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #d4af37;
+    font-size: 0.9em;
+}
+
+.back-to-login a:hover {
+    color: #fff;
 }
 
 /* Añadir estilos para los mensajes de éxito y error */
+.message-container {
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
 .success-message {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-    border-radius: 4px;
-    padding: 10px;
-    margin-bottom: 15px;
+    background-color: rgba(40, 167, 69, 0.2);
+    border: 1px solid #28a745;
+    color: #28a745;
 }
 
 .error-message {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-    border-radius: 4px;
-    padding: 10px;
-    margin-bottom: 15px;
+    background-color: rgba(220, 53, 69, 0.2);
+    border: 1px solid #dc3545;
+    color: #dc3545;
 }
 
 /* Estilo para el header y enlaces del submenú */
@@ -158,17 +226,23 @@ header a:hover {
 @media (max-width: 768px) {
     body {
         background-size: cover;
-        padding: 20px;
+    }
+
+    .container {
+        padding: 15px;
     }
 
     .login-container {
         width: 100%;
-        padding: 20px;
-        box-shadow: none;
+        padding: 25px 20px;
     }
 
     .logo img {
         max-width: 100px;
+    }
+
+    h1 {
+        font-size: 1.5em;
     }
 
     h2 {
@@ -176,13 +250,13 @@ header a:hover {
     }
 
     input {
-        padding: 8px;
+        padding: 10px 10px 10px 35px;
         font-size: 0.9em;
     }
 
-    button {
-        padding: 8px;
-        font-size: 1em;
+    .login-btn {
+        padding: 10px;
+        font-size: 0.95em;
     }
 
     header {

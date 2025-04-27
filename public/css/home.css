@@ -1,29 +1,68 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+/* ==========================
+   CSS PARA HOME - Toy Garage
+   ========================== */
 
-/* Estilos globales */
+/* ======== IMPORTACIÓN DE FUENTES ======== */
+/* Importa la fuente Montserrat desde Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
+
+/* ======== ESTILOS GLOBALES ======== */
+/* Configuración básica del cuerpo y elementos globales */
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Montserrat', sans-serif;
-    background-image: url('../Img/LSF.png'); /* Asegurar ruta correcta */
+    font-family: "Montserrat", sans-serif;
+    background-color: #000;
+    color: #fff;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* ======== EFECTO DE PARTÍCULAS ======== */
+/* Fondo animado con partículas */
+#particles-js {
+    position: fixed;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("../Img/LSF.png");
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
-    background-color: #000;
-    color: #fff;
 }
 
-/* Estilos para el logo y el menú de navegación */
+/* ======== HEADER ======== */
+/* Estilo para el encabezado y el menú de navegación */
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 50px;
+    position: relative;
+    z-index: 1;
+    animation: fadeInDown 1s ease forwards;
+}
+
+/* Animación de entrada para el header */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 header .logo h2 {
     font-weight: 700;
     color: #fff;
+    position: relative;
+    display: inline-block;
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
 }
 
 header nav a {
@@ -31,30 +70,78 @@ header nav a {
     text-decoration: none;
     color: #fff;
     font-size: 1.1em;
+    position: relative;
+    transition: color 0.3s ease;
 }
 
 header nav a:hover {
     color: #d4af37;
 }
 
-/* Estilos para la sección container */
+/* Efecto de línea para los enlaces de navegación */
+header nav a::after {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #d4af37;
+    transition: width 0.3s ease;
+}
+
+header nav a:hover::after {
+    width: 100%;
+}
+
+/* ======== CONTENEDOR PRINCIPAL ======== */
+/* Estilo para el contenedor principal */
 .container {
     text-align: center;
     margin-top: 100px;
+    position: relative;
+    z-index: 1;
 }
 
 .container h1 {
     font-size: 3.5em;
     font-weight: 700;
     margin-bottom: 5%;
+    animation: textGlow 3s ease-in-out infinite alternate;
+    transform-style: preserve-3d;
+    perspective: 500px;
+}
+
+/* Animación de brillo para el texto */
+@keyframes textGlow {
+    from {
+        text-shadow: 0 0 5px rgba(212, 175, 55, 0.3), 0 0 10px rgba(212, 175, 55, 0.2), 0 0 15px rgba(212, 175, 55, 0.1);
+    }
+    to {
+        text-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 0 0 20px rgba(212, 175, 55, 0.4), 0 0 30px rgba(212, 175, 55, 0.3);
+    }
 }
 
 .container h2 {
     font-size: 4.2em;
     font-weight: 100;
     margin-bottom: 150px;
+    animation: fadeIn 1.5s ease forwards 0.5s;
+    opacity: 0;
 }
 
+/* Animación de entrada para el subtítulo */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ======== BOTÓN LOGIN ======== */
+/* Estilo para el botón de inicio de sesión */
 .container .login-btn {
     background-color: #d4af37;
     color: #000;
@@ -64,25 +151,75 @@ header nav a:hover {
     border-radius: 40px;
     cursor: pointer;
     text-decoration: none;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+    animation: fadeInUp 1s ease forwards 1s;
+    opacity: 0;
+}
+
+/* Animación de entrada para el botón */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .container .login-btn:hover {
     background-color: #b18b2f;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(212, 175, 55, 0.6);
 }
 
-/* Estilos para los íconos de redes sociales */
+/* Efecto de onda para el botón */
+.container .login-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: 0.5s;
+}
+
+.container .login-btn:hover::before {
+    left: 100%;
+}
+
+/* ======== REDES SOCIALES ======== */
+/* Estilo para los íconos de redes sociales */
 .social-media {
     position: fixed;
     bottom: 20px;
     right: 20px;
+    z-index: 1;
+    animation: fadeIn 1s ease forwards 1.5s;
+    opacity: 0;
 }
 
 .social-media a {
     margin: 0 10px;
     color: #fff;
     font-size: 1.5em;
+    transition: all 0.3s ease;
+    display: inline-block;
 }
 
+.social-media a:hover {
+    color: #d4af37;
+    transform: translateY(-5px) rotate(360deg);
+}
+
+/* ======== FORMULARIO DE CONTACTO ======== */
+/* Estilo para el formulario de contacto */
 .form-container {
     display: flex;
     justify-content: center;
@@ -145,7 +282,8 @@ header nav a:hover {
     background-color: #d0be1a;
 }
 
-/* Ajustes Responsivos */
+/* ======== AJUSTES RESPONSIVOS ======== */
+/* Ajustes para pantallas pequeñas */
 @media (max-width: 768px) {
     header {
         flex-direction: column;
@@ -157,7 +295,8 @@ header nav a:hover {
         margin-top: 50px;
     }
 
-    .container h1, .container h2 {
+    .container h1,
+    .container h2 {
         font-size: 2.5em;
     }
 
@@ -175,4 +314,22 @@ header nav a:hover {
         font-size: 1.2em;
         margin: 0 5px;
     }
+}
+
+/* ======== ANIMACIÓN DE PULSO ======== */
+/* Animación de pulso para el botón */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 15px rgba(212, 175, 55, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+    }
+}
+
+.pulse {
+    animation: pulse 1.5s infinite;
 }

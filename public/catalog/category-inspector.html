@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspector de Categorías - Toy Garage</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .debug-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .debug-info {
+            background-color: #f1faee;
+            border: 1px solid #a8dadc;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .debug-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+        .debug-table th,
+        .debug-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .debug-table th {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .debug-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .debug-table tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: var(--primary-red);
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .category-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-button {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .filter-button:hover {
+            background-color: var(--primary-red);
+        }
+
+        .filtered-products {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .solution-steps {
+            background-color: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .solution-steps h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+
+        .solution-steps ol {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo-container">
+            <h1>Toy Garage</h1>
+            <p>Inspector de Categorías</p>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="./catalog.html">Volver al Catálogo</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="debug-container">
+            <h2>Inspector de Categorías y Tipos</h2>
+
+            <div class="debug-info">
+                <p>Esta herramienta analiza todos los productos en tu base de datos para identificar problemas con las
+                    categorías y tipos.</p>
+                <p><strong>Instrucciones:</strong> Revisa los resultados a continuación para entender cómo están
+                    estructurados tus productos.</p>
+            </div>
+
+            <div class="solution-steps">
+                <h3>Solución al problema de filtrado por categorías</h3>
+                <ol>
+                    <li>Verifica que los productos tengan el campo <strong>tipo</strong> correctamente definido.</li>
+                    <li>Asegúrate de que los valores de <strong>tipo</strong> coincidan exactamente con las categorías
+                        que quieres filtrar.</li>
+                    <li>Revisa la correspondencia entre los nombres de categorías en la URL y los valores de
+                        <strong>tipo</strong> en Firestore.</li>
+                    <li>Utiliza el mapa de conversión en products.js para traducir correctamente entre ambos.</li>
+                </ol>
+            </div>
+
+            <div id="inspection-results">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Analizando productos y categorías...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Toy Garage</h3>
+                <p>Tu tienda especializada en modelos a escala</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Toy Garage - Collector's Corner. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script type="module" src="./js/firebase-config.js"></script>
+    <script type="module" src="./js/category-inspector.js"></script>
+</body>
+
+</html>

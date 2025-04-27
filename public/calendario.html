@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Principal - Toy Garage</title>
+    <link rel="stylesheet" href="css/menu1.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Encabezado global -->
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Toy Garage</h1>
+                    <h2>Collector's Corner</h2>
+                </div>
+            </div>
+
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Usuario</div>
+                    <div class="user-role" id="userRole">Rol</div>
+                </div>
+                <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <nav>
+            <ul>
+                <li><a href="menu1.html" class="active"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="usuarios.html"><i class="fas fa-users"></i> Usuarios</a></li>
+                <li><a href="calendario.html"><i class="fas fa-calendar-alt"></i> Calendario</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Contenido principal -->
+    <main>
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button id="prevMonth" class="boton-mes">&lt;</button>
+                <h2 id="monthYear"></h2>
+                <button id="nextMonth" class="boton-mes">&gt;</button>
+            </div>
+            <table class="calendar">
+                <thead>
+                    <tr>
+                        <th>Dom</th>
+                        <th>Lun</th>
+                        <th>Mar</th>
+                        <th>Mié</th>
+                        <th>Jue</th>
+                        <th>Vie</th>
+                        <th>Sáb</th>
+                    </tr>
+                </thead>
+                <tbody id="calendarBody">
+                    <!-- Calendar dates will be generated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="event-form">
+            <h3>Agregar Evento</h3>
+            <form id="eventForm">
+                <label for="eventDate">Fecha:</label>
+                <input type="date" id="eventDate" required>
+                <label for="eventTitle">Título:</label>
+                <input type="text" id="eventTitle" required>
+                <button type="submit" class="boton-agregar">Agregar</button>
+            </form>
+        </div>
+
+        <script>
+            const calendarBody = document.getElementById('calendarBody');
+            const monthYear = document.getElementById('monthYear');
+            const prevMonth = document.getElementById('prevMonth');
+            const nextMonth = document.getElementById('nextMonth');
+            const eventForm = document.getElementById('eventForm');
+            const eventDate = document.getElementById('eventDate');
+            const eventTitle = document.getElementById('eventTitle');
+
+            let currentDate = new Date();
+
+            function renderCalendar() {
+                calendarBody.innerHTML = '';
+                const month = currentDate.getMonth();
+                const year = currentDate.getFullYear();
+                monthYear.textContent = `${currentDate.toLocaleString('es-ES', { month: 'long' })} ${year}`;
+
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                let date = 1;
+                for (let i = 0; i < 6; i++) {
+                    const row = document.createElement('tr');
+                    for (let j = 0; j < 7; j++) {
+                        const cell = document.createElement('td');
+                        if (i === 0 && j < firstDay) {
+                            cell.textContent = '';
+                        } else if (date > daysInMonth) {
+                            break;
+                        } else {
+                            cell.textContent = date;
+                            cell.dataset.date = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                            cell.addEventListener('click', () => {
+                                eventDate.value = cell.dataset.date;
+                            });
+                            date++;
+                        }
+                        row.appendChild(cell);
+                    }
+                    calendarBody.appendChild(row);
+                }
+            }
+
+            prevMonth.addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+
+            nextMonth.addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+
+            eventForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const event = {
+                    date: eventDate.value,
+                    title: eventTitle.value
+                };
+                alert(`Evento agregado: ${event.title} el ${event.date}`);
+                eventForm.reset();
+            });
+
+            renderCalendar();
+        </script>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Toy Garage</div>
+            <p class="footer-text">&copy; 2024 RARITY TECH INNOVATIONS. Todos los derechos reservados.</p>
+            <div class="footer-links">
+                <a href="#">Términos</a>
+                <a href="#">Privacidad</a>
+                <a href="#">Soporte</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

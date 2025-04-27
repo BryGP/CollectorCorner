@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrección de Categorías - Toy Garage</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .debug-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .debug-info {
+            background-color: #f1faee;
+            border: 1px solid #a8dadc;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .warning-info {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+
+        .debug-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+        .debug-table th,
+        .debug-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .debug-table th {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .debug-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .debug-table tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: var(--primary-red);
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+
+        .fix-button {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto;
+            min-width: 200px;
+        }
+
+        .fix-button:hover {
+            background-color: var(--primary-red);
+        }
+
+        .fix-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .results-summary {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .result-item {
+            padding: 15px;
+            border-radius: 4px;
+            min-width: 120px;
+        }
+
+        .result-item .count {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .result-item .label {
+            font-size: 14px;
+        }
+
+        .updated {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .unchanged {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        .errors {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-updated {
+            background-color: #d4edda;
+        }
+
+        .status-unchanged {
+            background-color: #f8f9fa;
+        }
+
+        .status-error {
+            background-color: #f8d7da;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-button {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-button:hover {
+            background-color: var(--primary-red);
+        }
+
+        .retry-button {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo-container">
+            <h1>Toy Garage</h1>
+            <p>Corrección de Categorías</p>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="./catalog.html">Volver al Catálogo</a></li>
+                <li><a href="./category-inspector.html">Inspector de Categorías</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="debug-container">
+            <h2>Corrección de Categorías</h2>
+
+            <div class="debug-info">
+                <p>Esta herramienta corregirá automáticamente las categorías de tus productos para asegurar que todas
+                    usen el mismo formato.</p>
+                <p><strong>Instrucciones:</strong> Haz clic en el botón "Corregir categorías" para normalizar todas las
+                    categorías en tu base de datos.</p>
+            </div>
+
+            <div class="warning-info">
+                <p><strong>¡Importante!</strong> Esta herramienta modificará directamente tu base de datos. Se
+                    recomienda hacer una copia de seguridad antes de continuar.</p>
+                <p>Las categorías se normalizarán a los siguientes valores:</p>
+                <ul>
+                    <li>"Coleccionable" (para carros coleccionables)</li>
+                    <li>"Dulce Americano" (para dulces temáticos)</li>
+                    <li>"Accesorio" (para accesorios de coleccionistas)</li>
+                    <li>"Otros" (para otros productos)</li>
+                </ul>
+            </div>
+
+            <button id="fix-categories-btn" class="fix-button">Corregir categorías</button>
+
+            <div id="fix-results">
+                <!-- Aquí se mostrarán los resultados -->
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Toy Garage</h3>
+                <p>Tu tienda especializada en modelos a escala</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Toy Garage - Collector's Corner. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script type="module" src="./js/firebase-config.js"></script>
+    <script type="module" src="./js/fix-categories.js"></script>
+</body>
+
+</html>
