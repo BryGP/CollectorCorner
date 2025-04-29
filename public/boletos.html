@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Boletos - Toy Garage</title>
+    <link rel="stylesheet" href="css/menu1.css">
+    <link rel="stylesheet" href="css/boletos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Toy Garage</h1>
+                    <h2>Collector's Corner - Gestión de Boletos</h2>
+                </div>
+            </div>
+
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Usuario</div>
+                    <div class="user-role" id="userRole">Rol</div>
+                </div>
+                <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <nav>
+            <ul>
+                <li><a href="menu1.html"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="usuarios.html"><i class="fas fa-users"></i> Usuarios</a></li>
+                <li><a href="boletos.html" class="active"><i class="fas fa-ticket-alt"></i> Boletos</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="boletos-container">
+            <div class="boletos-header">
+                <h1 class="page-title">Gestión de Boletos</h1>
+                <div class="boletos-actions">
+                    <div class="search-bar">
+                        <input type="text" id="searchBoleto" placeholder="Buscar por ID o nombre...">
+                        <button id="searchBtn"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="filter-options">
+                        <select id="filterEstado">
+                            <option value="todos">Todos los estados</option>
+                            <option value="pendiente">Pendientes</option>
+                            <option value="completado">Completados</option>
+                            <option value="cancelado">Cancelados</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="boletosGrid" class="boletos-grid">
+                <!-- Los boletos se cargarán dinámicamente aquí -->
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Cargando boletos...</p>
+                </div>
+            </div>
+
+            <div class="pagination">
+                <button id="prevPage" disabled><i class="fas fa-chevron-left"></i> Anterior</button>
+                <span id="pageInfo">Página 1 de 1</span>
+                <button id="nextPage">Siguiente <i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para cambiar fecha -->
+    <div id="cambiarFechaModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Cambiar Fecha de Expiración</h3>
+            <form id="cambiarFechaForm">
+                <input type="hidden" id="boletoId">
+                <div class="form-group">
+                    <label for="nuevaFecha">Nueva fecha de expiración:</label>
+                    <input type="datetime-local" id="nuevaFecha" required>
+                    <p class="form-help">La fecha actual de expiración es: <span id="fechaActual"></span></p>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancelarCambioFecha" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar boleto -->
+    <div id="eliminarBoletoModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Eliminar Boleto</h3>
+            <p>¿Estás seguro de que deseas eliminar este boleto? Esta acción no se puede deshacer.</p>
+            <div class="boleto-info">
+                <p><strong>ID del Boleto:</strong> <span id="eliminarBoletoId"></span></p>
+                <p><strong>Cliente:</strong> <span id="eliminarBoletoCliente"></span></p>
+            </div>
+            <div class="form-actions">
+                <button type="button" id="cancelarEliminar" class="btn-secondary">Cancelar</button>
+                <button type="button" id="confirmarEliminar" class="btn-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para completar compra -->
+    <div id="completarCompraModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Completar Compra</h3>
+            <p>¿Confirmas que el cliente ha completado la compra de los productos en este boleto?</p>
+            <div class="boleto-info">
+                <p><strong>ID del Boleto:</strong> <span id="completarCompraId"></span></p>
+                <p><strong>Cliente:</strong> <span id="completarCompraCliente"></span></p>
+                <p><strong>Total:</strong> $<span id="completarCompraTotal"></span></p>
+            </div>
+            <div class="form-actions">
+                <button type="button" id="cancelarCompletar" class="btn-secondary">Cancelar</button>
+                <button type="button" id="confirmarCompletar" class="btn-success">Confirmar Compra</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Toy Garage</div>
+            <p class="footer-text">&copy; 2024 RARITY TECH INNOVATIONS. Todos los derechos reservados.</p>
+            <div class="footer-links">
+                <a href="#">Términos</a>
+                <a href="#">Privacidad</a>
+                <a href="#">Soporte</a>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/boletos.js"></script>
+</body>
+
+</html>
