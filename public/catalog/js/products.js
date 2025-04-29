@@ -1,4 +1,4 @@
-import { db, collection, getDocs, updateDoc, doc } from "./firebase-config.js"
+import { db, collection, getDocs, updateDoc, doc, query, where, Timestamp, deleteDoc } from "./firebase-config.js"
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM cargado - Iniciando aplicación de productos")
@@ -21,6 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("search-input")
   const applyFiltersButton = document.getElementById("apply-filters")
   const clearFiltersButton = document.getElementById("clear-filters")
+  //aqui se modifico :D
+  const lostTicketButton = document.querySelector(".option-button:nth-child(2)")
+  const lostTicketLightbox = document.getElementById("lost-ticket-lightbox")
+  const closeLostTicketButton = document.getElementById("close-lost-ticket")
 
   console.log("Referencias a elementos DOM obtenidas correctamente")
 
@@ -776,6 +780,20 @@ document.addEventListener("DOMContentLoaded", () => {
     overlay.classList.remove("active")
   }
 
+  //aqui se modifico :D
+  // Abrir modal de ticket perdido
+  function openLostTicketModal() {
+    console.log("Abriendo modal de ticket perdido")
+    lostTicketLightbox.classList.add("active")
+    overlay.classList.add("active")
+  }
+
+  // Cerrar modal de ticket perdido
+  function closeLostTicketModal() {
+    lostTicketLightbox.classList.remove("active")
+    overlay.classList.remove("active")
+  }
+
   // Eventos
   cartButton.addEventListener("click", (e) => {
     e.preventDefault()
@@ -790,9 +808,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   closeLightboxButton.addEventListener("click", closeProductDetails)
 
+  //aqui se modifico :D
+  // Evento para el botón de ticket perdido
+  if (lostTicketButton) {
+    lostTicketButton.addEventListener("click", (e) => {
+      e.preventDefault()
+      openLostTicketModal()
+    })
+  }
+
+  //aqui se modifico :D
+  // Evento para cerrar el modal de ticket perdido
+  if (closeLostTicketButton) {
+    closeLostTicketButton.addEventListener("click", closeLostTicketModal)
+  }
+
   overlay.addEventListener("click", () => {
     closeCart()
     closeProductDetails()
+    //aqui se modifico :D
+    closeLostTicketModal()
   })
 
   prevPageButton.addEventListener("click", () => {
@@ -898,4 +933,279 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Descomentar para añadir el botón de depuración
   // addDebugButton()
+
+  // Modificar la sección de eventos del mini carrito
+  // Buscar la parte donde se definen los botones de editar y checkout
+  // Alrededor de la línea 600-650
+
+  document.getElementById("edit-cart").addEventListener("click", () => {
+    console.log("Redirigiendo a la página de edición del carrito")
+    window.location.href = "cart-edit.html"
+  })
+
+  document.getElementById("checkout").addEventListener("click", () => {
+    console.log("Abriendo formulario de generación de boleto")
+    showOrderSummary()
+  })
+
+  // Asegurarse de que la función showOrderSummary esté definida correctamente
+  // Añadir esta función si no existe o modificarla si ya existe:
+  function showOrderSummary() {
+    console.log("Mostrando resumen de orden")
+    const orderSummaryLightbox = document.getElementById("order-summary-lightbox")
+    const overlay = document.getElementById("overlay")
+
+    // Renderizar productos en el resumen
+    const summaryProductsList = document.getElementById("summary-products-list")
+    const summaryTotalAmount = document.getElementById("summary-total-amount")
+
+    summaryProductsList.innerHTML = ""
+
+    let total = 0
+
+    cart.forEach((item) => {
+      const itemTotal = item.price * item.quantity
+      total += itemTotal
+
+      const summaryItem = document.createElement("div")
+      summaryItem.className = "summary-product-item"
+      summaryItem.innerHTML = `
+      <div class="summary-product-image">
+        <img src="${item.image || "https://placehold.co/60x60/e2e8f0/1e293b?text=Sin+Imagen"
+        }" alt="${item.name}" onerror="this.src='https://placehold.co/60x60/e2e8f0/1e293b?text=Sin+Imagen'">
+      </div>
+      <div class="summary-product-details">
+        <h4 class="summary-product-name">${item.name}</h4>
+        <span class="summary-product-price">$${item.price.toFixed(2)}</span>
+      </div>
+      <span class="summary-product-quantity">x${item.quantity}</span>
+    `
+
+      summaryProductsList.appendChild(summaryItem)
+    })
+
+    summaryTotalAmount.textContent = `$${total.toFixed(2)}`
+
+    // Habilitar el botón de generar boleto cuando se completen los campos
+    const customerInfoForm = document.getElementById("customer-info-form")
+    const generateTicketButton = document.getElementById("generate-ticket")
+
+    function validateForm() {
+      const nameInput = document.getElementById("customer-name")
+      const emailInput = document.getElementById("customer-email")
+      const phoneInput = document.getElementById("customer-phone")
+
+      const isValid = nameInput.value.trim() !== "" && emailInput.value.trim() !== "" && phoneInput.value.trim() !== ""
+
+      generateTicketButton.disabled = !isValid
+    }
+
+    // Agregar event listeners para validar el formulario
+    document.getElementById("customer-name").addEventListener("input", validateForm)
+    document.getElementById("customer-email").addEventListener("input", validateForm)
+    document.getElementById("customer-phone").addEventListener("input", validateForm)
+
+    // Agregar event listener para el formulario
+    customerInfoForm.addEventListener("submit", (e) => {
+      e.preventDefault()
+
+      const name = document.getElementById("customer-name").value
+      const email = document.getElementById("customer-email").value
+      const phone = document.getElementById("customer-phone").value
+
+      // Generar ID único para el boleto
+      const ticketId = "TKT" + Math.random().toString(36).substr(2, 8).toUpperCase()
+
+      // Mostrar confirmación de boleto
+      showTicketConfirmation(ticketId)
+
+      // Limpiar carrito
+      cart = []
+      localStorage.setItem("cart", JSON.stringify(cart))
+      updateCartCount()
+    })
+
+    // Mostrar el lightbox
+    orderSummaryLightbox.classList.add("active")
+    overlay.classList.add("active")
+
+    // Agregar event listener para cerrar el lightbox
+    document.getElementById("close-order-summary").addEventListener("click", () => {
+      orderSummaryLightbox.classList.remove("active")
+      overlay.classList.remove("active")
+    })
+  }
+
+  // Añadir función para mostrar confirmación de boleto
+  function showTicketConfirmation(ticketId) {
+    const ticketConfirmationLightbox = document.getElementById("ticket-confirmation-lightbox")
+    const orderSummaryLightbox = document.getElementById("order-summary-lightbox")
+    const overlay = document.getElementById("overlay")
+
+    // Actualizar ID del boleto en la confirmación
+    document.getElementById("generated-ticket-id").textContent = ticketId
+
+    // Ocultar resumen de orden y mostrar confirmación
+    orderSummaryLightbox.classList.remove("active")
+    ticketConfirmationLightbox.classList.add("active")
+
+    // Agregar event listener para cerrar la confirmación
+    document.getElementById("close-confirmation").addEventListener("click", () => {
+      ticketConfirmationLightbox.classList.remove("active")
+      overlay.classList.remove("active")
+
+      // Redirigir a la página principal
+      window.location.href = "catalog.html"
+    })
+  }
+
+  //aqui se modifico :D
+  // Implementar funcionalidad para el formulario de recuperación de ticket
+  const recoverTicketForm = document.getElementById("recover-ticket-form")
+  const recoverButton = document.getElementById("recover-button")
+  const extendOrderButton = document.getElementById("extend-order-button")
+  const cancelOrderButton = document.getElementById("cancel-order-button")
+
+  if (recoverButton) {
+    recoverButton.addEventListener("click", () => {
+      // Limpiar mensajes previos
+      document.getElementById("order-error").style.display = "none"
+      document.getElementById("order-success").style.display = "none"
+
+      const ticketId = document.getElementById("recover-id").value
+      const name = document.getElementById("recover-name").value
+      const email = document.getElementById("recover-email").value
+      const phone = document.getElementById("recover-phone").value
+
+      if (!ticketId || !name || !email || !phone) {
+        document.getElementById("recover-error").style.display = "block"
+        return
+      }
+
+      document.getElementById("recover-error").style.display = "none"
+      document.getElementById("order-success").style.display = "block"
+      document.getElementById("order-success").textContent =
+        "Se ha enviado una copia de tu boleto al correo electrónico proporcionado."
+
+    })
+  }
+
+  // Modificar la sección donde se manejan los botones de recuperación, aplazamiento y cancelación de boletos
+  // Buscar la parte donde se definen los event listeners para estos botones (cerca del final del archivo)
+  // Reemplazar los event listeners existentes con los siguientes:
+
+  if (extendOrderButton) {
+    extendOrderButton.addEventListener("click", async () => {
+      // Limpiar mensajes previos
+      document.getElementById("order-error").style.display = "none"
+      document.getElementById("order-success").style.display = "none"
+
+      const ticketId = document.getElementById("recover-id").value
+      const name = document.getElementById("recover-name").value
+      const email = document.getElementById("recover-email").value
+      const phone = document.getElementById("recover-phone").value
+
+      if (!ticketId || !name || !email || !phone) {
+        document.getElementById("recover-error").style.display = "block"
+        return
+      }
+
+      document.getElementById("recover-error").style.display = "none"
+
+      try {
+        //aqui se modifico :D
+        // Buscar el boleto en Firestore
+        const boletosRef = collection(db, "Boleto")
+        const q = query(boletosRef, where("ID_BOLETO", "==", ticketId), where("Nombre", "==", name.toUpperCase()))
+        const querySnapshot = await getDocs(q)
+
+        if (querySnapshot.empty) {
+          document.getElementById("order-error").style.display = "block"
+          document.getElementById("order-error").textContent =
+            "No se encontró ningún boleto con los datos proporcionados."
+          return
+        }
+
+        // Calcular la nueva fecha de expiración (24 horas a partir de ahora)
+        const nuevaFechaExpiracion = new Date()
+        nuevaFechaExpiracion.setDate(nuevaFechaExpiracion.getDate() + 1)
+        nuevaFechaExpiracion.setHours(23, 59, 0) // Establecer a las 11:59 PM
+
+        // Actualizar el documento
+        const boletoDoc = querySnapshot.docs[0]
+        await updateDoc(doc(db, "Boleto", boletoDoc.id), {
+          EXPIRACION: Timestamp.fromDate(nuevaFechaExpiracion),
+        })
+
+        // Formatear la fecha para mostrarla
+        const options = {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }
+        const fechaFormateada = nuevaFechaExpiracion.toLocaleDateString("es-MX", options)
+
+        document.getElementById("order-success").style.display = "block"
+        document.getElementById("order-success").textContent =
+          `Se ha aplazado la fecha de tu boleto hasta el ${fechaFormateada}.`
+
+      } catch (error) {
+        console.error("Error al aplazar boleto:", error)
+        document.getElementById("order-error").style.display = "block"
+        document.getElementById("order-error").textContent =
+          "Ocurrió un error al procesar tu solicitud. Inténtalo de nuevo."
+      }
+    })
+  }
+
+  if (cancelOrderButton) {
+    cancelOrderButton.addEventListener("click", async () => {
+      // Limpiar mensajes previos
+      document.getElementById("order-error").style.display = "none"
+      document.getElementById("order-success").style.display = "none"
+
+      const ticketId = document.getElementById("recover-id").value
+      const name = document.getElementById("recover-name").value
+      const email = document.getElementById("recover-email").value
+      const phone = document.getElementById("recover-phone").value
+
+      if (!ticketId || !name || !email || !phone) {
+        document.getElementById("recover-error").style.display = "block"
+        return
+      }
+
+      document.getElementById("recover-error").style.display = "none"
+
+      try {
+        //aqui se modifico :D
+        // Buscar el boleto en Firestore
+        const boletosRef = collection(db, "Boleto")
+        const q = query(boletosRef, where("ID_BOLETO", "==", ticketId), where("Nombre", "==", name.toUpperCase()))
+        const querySnapshot = await getDocs(q)
+
+        if (querySnapshot.empty) {
+          document.getElementById("order-error").style.display = "block"
+          document.getElementById("order-error").textContent =
+            "No se encontró ningún boleto con los datos proporcionados."
+          return
+        }
+
+        // Eliminar el documento
+        const boletoDoc = querySnapshot.docs[0]
+        await deleteDoc(doc(db, "Boleto", boletoDoc.id))
+
+        document.getElementById("order-success").style.display = "block"
+        document.getElementById("order-success").textContent = "Tu boleto ha sido eliminado correctamente."
+
+      } catch (error) {
+        console.error("Error al eliminar boleto:", error)
+        document.getElementById("order-error").style.display = "block"
+        document.getElementById("order-error").textContent =
+          "Ocurrió un error al procesar tu solicitud. Inténtalo de nuevo."
+      }
+    })
+  }
 })

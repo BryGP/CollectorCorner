@@ -1,0 +1,515 @@
+/* Estilos para la página de gestión de boletos */
+
+/* Contenedor principal */
+.boletos-container {
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+/* Encabezado con título y acciones */
+.boletos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.boletos-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Barra de búsqueda */
+.search-bar {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar input {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+    font-family: "Montserrat", sans-serif;
+    width: 250px;
+}
+
+.search-bar button {
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.search-bar button:hover {
+    background-color: var(--primary-red);
+}
+
+/* Opciones de filtro */
+.filter-options select {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: "Montserrat", sans-serif;
+    background-color: white;
+    cursor: pointer;
+}
+
+/* Grid de boletos */
+.boletos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* Tarjeta de boleto */
+.boleto-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: var(--transition);
+    border-left: 5px solid var(--primary-blue);
+    animation: fadeIn 0.5s ease-out backwards;
+}
+
+.boleto-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Estados de boleto con colores diferentes */
+.boleto-card.pendiente {
+    border-left-color: var(--accent-yellow);
+}
+
+.boleto-card.completado {
+    border-left-color: #4caf50;
+}
+
+.boleto-card.cancelado {
+    border-left-color: #f44336;
+}
+
+.boleto-card.expirado {
+    border-left-color: #9e9e9e;
+}
+
+/* Encabezado de la tarjeta */
+.boleto-header {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.boleto-id {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: var(--dark-gray);
+}
+
+.boleto-estado {
+    font-size: 0.8em;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.boleto-estado.pendiente {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.boleto-estado.completado {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.boleto-estado.cancelado {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.boleto-estado.expirado {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+/* Cuerpo de la tarjeta */
+.boleto-body {
+    padding: 15px;
+}
+
+.boleto-info {
+    margin-bottom: 15px;
+}
+
+.boleto-info p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    display: flex;
+    justify-content: space-between;
+}
+
+.boleto-info p strong {
+    color: var(--dark-gray);
+}
+
+.boleto-cliente {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--primary-blue);
+}
+
+.boleto-fecha {
+    color: #6c757d;
+    font-size: 0.85em;
+    margin-bottom: 15px;
+}
+
+.boleto-productos {
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.boleto-productos h4 {
+    font-size: 0.9em;
+    margin-bottom: 10px;
+    color: var(--dark-gray);
+}
+
+.producto-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.85em;
+}
+
+.boleto-total {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    color: var(--primary-red);
+}
+
+/* Acciones de la tarjeta */
+.boleto-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.boleto-actions button {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    font-size: 0.85em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: var(--transition);
+}
+
+.btn-completar {
+    background-color: #4caf50;
+    color: white;
+}
+
+.btn-completar:hover {
+    background-color: #388e3c;
+}
+
+.btn-cambiar-fecha {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+.btn-cambiar-fecha:hover {
+    background-color: #1565c0;
+}
+
+.btn-eliminar {
+    background-color: #f44336;
+    color: white;
+}
+
+.btn-eliminar:hover {
+    background-color: #d32f2f;
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.pagination button {
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: var(--transition);
+}
+
+.pagination button:hover {
+    background-color: var(--primary-red);
+}
+
+.pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#pageInfo {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+/* Estilos para el modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    position: relative;
+    animation: fadeIn 0.3s;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: var(--primary-red);
+}
+
+/* Estilos para el formulario dentro del modal */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: "Montserrat", sans-serif;
+}
+
+.form-help {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-primary {
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.btn-primary:hover {
+    background-color: #1565c0;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-danger {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.btn-danger:hover {
+    background-color: #d32f2f;
+}
+
+.btn-success {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.btn-success:hover {
+    background-color: #388e3c;
+}
+
+/* Información del boleto en modales */
+.boleto-info {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 15px 0;
+}
+
+.boleto-info p {
+    margin: 5px 0;
+}
+
+/* Spinner de carga */
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px;
+    grid-column: 1 / -1;
+}
+
+.loading-spinner i {
+    font-size: 2em;
+    color: var(--primary-blue);
+    margin-bottom: 15px;
+}
+
+/* Mensaje de no hay boletos */
+.no-boletos {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px;
+    color: #6c757d;
+    font-size: 1.1em;
+}
+
+/* Estilos para el datepicker */
+.flatpickr-calendar {
+    font-family: "Montserrat", sans-serif;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .boletos-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .boletos-actions {
+        width: 100%;
+    }
+
+    .search-bar {
+        width: 100%;
+    }
+
+    .search-bar input {
+        width: 100%;
+    }
+
+    .filter-options {
+        width: 100%;
+    }
+
+    .filter-options select {
+        width: 100%;
+    }
+
+    .boletos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: 90%;
+        margin: 20% auto;
+    }
+}

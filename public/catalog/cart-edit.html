@@ -1,154 +1,307 @@
-<!-- Fragmento para incluir en la página principal -->
-<div class="tu-canasta">
-    <button class="close-button">×</button>
-    <h2>Tu Canasta</h2>
+<!DOCTYPE html>
+<html lang="es">
 
-    <div class="mini-cart-items">
-        <!-- Los items se cargarán dinámicamente aquí -->
-    </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Carrito - Toy Garage - Collector's Corner</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
 
-    <div class="mini-cart-total">
-        Total: $0.00
-    </div>
+<body>
+    <header>
+        <div class="logo-container">
+            <h1>Toy Garage</h1>
+            <p>Collector's Corner</p>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="./catalog.html">Inicio</a></li>
+                <li><a href="./products.html">Productos</a></li>
+                <li><a href="/public/about.html">Nosotros</a></li>
+                <li><a href="/public/contact.html">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
 
-    <div class="mini-cart-buttons">
-        <button class="editar">Editar</button>
-        <button class="generar-boleto">Generar boleto</button>
-    </div>
-</div>
+    <main class="cart-edit-page">
+        <h2>Tu Carrito</h2>
 
-<!-- Script para el mini carrito -->
-<script type="module">
-    document.addEventListener("DOMContentLoaded", () => {
-        // Obtener elementos
-        const closeButton = document.querySelector(".tu-canasta .close-button");
-        const editButton = document.querySelector(".tu-canasta .editar");
-        const generateButton = document.querySelector(".tu-canasta .generar-boleto");
-        const miniCartItems = document.querySelector(".tu-canasta .mini-cart-items");
-        const totalElement = document.querySelector(".tu-canasta .mini-cart-total");
-
-        // Cargar carrito desde localStorage
-        let cart = [];
-        try {
-            const storedCart = localStorage.getItem("cart");
-            if (storedCart) {
-                cart = JSON.parse(storedCart);
-            }
-        } catch (error) {
-            console.error("Error al cargar el carrito:", error);
-        }
-
-        // Renderizar items
-        function renderMiniCartItems() {
-            miniCartItems.innerHTML = "";
-
-            if (cart.length === 0) {
-                miniCartItems.innerHTML = '<p>Tu canasta está vacía</p>';
-                totalElement.textContent = "Total: $0.00";
-                return;
-            }
-
-            let total = 0;
-
-            cart.forEach(item => {
-                const itemTotal = item.price * item.quantity;
-                total += itemTotal;
-
-                const itemElement = document.createElement("div");
-                itemElement.className = "mini-cart-item";
-                itemElement.innerHTML = `
-            <img src="${item.image || 'https://placehold.co/60x60/e2e8f0/1e293b?text=Sin+Imagen'}" alt="${item.name}">
-            <div class="mini-cart-item-details">
-              <h4 class="mini-cart-item-name">${item.name}</h4>
-              <span class="mini-cart-item-price">$${item.price.toFixed(2)}</span>
+        <div id="cart-items-container" class="cart-items-list">
+            <!-- Los items del carrito se cargarán dinámicamente -->
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Cargando productos...</p>
             </div>
-            <div class="mini-cart-quantity-controls">
-              <button class="mini-cart-quantity-btn decrease" data-id="${item.id}">-</button>
-              <span class="mini-cart-quantity">${item.quantity}</span>
-              <button class="mini-cart-quantity-btn increase" data-id="${item.id}">+</button>
+        </div>
+
+        <div class="cart-edit-total">
+            <span>Total:</span>
+            <span id="cart-edit-total-amount">$0.00</span>
+        </div>
+
+        <button id="order-button" class="order-button">
+            <i class="fas fa-ticket-alt"></i> Generar Boleto
+        </button>
+    </main>
+
+    <!-- Overlay para modales -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Lightbox para resumen de orden -->
+    <div id="order-summary-lightbox" class="lightbox">
+        <div class="lightbox-content">
+            <button id="close-order-summary" class="close-lightbox"><i class="fas fa-times"></i></button>
+            <div class="order-summary">
+                <h2>Resumen de Compra</h2>
+
+                <div class="summary-products">
+                    <h3>Productos</h3>
+                    <div id="summary-products-list">
+                        <!-- Los productos se cargarán dinámicamente -->
+                    </div>
+                </div>
+
+                <div class="summary-total">
+                    <span>Total:</span>
+                    <span id="summary-total-amount">$0.00</span>
+                </div>
+
+                <div class="customer-info">
+                    <h3>Información de contacto</h3>
+                    <form id="customer-info-form">
+                        <div class="form-group">
+                            <label for="customer-name">Nombre completo: <span class="required">*</span></label>
+                            <input type="text" id="customer-name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customer-email">Correo electrónico: <span class="required">*</span></label>
+                            <input type="email" id="customer-email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customer-phone">Número de celular: <span class="required">*</span></label>
+                            <input type="tel" id="customer-phone" required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" id="generate-ticket" class="form-button" disabled>Generar
+                                boleto</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <button class="mini-cart-remove" data-id="${item.id}">
-              <i class="fas fa-trash"></i>
-            </button>
-          `;
+        </div>
+    </div>
 
-                miniCartItems.appendChild(itemElement);
-            });
+    <!-- Lightbox para confirmación de boleto -->
+    <div id="ticket-confirmation-lightbox" class="lightbox">
+        <div class="lightbox-content">
+            <div class="ticket-confirmation">
+                <i class="fas fa-check-circle confirmation-icon"></i>
+                <h2>¡Boleto generado correctamente!</h2>
+                <p>Se ha enviado una copia a tu correo electrónico y número de celular.</p>
+                <p>Tu boleto tiene una validez de 48 horas a partir de este momento.</p>
+                <div class="ticket-id">
+                    <span>ID de tu boleto:</span>
+                    <span id="generated-ticket-id">ABC123456</span>
+                </div>
+                <div class="ticket-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p><strong>IMPORTANTE:</strong> Guarda este ID de boleto. Lo necesitarás en caso de pérdida para
+                        solicitar un reenvío.</p>
+                </div>
+                <button id="close-confirmation" class="form-button">Finalizar</button>
+            </div>
+        </div>
+    </div>
 
-            totalElement.textContent = `Total: $${total.toFixed(2)}`;
+    <!-- Contenedor para el boleto generado -->
+    <div id="ticket-container" class="ticket-container" style="display: none;">
+        <div class="ticket-header">
+            <h3>Boleto de Compra</h3>
+            <p>Collector's Corner - Toy Garage</p>
+        </div>
 
-            // Agregar eventos a los botones
-            document.querySelectorAll(".mini-cart-quantity-btn.decrease").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const id = btn.getAttribute("data-id");
-                    decreaseQuantity(id);
-                });
-            });
+        <div class="ticket-info">
+            <div class="ticket-info-item">
+                <span class="ticket-info-label">ID de Boleto:</span>
+                <span id="ticket-id" class="ticket-info-value">TKT12345678</span>
+            </div>
+            <div class="ticket-info-item">
+                <span class="ticket-info-label">Fecha de emisión:</span>
+                <span id="ticket-date" class="ticket-info-value">01 de enero de 2025, 12:00 PM</span>
+            </div>
+            <div class="ticket-info-item">
+                <span class="ticket-info-label">Válido hasta:</span>
+                <span id="ticket-expiry" class="ticket-info-value">03 de enero de 2025, 12:00 PM</span>
+            </div>
+            <div class="ticket-info-item">
+                <span class="ticket-info-label">Cliente:</span>
+                <span id="ticket-customer" class="ticket-info-value">Nombre del Cliente</span>
+            </div>
+            <div class="ticket-info-item">
+                <span class="ticket-info-label">Correo:</span>
+                <span id="ticket-email" class="ticket-info-value">cliente@ejemplo.com</span>
+            </div>
+            <div class="ticket-info-item">
+                <span class="ticket-info-label">Teléfono:</span>
+                <span id="ticket-phone" class="ticket-info-value">1234567890</span>
+            </div>
+        </div>
 
-            document.querySelectorAll(".mini-cart-quantity-btn.increase").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const id = btn.getAttribute("data-id");
-                    increaseQuantity(id);
-                });
-            });
+        <div class="ticket-products">
+            <h4>Productos</h4>
+            <div id="ticket-products-list">
+                <!-- Los productos se cargarán dinámicamente -->
+            </div>
+        </div>
 
-            document.querySelectorAll(".mini-cart-remove").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const id = btn.getAttribute("data-id");
-                    removeItem(id);
-                });
-            });
-        }
+        <div class="ticket-total">
+            <span>Total:</span>
+            <span id="ticket-total-amount">$0.00</span>
+        </div>
 
-        // Funciones para manipular el carrito
-        function decreaseQuantity(id) {
-            const item = cart.find(item => item.id === id);
-            if (item) {
-                item.quantity--;
-                if (item.quantity <= 0) {
-                    removeItem(id);
-                } else {
-                    updateCart();
-                }
-            }
-        }
+        <div class="ticket-qr">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TKT12345678" alt="Código QR">
+        </div>
 
-        function increaseQuantity(id) {
-            const item = cart.find(item => item.id === id);
-            if (item) {
-                item.quantity++;
-                updateCart();
-            }
-        }
+        <div class="ticket-footer">
+            <p>Este boleto tiene una validez de 48 horas a partir de la fecha de emisión.</p>
+            <p>Para cualquier duda o aclaración, comunícate al (442) 123-4567.</p>
+        </div>
+    </div>
 
-        function removeItem(id) {
-            cart = cart.filter(item => item.id !== id);
-            updateCart();
-        }
+    <!-- Formulario simple de boleto (se creará dinámicamente) -->
+    <!-- Este es un ejemplo de la estructura que se creará con JavaScript -->
+    <!--
+    <div class="simple-ticket-container">
+        <div class="simple-ticket-form">
+            <div class="simple-ticket-header">
+                <h2>Resumen</h2>
+                <button id="close-ticket-form" class="close-button">×</button>
+            </div>
+            <div class="simple-ticket-content">
+                <div class="simple-ticket-section">
+                    <h3>Productos</h3>
+                    <div class="simple-ticket-products">
+                        <div class="simple-ticket-product">
+                            <span>Producto 1 x 2</span>
+                            <span>$200.00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="simple-ticket-total">
+                    <span>Total:</span>
+                    <span>$200.00</span>
+                </div>
+                <div class="simple-ticket-section">
+                    <h3>Información de contacto</h3>
+                    <form id="simple-ticket-form">
+                        <div class="form-group">
+                            <label for="simple-name">Nombre completo: *</label>
+                            <input type="text" id="simple-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="simple-email">Correo electrónico: *</label>
+                            <input type="email" id="simple-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="simple-phone">Número de celular: *</label>
+                            <input type="tel" id="simple-phone" required>
+                        </div>
+                        <button type="submit" id="simple-generate-ticket" class="simple-button">Generar boleto</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    -->
 
-        function updateCart() {
-            localStorage.setItem("cart", JSON.stringify(cart));
-            renderMiniCartItems();
-        }
+    <!-- Confirmación simple de boleto (se creará dinámicamente) -->
+    <!-- Este es un ejemplo de la estructura que se creará con JavaScript -->
+    <!--
+    <div class="simple-confirmation-container">
+        <div class="simple-confirmation">
+            <div class="simple-confirmation-header">
+                <h2>Boleto Generado</h2>
+                <button id="close-confirmation" class="close-button">×</button>
+            </div>
+            <div class="simple-confirmation-content">
+                <p>Tu boleto ha sido generado exitosamente y enviado a tu correo electrónico.</p>
+                <div class="simple-confirmation-details">
+                    <div class="simple-confirmation-item">
+                        <span>ID del Boleto:</span>
+                        <span>TKT12345678</span>
+                    </div>
+                    <div class="simple-confirmation-item">
+                        <span>Nombre:</span>
+                        <span>Nombre del Cliente</span>
+                    </div>
+                    <div class="simple-confirmation-item">
+                        <span>Correo:</span>
+                        <span>cliente@ejemplo.com</span>
+                    </div>
+                    <div class="simple-confirmation-item">
+                        <span>Teléfono:</span>
+                        <span>1234567890</span>
+                    </div>
+                    <div class="simple-confirmation-item">
+                        <span>Total:</span>
+                        <span>$200.00</span>
+                    </div>
+                    <div class="simple-confirmation-item">
+                        <span>Expira:</span>
+                        <span>03 de enero de 2025, 12:00 PM</span>
+                    </div>
+                </div>
+                <div class="ticket-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p><strong>IMPORTANTE:</strong> Guarda este ID de boleto. Lo necesitarás en caso de pérdida para solicitar un reenvío.</p>
+                </div>
+                <p>Este boleto tiene una validez de 48 horas a partir de este momento.</p>
+                <button id="finish-confirmation" class="simple-button">Finalizar</button>
+            </div>
+        </div>
+    </div>
+    -->
 
-        // Eventos de los botones principales
-        closeButton.addEventListener("click", () => {
-            document.querySelector(".tu-canasta").style.display = "none";
-        });
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Toy Garage</h3>
+                <p>Tu tienda especializada en modelos a escala</p>
+            </div>
+            <div class="footer-section">
+                <h3>Enlaces</h3>
+                <ul>
+                    <li><a href="./catalog.html">Inicio</a></li>
+                    <li><a href="./products.html">Productos</a></li>
+                    <li><a href="/public/about.html">Nosotros</a></li>
+                    <li><a href="/public/contact.html">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <p>Email: info@toygarage.com</p>
+                <p>Teléfono: (442) 123-4567</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Toy Garage - Collector's Corner. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
-        editButton.addEventListener("click", () => {
-            window.location.href = "cart-edit.html";
-        });
+    <!-- Scripts -->
+    <script type="module" src="./js/firebase-config.js"></script>
+    <script type="module" src="./js/cart-edit.js"></script>
 
-        generateButton.addEventListener("click", () => {
-            if (cart.length === 0) {
-                alert("Tu canasta está vacía");
-                return;
-            }
-            window.location.href = "cart-edit.html?action=checkout";
-        });
+    <!-- Script para depuración -->
+    <script>
+        console.log("Página de edición de carrito cargada. Abre la consola para ver los mensajes de depuración.");
+    </script>
+</body>
 
-        // Inicializar
-        renderMiniCartItems();
-    });
-</script>
+</html>

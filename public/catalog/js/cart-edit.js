@@ -492,29 +492,57 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Eventos
-  orderButton.addEventListener("click", showSimpleTicketForm)
+  if (orderButton) {
+    orderButton.addEventListener("click", showSimpleTicketForm)
+  }
 
-  closeOrderSummary.addEventListener("click", closeOrderSummaryLightbox)
+  if (closeOrderSummary) {
+    closeOrderSummary.addEventListener("click", closeOrderSummaryLightbox)
+  }
 
-  overlay.addEventListener("click", () => {
-    closeOrderSummaryLightbox()
-    ticketConfirmationLightbox.classList.remove("active")
-  })
+  if (overlay) {
+    overlay.addEventListener("click", () => {
+      closeOrderSummaryLightbox()
+      if (ticketConfirmationLightbox) {
+        ticketConfirmationLightbox.classList.remove("active")
+      }
+    })
+  }
 
   // Validar formulario al escribir
-  document.getElementById("customer-name")?.addEventListener("input", validateCustomerForm)
-  document.getElementById("customer-email")?.addEventListener("input", validateCustomerForm)
-  document.getElementById("customer-phone")?.addEventListener("input", validateCustomerForm)
+  const customerNameInput = document.getElementById("customer-name")
+  const customerEmailInput = document.getElementById("customer-email")
+  const customerPhoneInput = document.getElementById("customer-phone")
+
+  if (customerNameInput) customerNameInput.addEventListener("input", validateCustomerForm)
+  if (customerEmailInput) customerEmailInput.addEventListener("input", validateCustomerForm)
+  if (customerPhoneInput) customerPhoneInput.addEventListener("input", validateCustomerForm)
 
   // Enviar formulario
-  customerInfoForm?.addEventListener("submit", (e) => {
-    e.preventDefault()
-    showSimpleTicketForm()
-  })
+  if (customerInfoForm) {
+    customerInfoForm.addEventListener("submit", (e) => {
+      e.preventDefault()
+      showSimpleTicketForm()
+    })
+  }
 
   // Inicializar
   renderCartItems()
 
   // Verificar si estamos en la página principal con el mini carrito
   handleMiniCart()
+
+  // Agregar esta función para depuración
+  function debugElements() {
+    console.log("Elementos del DOM:")
+    console.log("orderButton:", orderButton)
+    console.log("cartItemsContainer:", cartItemsContainer)
+    console.log("cartEditTotalAmount:", cartEditTotalAmount)
+    console.log("closeOrderSummary:", closeOrderSummary)
+    console.log("overlay:", overlay)
+    console.log("customerInfoForm:", customerInfoForm)
+  }
+
+  // Ejecutar depuración
+  debugElements()
 })
