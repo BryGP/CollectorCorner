@@ -77,8 +77,11 @@
             <form id="productoForm">
                 <input type="hidden" id="productoId">
 
+                <!-- Añadir un mensaje de ayuda debajo del campo de código de barras -->
                 <label for="productoCodigo">Código de Barras / ID:</label>
-                <input type="text" id="productoCodigo" placeholder="Escanea o ingresa el código de barras" required>
+                <input type="text" id="productoCodigo" placeholder="Escanea o ingresa el código de barras">
+                <small style="display: block; margin-top: 5px; color: #666; font-style: italic;">El código debe ser
+                    único para cada producto</small>
 
                 <label for="productoName">Nombre:</label>
                 <input type="text" id="productoName" required>
@@ -90,7 +93,7 @@
                 <select id="productoCategoria" required></select>
 
                 <label for="productoMarca">Marca:</label>
-                <input type="text" id="productoMarca" placeholder="Ej: Hot Wheels, Matchbox, etc." required>
+                <input type="text" id="productoMarca" placeholder="Ej: Hot Wheels, Matchbox, etc.">
 
                 <label for="productoCantidad">Cantidad:</label>
                 <input type="number" id="productoCantidad" required>

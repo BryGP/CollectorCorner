@@ -73,6 +73,29 @@ function extractBrands() {
     console.log(`${allBrands.length} marcas únicas encontradas:`, allBrands)
 }
 
+// Añadir esta función después de la función extractBrands()
+
+// Función para verificar si un código de barras ya existe
+async function checkCodigoExists(codigo, currentProductId = null) {
+    // Si no hay código, no hay duplicado
+    if (!codigo || codigo.trim() === "") {
+        return false
+    }
+
+    try {
+        console.log(`Verificando si el código ${codigo} ya existe...`)
+
+        // Buscar productos con el mismo código
+        const duplicados = allProducts.filter((product) => product.codigo === codigo && product.id !== currentProductId)
+
+        // Si hay duplicados, retornar true
+        return duplicados.length > 0
+    } catch (error) {
+        console.error("Error al verificar código duplicado:", error)
+        return false // En caso de error, permitir continuar
+    }
+}
+
 // Función para mostrar mensaje de error
 function showErrorMessage(message) {
     const errorDiv = document.createElement("div")
@@ -338,7 +361,7 @@ async function deleteProducto(productoId) {
     }
 }
 
-// Función para guardar producto (nuevo o editado)
+// Modificar la función saveProducto para incluir la verificación de código
 async function saveProducto(event) {
     event.preventDefault()
 
@@ -356,6 +379,17 @@ async function saveProducto(event) {
 
     if (nombre && descripcion && !isNaN(precio) && !isNaN(stock)) {
         try {
+            // Verificar si el código ya existe (solo si hay un código)
+            if (codigo) {
+                const codigoExiste = await checkCodigoExists(codigo, productoId)
+                if (codigoExiste) {
+                    alert(
+                        `El código de barras ${codigo} ya está en uso por otro producto. Por favor, utiliza un código diferente.`,
+                    )
+                    return // Detener la ejecución si el código ya existe
+                }
+            }
+
             // Crear un objeto con todos los campos
             const productoData = {
                 codigo: codigo,
