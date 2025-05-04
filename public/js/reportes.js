@@ -1,6 +1,7 @@
 // reportes-optimizado.js - Versión optimizada del sistema de reportes
 
 import { db } from "./firebase-config.js";
+import { checkAdminAccess } from "./login.js";
 import {
     collection,
     getDocs,
