@@ -1,7 +1,7 @@
 /* ======== ESTILOS ESPECÍFICOS PARA REPORTES ======== */
 
 /* Estructura de secciones */
-.report-section { 
+.report-section {
     background-color: var(--white);
     border-radius: 10px;
     box-shadow: var(--shadow);
