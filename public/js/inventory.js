@@ -12,13 +12,14 @@ import {
 
 // Variables para paginación
 let currentProductPage = 1
-// let currentCategoryPage = 1 --> Variable para ir a la página de categorías (opcional)
+let currentCategoryPage = 1 // --> Variable para ir a la página de categorías (opcional)
 let productsPerPage = 10
 // let categoriesPerPage = 10 --> Variable para mostrar categorias por pagina (opcional)
 let allProducts = []
 let allCategories = []
 let filteredProducts = []
 let filteredCategories = []
+let allBrands = [] // Variable para almacenar todas las marcas
 
 // ==================== FUNCIONES PARA PRODUCTOS ====================
 
@@ -38,6 +39,9 @@ async function loadProductos() {
         // Inicializar productos filtrados con todos los productos
         filteredProducts = [...allProducts]
 
+        // Extraer todas las marcas únicas
+        extractBrands()
+
         console.log(`${allProducts.length} productos cargados`)
 
         // Renderizar productos con paginación
@@ -52,6 +56,21 @@ async function loadProductos() {
         console.error("Error al cargar productos:", error)
         showErrorMessage("Error al cargar productos. Por favor, recarga la página.")
     }
+}
+
+// Función para extraer todas las marcas únicas
+function extractBrands() {
+    allBrands = []
+    const brandsSet = new Set()
+
+    allProducts.forEach((product) => {
+        if (product.marca && product.marca.trim() !== "") {
+            brandsSet.add(product.marca.trim())
+        }
+    })
+
+    allBrands = Array.from(brandsSet).sort()
+    console.log(`${allBrands.length} marcas únicas encontradas:`, allBrands)
 }
 
 // Función para mostrar mensaje de error
@@ -92,12 +111,17 @@ function renderProductos() {
     }
 
     productsToShow.forEach((producto) => {
+        // Depuración para ver qué datos tiene cada producto
+        console.log("Datos del producto:", producto)
+
         const div = document.createElement("div")
         div.classList.add("producto-item")
         div.setAttribute("data-producto-id", producto.id)
         div.innerHTML = `
             <h3>${producto.name || "Sin nombre"}</h3>
+            ${producto.codigo ? `<p class="codigo-label"><i class="fas fa-barcode"></i> ${producto.codigo}</p>` : ""}
             <p class="categoria-label">${producto.categoria || "No especificada"}</p>
+            ${producto.marca ? `<p class="marca-label">Marca: ${producto.marca}</p>` : ""}
             <p>Precio: $${producto.precio || 0}</p>
             <p>Stock: ${producto.stock || 0}</p>
             <div class="actions">
@@ -277,13 +301,16 @@ async function editProducto(productoId) {
 
         if (productoSnap.exists()) {
             const productoData = productoSnap.data()
+            console.log("Datos del producto a editar:", productoData)
 
             // Llenar el formulario con los datos del producto
             document.getElementById("productoId").value = productoId
+            document.getElementById("productoCodigo").value = productoData.codigo || ""
             document.getElementById("productoName").value = productoData.name || ""
             document.getElementById("productoDescripcion").value = productoData.descripcion || ""
             document.getElementById("productoPrecio").value = productoData.precio || ""
             document.getElementById("productoCategoria").value = productoData.categoria || ""
+            document.getElementById("productoMarca").value = productoData.marca || ""
             document.getElementById("productoCantidad").value = productoData.stock || ""
 
             // Abrir el modal
@@ -315,10 +342,13 @@ async function deleteProducto(productoId) {
 async function saveProducto(event) {
     event.preventDefault()
 
+    // Obtener todos los valores del formulario
+    const codigo = document.getElementById("productoCodigo").value.trim()
     const nombre = document.getElementById("productoName").value
     const descripcion = document.getElementById("productoDescripcion").value
     const precio = Number.parseFloat(document.getElementById("productoPrecio").value)
     const categoria = document.getElementById("productoCategoria").value
+    const marca = document.getElementById("productoMarca").value.trim()
     const stock = Number.parseInt(document.getElementById("productoCantidad").value)
 
     // Verificar si estamos editando (si hay un ID en el campo oculto)
@@ -326,13 +356,18 @@ async function saveProducto(event) {
 
     if (nombre && descripcion && !isNaN(precio) && !isNaN(stock)) {
         try {
+            // Crear un objeto con todos los campos
             const productoData = {
+                codigo: codigo,
                 name: nombre,
                 descripcion: descripcion,
                 precio: precio,
                 categoria: categoria,
+                marca: marca,
                 stock: stock,
             }
+
+            console.log("Guardando producto con datos:", productoData) // Log para depuración
 
             if (productoId) {
                 // Actualizar producto existente
@@ -389,51 +424,51 @@ async function loadCategorias() {
 
 // Renderizar categorías sin paginación
 function renderCategorias() {
-    console.log("Renderizando todas las categorías");
-    const categoriasGrid = document.getElementById("categoriasGrid");
-    categoriasGrid.innerHTML = "";
+    console.log("Renderizando todas las categorías")
+    const categoriasGrid = document.getElementById("categoriasGrid")
+    categoriasGrid.innerHTML = ""
 
     // Mostrar todas las categorías sin paginación
-    const categoriesToShow = filteredCategories; // Mostrar todas las categorías
+    const categoriesToShow = filteredCategories // Mostrar todas las categorías
 
     if (categoriesToShow.length === 0) {
-        categoriasGrid.innerHTML = '<div class="no-results">No se encontraron categorías</div>';
-        return;
+        categoriasGrid.innerHTML = '<div class="no-results">No se encontraron categorías</div>'
+        return
     }
 
     categoriesToShow.forEach((categoria) => {
-        const div = document.createElement("div");
-        div.classList.add("categoria-item");
-        div.setAttribute("data-categoria-id", categoria.id);
+        const div = document.createElement("div")
+        div.classList.add("categoria-item")
+        div.setAttribute("data-categoria-id", categoria.id)
         div.innerHTML = `
             <h3>${categoria.name || "Sin nombre"}</h3>
             <div class="actions">
                 <button class="edit-btn" data-categoria-id="${categoria.id}">Editar</button>
                 <button class="delete-btn" data-categoria-id="${categoria.id}">Eliminar</button>
             </div>
-        `;
-        categoriasGrid.appendChild(div);
-    });
+        `
+        categoriasGrid.appendChild(div)
+    })
 
     // Agregar event listeners directamente aquí para asegurar que se apliquen
-    const editButtons = document.querySelectorAll(".categoria-item .edit-btn");
-    const deleteButtons = document.querySelectorAll(".categoria-item .delete-btn");
+    const editButtons = document.querySelectorAll(".categoria-item .edit-btn")
+    const deleteButtons = document.querySelectorAll(".categoria-item .delete-btn")
 
     editButtons.forEach((button) => {
         button.addEventListener("click", function () {
-            const categoriaId = this.getAttribute("data-categoria-id");
-            console.log("Editando categoría con ID:", categoriaId);
-            editCategoria(categoriaId);
-        });
-    });
+            const categoriaId = this.getAttribute("data-categoria-id")
+            console.log("Editando categoría con ID:", categoriaId)
+            editCategoria(categoriaId)
+        })
+    })
 
     deleteButtons.forEach((button) => {
         button.addEventListener("click", function () {
-            const categoriaId = this.getAttribute("data-categoria-id");
-            console.log("Eliminando categoría con ID:", categoriaId);
-            deleteCategoria(categoriaId);
-        });
-    });
+            const categoriaId = this.getAttribute("data-categoria-id")
+            console.log("Eliminando categoría con ID:", categoriaId)
+            deleteCategoria(categoriaId)
+        })
+    })
 
     // Comentar la actualización de información de paginación
     // updateCategoryPaginationInfo();
@@ -790,8 +825,11 @@ function filterProductos() {
 
     filteredProducts = allProducts.filter((producto) => {
         const nombreMatch = (producto.name || "").toLowerCase().includes(searchTerm)
+        const codigoMatch = (producto.codigo || "").toLowerCase().includes(searchTerm)
+        const marcaMatch = (producto.marca || "").toLowerCase().includes(searchTerm)
         const categoriaMatch = !selectedCategoria || (producto.categoria || "").toLowerCase() === selectedCategoria
-        return nombreMatch && categoriaMatch
+
+        return (nombreMatch || codigoMatch || marcaMatch) && categoriaMatch
     })
 
     // Volver a la primera página cuando se filtra
@@ -833,6 +871,15 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("input, textarea").forEach((input) => {
         input.setAttribute("autocomplete", "off")
     })
+
+    // Configurar el campo de código de barras para enfocarse automáticamente
+    const codigoInput = document.getElementById("productoCodigo")
+    if (codigoInput) {
+        codigoInput.addEventListener("focus", function () {
+            // Seleccionar todo el texto cuando se enfoca para facilitar el escaneo
+            this.select()
+        })
+    }
 })
 
 // Permitir cerrar modales con la tecla ESC (fuera del DOMContentLoaded)

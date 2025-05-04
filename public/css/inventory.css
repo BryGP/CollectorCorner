@@ -187,6 +187,25 @@ body {
     margin: 5px 0;
 }
 
+/* Estilos para la etiqueta de marca */
+.marca-label {
+    font-size: 16px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+/* Estilos para la etiqueta de código de barras */
+.codigo-label {
+    font-family: monospace;
+    color: #333;
+    background-color: #f0f0f0;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin: 5px 0;
+    font-size: 0.9em;
+}
+
 /* ======== BOTONES DE ACCIONES ======== */
 .actions {
     display: flex;
@@ -277,6 +296,7 @@ body {
 }
 
 /* ======== MODALES MEJORADOS ======== */
+/* Modificar el estilo del modal para asegurar que esté centrado */
 .modal {
     display: none;
     position: fixed;
@@ -286,10 +306,7 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    overflow-y: auto;
 }
 
 .modal-content {
@@ -301,6 +318,9 @@ body {
     text-align: center;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     position: relative;
+    margin: 50px auto;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 /* Cerrar modal */
