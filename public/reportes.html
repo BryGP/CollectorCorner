@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de reportes de ventas para Toy Garage">
+    <title>Reportes de Ventas | Toy Garage</title>
+
+    <!-- Preconexión para mejorar rendimiento -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <!-- Hojas de estilo -->
+    <link rel="stylesheet" href="css/menu1.css">
+    <link rel="stylesheet" href="css/reportes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Racing+Sans+One&display=swap" rel="stylesheet">
+
+    <!-- Preload para scripts críticos -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/chart.js" as="script">
+    <link rel="preload" href="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js" as="script">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" as="script">
+</head>
+
+<body>
+    <!-- Encabezado global -->
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Toy Garage</h1>
+                    <h2>Collector's Corner</h2>
+                </div>
+            </div>
+
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Bryan GP</div>
+                    <div class="user-role" id="userRole">Administrador</div>
+                </div>
+                <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <nav>
+            <ul>
+                <li><a href="menu1.html"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="usuarios.html"><i class="fas fa-users"></i> Usuarios</a></li>
+                <li><a href="calendario.html"><i class="fas fa-calendar-alt"></i> Calendario</a></li>
+                <li><a href="configuracion.html"><i class="fas fa-cog"></i> Configuración</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Contenido principal -->
+    <main>
+        <h1 class="page-title">Reportes de Ventas</h1>
+
+        <section class="report-section filtros-panel">
+            <div class="section-header">
+                <h2><i class="fas fa-filter"></i> Filtros de Reporte</h2>
+            </div>
+
+            <div class="section-content">
+                <form class="filtros-form">
+                    <div class="form-group">
+                        <label for="fecha-inicio">Fecha Inicio:</label>
+                        <input type="date" id="fecha-inicio" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fecha-fin">Fecha Fin:</label>
+                        <input type="date" id="fecha-fin" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="metodo-pago">Método de Pago:</label>
+                        <select id="metodo-pago" class="form-control">
+                            <option value="">Todos</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Transferencia">Transferencia</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="buscar-input">Buscar:</label>
+                        <input type="text" id="buscar-input" class="form-control" placeholder="Ticket, vendedor...">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="btn-buscar" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button type="button" id="btn-limpiar" class="btn btn-secondary">
+                            <i class="fas fa-eraser"></i> Limpiar Filtros
+                        </button>
+                    </div>
+
+                    <div class="export-dropdown">
+                        <button type="button" id="btn-exportar" class="btn btn-secondary">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                        <div class="dropdown-menu" id="export-options">
+                            <a href="#" id="export-excel" class="dropdown-item">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </a>
+                            <a href="#" id="export-csv" class="dropdown-item">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </a>
+                            <a href="#" id="export-pdf" class="dropdown-item">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="report-section estadisticas-panel">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-line"></i> Estadísticas de Ventas</h2>
+            </div>
+
+            <div class="section-content">
+                <div class="dashboard">
+                    <div class="dashboard-card chart-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Ventas por Día</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="grafico-ventas-dia"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card chart-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Métodos de Pago</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="grafico-metodos-pago"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card chart-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Productos Más Vendidos</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="grafico-productos-vendidos"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card chart-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Total Ventas por Vendedor</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="grafico-ventas-vendedor"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-summary">
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="summary-info">
+                            <h4>Total Ventas</h4>
+                            <p id="total-ventas">$0.00</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="summary-info">
+                            <h4>Total Productos</h4>
+                            <p id="total-productos">0</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="summary-info">
+                            <h4>Total Transacciones</h4>
+                            <p id="total-resultados">0</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="summary-info">
+                            <h4>Ticket Promedio</h4>
+                            <p id="ticket-promedio">$0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="report-section bitacora-panel">
+            <div class="section-header">
+                <h2><i class="fas fa-clipboard-list"></i> Bitácora de Ventas</h2>
+            </div>
+
+            <div class="section-content">
+                <div class="table-actions">
+                    <div class="pagination">
+                        <button id="btn-anterior" class="btn-icon" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span>Página <span id="pagina-actual">1</span> de <span id="total-paginas">1</span></span>
+                        <button id="btn-siguiente" class="btn-icon" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Ticket #</th>
+                                <th>Fecha/Hora</th>
+                                <th>Vendedor</th>
+                                <th>Productos</th>
+                                <th>Total</th>
+                                <th>Método Pago</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bitacora-body">
+                            <tr>
+                                <td colspan="7" class="empty-message">No hay datos disponibles. Aplique filtros para ver resultados.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Toy Garage</div>
+            <p class="footer-text">&copy; 2024 RARITY TECH INNOVATIONS. Todos los derechos reservados.</p>
+            <div class="footer-links">
+                <a href="#">Términos</a>
+                <a href="#">Privacidad</a>
+                <a href="#">Soporte</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Detalle Venta -->
+    <div id="modal-detalle" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalle de Venta <span id="detalle-ticket-num"></span></h3>
+                <button class="close-btn" id="btn-cerrar-detalle">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detalle-info">
+                    <p><strong>Fecha:</strong> <span id="detalle-fecha"></span></p>
+                    <p><strong>Hora:</strong> <span id="detalle-hora"></span></p>
+                    <p><strong>Vendedor:</strong> <span id="detalle-vendedor"></span></p>
+                    <p><strong>Método Pago:</strong> <span id="detalle-metodo-pago"></span></p>
+                </div>
+
+                <div class="detalle-productos">
+                    <h4>Productos</h4>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Cantidad</th>
+                                    <th>Producto</th>
+                                    <th>Precio Unitario</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detalle-productos-body">
+                                <!-- Datos se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="detalle-totales">
+                    <div class="total-line">
+                        <span>Subtotal:</span>
+                        <span>$<span id="detalle-subtotal">0.00</span></span>
+                    </div>
+                    <div class="total-line">
+                        <span>IVA (16%):</span>
+                        <span>$<span id="detalle-iva">0.00</span></span>
+                    </div>
+                    <div class="total-line total-final">
+                        <span>TOTAL:</span>
+                        <span>$<span id="detalle-total">0.00</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-reimprimir" class="btn btn-primary">
+                    <i class="fas fa-print"></i> Reimprimir Ticket
+                </button>
+                <button id="btn-cerrar" class="btn btn-secondary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal-overlay"></div>
+
+    <!-- Scripts al final del body para mejor rendimiento -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script type="module" src="js/reportes.js"></script>
+</body>
+
+</html>
