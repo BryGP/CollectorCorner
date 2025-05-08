@@ -14,14 +14,34 @@
 
 <body>
     <header>
-        <div class="logo">
-            <h2>Collector's Corner</h2>
-            <h1>Toy Garage</h1>
+        <div class="header-top">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Toy Garage</h1>
+                    <h2>Collector's Corner</h2>
+                </div>
+            </div>
+
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Usuario</div>
+                    <div class="user-role" id="userRole">Rol</div>
+                </div>
+                <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
+            </div>
         </div>
+
         <nav>
-            <a href="menu1.html"><i class="fas fa-home"></i> Menú Principal</a>
-            <a href="cancelaciones.html"><i class="fas fa-tasks"></i> Administrar</a>
-            <a href="settings.html"><i class="fas fa-cog"></i> Configuración</a>
+            <ul>
+                <li><a href="calendario.html"><i class="fas fa-calendar-alt"></i> Calendario</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
+            </ul>
         </nav>
     </header>
 
@@ -52,10 +72,6 @@
                             <span>Subtotal:</span>
                             <span id="subtotal">$0.00</span>
                         </div>
-                        <div class="total-line">
-                            <span>IVA (16%):</span>
-                            <span id="iva">$0.00</span>
-                        </div>
                         <div class="total-line total-final">
                             <span>TOTAL:</span>
                             <span id="total">$0.00</span>
@@ -82,7 +98,7 @@
                             <h1>Toy Garaje</h1>
                             <p>Tienda de Coleccionables</p>
                             <p>Calle Circuito, Jdn. 14C, Alamos 3ra Secc, 76147</p>
-                            <p>Tel: (442) 123-4567</p>
+                            <p>Tel: (+52)446-145-1938</p>
                             <div class="ticket-divider"></div>
                             <p class="ticket-info">
                                 <span id="ticket-numero">Ticket #: 00000000</span>
@@ -122,10 +138,6 @@
                                     <span class="total-label">Subtotal:</span>
                                     <span class="total-value" id="ticket-subtotal">$0.00</span>
                                 </div>
-                                <div class="total-line">
-                                    <span class="total-label">IVA (16%):</span>
-                                    <span class="total-value" id="ticket-iva">$0.00</span>
-                                </div>
                                 <div class="total-line total-final">
                                     <span class="total-label">TOTAL:</span>
                                     <span class="total-value" id="ticket-total">$0.00</span>
@@ -143,7 +155,6 @@
                             </div>
 
                             <div class="ticket-divider"></div>
-
                             <div class="ticket-barcode">
                                 <div class="barcode-placeholder"></div>
                                 <p class="barcode-text" id="ticket-barcode-text">*00000000*</p>
@@ -210,5 +221,6 @@
     <script type="module" src="js/security.js"></script>
 
 </body>
-
 </html>
+
+ 

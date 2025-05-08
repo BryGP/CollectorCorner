@@ -1,4 +1,5 @@
 // Importar Firebase y Firestore
+import { logout } from "./auth-check.js"
 import { db } from "./firebase-config.js"
 import {
     collection,
@@ -63,6 +64,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Inicializar ticket
     inicializarTicket()
 })
+// Configurar botón de logout
+    const logoutBtn = document.getElementById("logoutBtn")
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout)
+    }
 
 // Función para generar número de ticket aleatorio
 function generarNumeroTicket() {
