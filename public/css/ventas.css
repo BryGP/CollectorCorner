@@ -1,4 +1,7 @@
-/* Variables globales */
+/* ======== IMPORTACIÓN DE FUENTES ======== */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Racing+Sans+One&display=swap");
+
+/* ======== VARIABLES GLOBALES ======== */
 :root {
     --primary-red: #e61e25;
     --primary-blue: #1e5799;
@@ -12,9 +15,10 @@
     --success: #28a745;
     --error: #dc3545;
     --info: #17a2b8;
+    --discount: #6f42c1;
 }
 
-/* Estilos generales */
+/* ======== ESTILOS GENERALES ======== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -31,56 +35,167 @@ body {
     flex-direction: column;
 }
 
-/* Header y navegación */
+/* ======== HEADER ======== */
 header {
-    background-color: var(--primary-red);
-    color: var(--white);
-    padding: 15px 20px;
+    background-color: var(--white);
+    padding: 0;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: var(--shadow);
+    padding: 15px 40px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.logo h1 {
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-icon {
+    width: 50px;
+    height: 50px;
+    background-color: var(--primary-red);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 1.5em;
+    transition: var(--transition);
+}
+
+.logo:hover .logo-icon {
+    transform: rotate(15deg) scale(1.1);
+}
+
+.logo-text h1 {
     font-family: "Racing Sans One", cursive;
     margin: 0;
-    font-size: 2.2em;
-    color: var(--white);
-    letter-spacing: 1px;
+    font-size: 1.8em;
+    color: var(--primary-red);
+    line-height: 1;
 }
 
-.logo h2 {
-    margin: 5px 0 0 0;
-    font-size: 1em;
-    color: var(--accent-yellow);
+.logo-text h2 {
+    margin: 0;
+    font-size: 0.8em;
+    color: var(--dark-gray);
     font-weight: 400;
 }
 
-nav {
+/* ======== USER INFO ======== */
+.user-info {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+}
+
+.user-details {
+    text-align: right;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.user-role {
+    font-size: 0.8em;
+    color: #777;
+}
+
+.logout-btn {
+    background-color: transparent;
+    border: 1px solid var(--primary-red);
+    color: var(--primary-red);
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    font-size: 0.8em;
+    transition: var(--transition);
+    margin-left: 10px;
+}
+
+.logout-btn:hover {
+    background-color: var(--primary-red);
+    color: var(--white);
+}
+
+/* ======== NAVBAR ======== */
+nav {
+    background-color: var(--white);
+    padding: 0 40px;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+nav li {
+    margin: 0;
 }
 
 nav a {
     text-decoration: none;
-    color: var(--white);
+    color: var(--dark-gray);
     font-weight: 600;
+    display: block;
+    padding: 15px 20px;
     transition: var(--transition);
+    position: relative;
     font-size: 0.9em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: 4px;
+}
+
+nav a::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background-color: var(--primary-red);
+    transition: var(--transition);
 }
 
 nav a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: var(--accent-yellow);
+    color: var(--primary-red);
 }
 
-/* Contenedor principal */
+nav a:hover::after,
+nav a.active::after {
+    width: 100%;
+}
+
+nav a i {
+    margin-right: 8px;
+}
+
+/* ======== CONTENIDO PRINCIPAL ======== */
 main {
     flex: 1;
     padding: 20px;
@@ -96,7 +211,7 @@ main {
     font-size: 0.9em;
 }
 
-/* Panel de ventas */
+/* ======== PANEL DE VENTAS ======== */
 .ventas-panel {
     display: grid;
     grid-template-columns: 60% 40%;
@@ -190,6 +305,17 @@ main {
     color: var(--dark-gray);
     font-size: 0.9em;
     margin-left: 10px;
+}
+
+.sugerencia-item.error {
+    background-color: #ffebee;
+    border-left: 4px solid var(--error);
+    padding: 12px 15px;
+}
+
+.sugerencia-item.error span {
+    color: var(--error);
+    font-weight: 600;
 }
 
 /* Panel de carrito */
@@ -422,6 +548,7 @@ main {
     font-family: "Courier New", Courier, monospace;
     font-size: 11px;
     line-height: 1.3;
+    position: relative;
 }
 
 .ticket-header {
@@ -499,6 +626,10 @@ main {
     margin: 3px 0;
 }
 
+.total-line .total-value[id*="descuento"] {
+    color: var(--discount);
+}
+
 .payment-info {
     margin: 10px 0;
 }
@@ -538,6 +669,45 @@ main {
 .ticket-actions {
     display: flex;
     justify-content: center;
+}
+
+/* QR codes for social media */
+.ticket-social {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 15px;
+}
+
+.qr-container {
+    text-align: center;
+}
+
+.qr-code {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+    background-color: #fff;
+}
+
+.qr-label {
+    font-size: 8px;
+    margin-top: 3px;
+}
+
+/* Watermark */
+.ticket-watermark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("../img/logo-watermark.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 80%;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 0;
 }
 
 /* Modal de pago */
@@ -635,6 +805,23 @@ main {
     border-radius: 4px;
 }
 
+/* Sección de descuento */
+.descuento-section {
+    margin: 15px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.total-con-descuento {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    text-align: right;
+}
+
 /* Alertas */
 .alerta {
     position: fixed;
@@ -694,12 +881,10 @@ main {
 
 @keyframes fadeOut {
     from {
-        transform: translateX(0);
         opacity: 1;
     }
 
     to {
-        transform: translateX(100%);
         opacity: 0;
     }
 }
@@ -720,7 +905,6 @@ main {
         left: 0;
         top: 0;
         width: 80mm;
-        /* Ancho estándar para tickets térmicos */
         box-shadow: none;
         padding: 0;
     }
@@ -747,11 +931,44 @@ main {
         text-align: center;
     }
 
-    nav {
-        margin-top: 15px;
+    .header-top {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .user-info {
+        flex-direction: column;
+    }
+
+    .user-details {
+        text-align: center;
+    }
+
+    nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    nav a {
+        padding: 10px 15px;
     }
 
     main {
         padding: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .carrito-acciones {
+        flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+    }
+
+    .descuento-buttons {
+        flex-direction: column;
     }
 }

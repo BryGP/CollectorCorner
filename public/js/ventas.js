@@ -1,4 +1,6 @@
 // Importar Firebase y Firestore
+import { logout } from "./auth-check.js"
+import { displayUserInfo } from "./login.js"
 import { db } from "./firebase-config.js"
 import {
     collection,
@@ -15,16 +17,17 @@ import {
 // Variables globales
 let productosVenta = []
 let usuarioActual = null
-let impuestoGlobal = 0.16 // 16% por defecto
-let ticketNumero = generarNumeroTicket()
+let ticketCounter = 0 // Para generar números de ticket secuenciales
+let ticketNumero = ""
 let efectivoRecibidoValor = 0
+let descuentoAplicado = 0 // Porcentaje de descuento aplicado
+let descuentoMonto = 0 // Monto de descuento
 
 // Elementos del DOM
 const busquedaInput = document.getElementById("busqueda-producto")
 const sugerenciasContainer = document.getElementById("sugerencias-container")
 const carritoLista = document.getElementById("carrito-lista")
 const subtotalElement = document.getElementById("subtotal")
-const ivaElement = document.getElementById("iva")
 const totalElement = document.getElementById("total")
 const fechaActualElement = document.getElementById("fecha-actual")
 
@@ -35,7 +38,8 @@ const ticketFechaElement = document.getElementById("ticket-fecha")
 const ticketHoraElement = document.getElementById("ticket-hora")
 const ticketCajeroElement = document.getElementById("ticket-cajero")
 const ticketSubtotalElement = document.getElementById("ticket-subtotal")
-const ticketIvaElement = document.getElementById("ticket-iva")
+const ticketDescuentoElement = document.getElementById("ticket-descuento")
+const ticketDescuentoRow = document.getElementById("ticket-descuento-row")
 const ticketTotalElement = document.getElementById("ticket-total")
 const ticketFormaPagoElement = document.getElementById("ticket-forma-pago")
 const ticketRecibidoElement = document.getElementById("ticket-recibido")
@@ -54,19 +58,65 @@ document.addEventListener("DOMContentLoaded", () => {
     // Verificar usuario autenticado
     verificarUsuario()
 
-    // Cargar configuración
-    cargarConfiguracion()
+    // Cargar último número de ticket
+    cargarUltimoNumeroTicket()
 
     // Configurar eventos
     configurarEventos()
 
     // Inicializar ticket
     inicializarTicket()
+
+    // Mostrar información del usuario
+    displayUserInfo()
 })
 
-// Función para generar número de ticket aleatorio
+// Configurar botón de logout
+const logoutBtn = document.getElementById("logoutBtn")
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout)
+}
+
+// Función para cargar el último número de ticket
+async function cargarUltimoNumeroTicket() {
+    try {
+        // Obtener el último ticket de la colección de configuración
+        const configDoc = await getDoc(doc(db, "Settings", "tickets"))
+        if (configDoc.exists()) {
+            const config = configDoc.data()
+            if (config.lastTicketNumber) {
+                ticketCounter = config.lastTicketNumber
+            }
+        }
+        // Generar el número de ticket inicial
+        ticketNumero = generarNumeroTicket()
+    } catch (error) {
+        console.error("Error al cargar el último número de ticket:", error)
+        // Si hay error, generar un número aleatorio como fallback
+        ticketNumero = Math.floor(10000 + Math.random() * 90000)
+            .toString()
+            .padStart(8, "0")
+    }
+}
+
+// Función para guardar el último número de ticket
+async function guardarUltimoNumeroTicket() {
+    try {
+        await updateDoc(doc(db, "Settings", "tickets"), {
+            lastTicketNumber: ticketCounter,
+        })
+    } catch (error) {
+        console.error("Error al guardar el último número de ticket:", error)
+    }
+}
+
+// Función para generar número de ticket secuencial
 function generarNumeroTicket() {
-    return Math.floor(10000 + Math.random() * 90000)
+    // Incrementar el contador
+    ticketCounter++
+
+    // Formatear el número con ceros a la izquierda (8 dígitos)
+    return ticketCounter.toString().padStart(8, "0")
 }
 
 // Función para mostrar la fecha actual
@@ -80,7 +130,7 @@ function mostrarFechaActual() {
 
 // Función para verificar el usuario autenticado
 function verificarUsuario() {
-    // Obtener usuario de sessionStorage (simulado para desarrollo)
+    // Obtener usuario de sessionStorage
     const userDataStr = sessionStorage.getItem("currentUser")
     if (userDataStr) {
         try {
@@ -136,44 +186,55 @@ function actualizarNombreCajero() {
     }
 }
 
-// Función para cargar configuración
-async function cargarConfiguracion() {
-    try {
-        const configDoc = await getDoc(doc(db, "Settings", "general"))
-        if (configDoc.exists()) {
-            const config = configDoc.data()
-            if (config.taxRate) {
-                impuestoGlobal = config.taxRate / 100
-            }
-        }
-    } catch (error) {
-        console.error("Error al cargar configuración:", error)
-    }
-}
-
 // Función para configurar eventos
 function configurarEventos() {
     // Evento para buscar producto al escribir
-    busquedaInput.addEventListener("input", buscarProductos)
+    if (busquedaInput) {
+        busquedaInput.addEventListener("input", buscarProductos)
+    } else {
+        console.error("Elemento busqueda-producto no encontrado")
+    }
 
     // Evento para tecla Escape (cerrar sugerencias)
     document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
+        if (e.key === "Escape" && sugerenciasContainer) {
             sugerenciasContainer.style.display = "none"
         }
     })
 
     // Evento para clic fuera de las sugerencias
     document.addEventListener("click", (e) => {
-        if (!sugerenciasContainer.contains(e.target) && e.target !== busquedaInput) {
+        if (sugerenciasContainer && !sugerenciasContainer.contains(e.target) && e.target !== busquedaInput) {
             sugerenciasContainer.style.display = "none"
         }
     })
 
     // Botones de acción
-    document.getElementById("btn-pagar").addEventListener("click", mostrarModalPago)
-    document.getElementById("btn-cancelar").addEventListener("click", cancelarVenta)
-    document.getElementById("btn-imprimir").addEventListener("click", imprimirTicket)
+    const btnPagar = document.getElementById("btn-pagar")
+    const btnCancelar = document.getElementById("btn-cancelar")
+    const btnImprimir = document.getElementById("btn-imprimir")
+
+    if (btnPagar) {
+        // Asegurarse de que el evento se asigne correctamente
+        btnPagar.onclick = () => {
+            console.log("Botón pagar clickeado")
+            mostrarModalPago()
+        }
+    } else {
+        console.error("Elemento btn-pagar no encontrado")
+    }
+
+    if (btnCancelar) {
+        btnCancelar.addEventListener("click", cancelarVenta)
+    } else {
+        console.error("Elemento btn-cancelar no encontrado")
+    }
+
+    if (btnImprimir) {
+        btnImprimir.addEventListener("click", imprimirTicket)
+    } else {
+        console.error("Elemento btn-imprimir no encontrado")
+    }
 
     // Configurar modal de pago
     configurarModalPago()
@@ -182,8 +243,13 @@ function configurarEventos() {
 // Inicializar ticket
 function inicializarTicket() {
     // Actualizar número de ticket
-    ticketNumeroElement.textContent = `Ticket #: ${ticketNumero.toString().padStart(8, "0")}`
-    ticketBarcodeText.textContent = `*${ticketNumero.toString().padStart(8, "0")}*`
+    if (ticketNumeroElement) {
+        ticketNumeroElement.textContent = `Ticket #: ${ticketNumero}`
+    }
+
+    if (ticketBarcodeText) {
+        ticketBarcodeText.textContent = `*${ticketNumero}*`
+    }
 
     // Actualizar fecha y hora
     actualizarFechaHoraTicket()
@@ -212,12 +278,22 @@ function actualizarFechaHoraTicket() {
     const timeStr = `${hours}:${minutes}:${seconds}`
 
     // Actualizar en el ticket
-    ticketFechaElement.textContent = `Fecha: ${dateStr}`
-    ticketHoraElement.textContent = `Hora: ${timeStr}`
+    if (ticketFechaElement) {
+        ticketFechaElement.textContent = `Fecha: ${dateStr}`
+    }
+
+    if (ticketHoraElement) {
+        ticketHoraElement.textContent = `Hora: ${timeStr}`
+    }
 }
 
 // Función para buscar productos
 async function buscarProductos() {
+    if (!busquedaInput || !sugerenciasContainer) {
+        console.error("Elementos de búsqueda no encontrados")
+        return
+    }
+
     const busqueda = busquedaInput.value.trim()
 
     // Limpiar y ocultar sugerencias si la búsqueda está vacía
@@ -301,6 +377,11 @@ async function buscarProductos() {
 
 // Función para agregar producto al carrito
 function agregarProductoAlCarrito(producto) {
+    if (!carritoLista) {
+        console.error("Elemento carrito-lista no encontrado")
+        return
+    }
+
     const { id, nombre, precio, stock } = producto
     const precioNum = Number.parseFloat(precio)
     const stockNum = Number.parseInt(stock)
@@ -347,6 +428,11 @@ function agregarProductoAlCarrito(producto) {
 
 // Función para actualizar el carrito
 function actualizarCarrito() {
+    if (!carritoLista) {
+        console.error("Elemento carrito-lista no encontrado")
+        return
+    }
+
     // Limpiar carrito
     carritoLista.innerHTML = ""
 
@@ -359,9 +445,8 @@ function actualizarCarrito() {
         `
 
         // Actualizar totales
-        subtotalElement.textContent = "$0.00"
-        ivaElement.textContent = "$0.00"
-        totalElement.textContent = "$0.00"
+        if (subtotalElement) subtotalElement.textContent = "$0.00"
+        if (totalElement) totalElement.textContent = "$0.00"
 
         return
     }
@@ -404,40 +489,62 @@ function actualizarCarrito() {
         carritoLista.appendChild(div)
     })
 
-    // Calcular IVA y total
-    const iva = subtotal * impuestoGlobal
-    const total = subtotal + iva
+    // Calcular total con descuento
+    const total = calcularTotalConDescuento(subtotal)
 
     // Actualizar totales
-    subtotalElement.textContent = `$${subtotal.toFixed(2)}`
-    ivaElement.textContent = `$${iva.toFixed(2)}`
-    totalElement.textContent = `$${total.toFixed(2)}`
+    if (subtotalElement) subtotalElement.textContent = `$${subtotal.toFixed(2)}`
+    if (totalElement) totalElement.textContent = `$${total.toFixed(2)}`
 
-    // Agregar eventos a los botones
-    document.querySelectorAll(".btn-eliminar").forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const index = Number.parseInt(btn.dataset.index)
-            eliminarProducto(index)
+    // Agregar eventos a los botones - SOLUCIÓN AL PROBLEMA DE LOS BOTONES
+    const botonesEliminar = document.querySelectorAll(".btn-eliminar")
+    if (botonesEliminar) {
+        botonesEliminar.forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const index = Number.parseInt(this.getAttribute("data-index"))
+                eliminarProducto(index)
+            })
         })
-    })
+    }
 
-    document.querySelectorAll(".btn-restar").forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const index = Number.parseInt(btn.dataset.index)
-            restarCantidad(index)
+    const botonesRestar = document.querySelectorAll(".btn-restar")
+    if (botonesRestar) {
+        botonesRestar.forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const index = Number.parseInt(this.getAttribute("data-index"))
+                restarCantidad(index)
+            })
         })
-    })
+    }
 
-    document.querySelectorAll(".btn-sumar").forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const index = Number.parseInt(btn.dataset.index)
-            sumarCantidad(index)
+    const botonesSumar = document.querySelectorAll(".btn-sumar")
+    if (botonesSumar) {
+        botonesSumar.forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const index = Number.parseInt(this.getAttribute("data-index"))
+                sumarCantidad(index)
+            })
         })
-    })
+    }
+}
+
+// Función para calcular el total con descuento
+function calcularTotalConDescuento(subtotal) {
+    // Si hay descuento aplicado, calcularlo
+    if (descuentoAplicado > 0) {
+        descuentoMonto = subtotal * (descuentoAplicado / 100)
+        return subtotal - descuentoMonto
+    }
+    return subtotal
 }
 
 // Función para actualizar el ticket
 function actualizarTicket() {
+    if (!ticketItemsBody) {
+        console.error("Elemento ticket-items-body no encontrado")
+        return
+    }
+
     // Limpiar items del ticket
     ticketItemsBody.innerHTML = ""
 
@@ -449,9 +556,10 @@ function actualizarTicket() {
     `
 
         // Actualizar totales
-        ticketSubtotalElement.textContent = "$0.00"
-        ticketIvaElement.textContent = "$0.00"
-        ticketTotalElement.textContent = "$0.00"
+        if (ticketSubtotalElement) ticketSubtotalElement.textContent = "$0.00"
+        if (ticketDescuentoElement) ticketDescuentoElement.textContent = "$0.00"
+        if (ticketDescuentoRow) ticketDescuentoRow.style.display = "none"
+        if (ticketTotalElement) ticketTotalElement.textContent = "$0.00"
 
         return
     }
@@ -477,35 +585,46 @@ function actualizarTicket() {
         ticketItemsBody.appendChild(tr)
     })
 
-    // Calcular IVA y total
-    const iva = subtotal * impuestoGlobal
-    const total = subtotal + iva
+    // Calcular total con descuento
+    const total = calcularTotalConDescuento(subtotal)
 
     // Actualizar totales en el ticket
-    ticketSubtotalElement.textContent = `$${subtotal.toFixed(2)}`
-    ticketIvaElement.textContent = `$${iva.toFixed(2)}`
-    ticketTotalElement.textContent = `$${total.toFixed(2)}`
+    if (ticketSubtotalElement) ticketSubtotalElement.textContent = `$${subtotal.toFixed(2)}`
+
+    // Mostrar descuento si hay
+    if (descuentoAplicado > 0) {
+        if (ticketDescuentoRow) ticketDescuentoRow.style.display = "flex"
+        if (ticketDescuentoElement)
+            ticketDescuentoElement.textContent = `$${descuentoMonto.toFixed(2)} (${descuentoAplicado}%)`
+    } else {
+        if (ticketDescuentoRow) ticketDescuentoRow.style.display = "none"
+    }
+
+    if (ticketTotalElement) ticketTotalElement.textContent = `$${total.toFixed(2)}`
 
     // Actualizar forma de pago y efectivo/cambio
-    const metodoPago = document.getElementById("metodo-pago").value
-    ticketFormaPagoElement.textContent = metodoPago
+    const metodoPago = document.getElementById("metodo-pago")
+    if (metodoPago && ticketFormaPagoElement) {
+        ticketFormaPagoElement.textContent = metodoPago.value
+    }
 
-    if (metodoPago === "Efectivo" && efectivoRecibidoValor > 0) {
+    if (metodoPago && metodoPago.value === "Efectivo" && efectivoRecibidoValor > 0) {
         const cambio = efectivoRecibidoValor - total
 
-        ticketRecibidoElement.textContent = `$${efectivoRecibidoValor.toFixed(2)}`
-        ticketCambioElement.textContent = `$${cambio.toFixed(2)}`
+        if (ticketRecibidoElement) ticketRecibidoElement.textContent = `$${efectivoRecibidoValor.toFixed(2)}`
+        if (ticketCambioElement) ticketCambioElement.textContent = `$${cambio.toFixed(2)}`
 
-        ticketRecibidoContainer.style.display = "block"
-        ticketCambioContainer.style.display = "block"
+        if (ticketRecibidoContainer) ticketRecibidoContainer.style.display = "block"
+        if (ticketCambioContainer) ticketCambioContainer.style.display = "block"
     } else {
-        ticketRecibidoContainer.style.display = "none"
-        ticketCambioContainer.style.display = "none"
+        if (ticketRecibidoContainer) ticketRecibidoContainer.style.display = "none"
+        if (ticketCambioContainer) ticketCambioContainer.style.display = "none"
     }
 }
 
 // Función para eliminar producto
 function eliminarProducto(index) {
+    console.log("Eliminando producto en índice:", index)
     if (index >= 0 && index < productosVenta.length) {
         const producto = productosVenta[index]
         productosVenta.splice(index, 1)
@@ -517,6 +636,7 @@ function eliminarProducto(index) {
 
 // Función para restar cantidad
 function restarCantidad(index) {
+    console.log("Restando cantidad en índice:", index)
     if (index >= 0 && index < productosVenta.length) {
         if (productosVenta[index].cantidad > 1) {
             productosVenta[index].cantidad -= 1
@@ -533,11 +653,12 @@ function restarCantidad(index) {
 
 // Función para sumar cantidad
 function sumarCantidad(index) {
+    console.log("Sumando cantidad en índice:", index)
     if (index >= 0 && index < productosVenta.length) {
         // Verificar stock disponible
         const productoId = productosVenta[index].id
 
-        // Obtener stock actual (simulado para este ejemplo)
+        // Obtener stock actual
         getDoc(doc(db, "Productos", productoId))
             .then((docSnap) => {
                 if (docSnap.exists()) {
@@ -570,6 +691,8 @@ function cancelarVenta() {
 
     if (confirm("¿Está seguro de cancelar la venta actual?")) {
         productosVenta = []
+        descuentoAplicado = 0
+        descuentoMonto = 0
         actualizarCarrito()
         actualizarTicket()
         mostrarAlerta("Venta cancelada", "info")
@@ -590,38 +713,111 @@ function imprimirTicket() {
 
 // Configurar modal de pago
 function configurarModalPago() {
+    console.log("Configurando modal de pago...")
+
     const modal = document.getElementById("modal-pago")
     const overlay = document.getElementById("modal-overlay")
+
+    if (!modal || !overlay) {
+        console.error("Elementos del modal no encontrados")
+        return
+    }
+
     const closeBtn = modal.querySelector(".close")
     const cancelBtn = document.getElementById("btn-cancelar-pago")
     const confirmarBtn = document.getElementById("btn-confirmar-pago")
     const metodoPago = document.getElementById("metodo-pago")
     const efectivoContainer = document.getElementById("efectivo-container")
     const efectivoRecibido = document.getElementById("efectivo-recibido")
-    const cambioInput = document.getElementById("cambio")
+    const descuentoInput = document.getElementById("descuento-input")
+    const totalConDescuentoElement = document.getElementById("total-con-descuento")
 
-    // Evento para cerrar el modal
-    closeBtn.addEventListener("click", cerrarModalPago)
-    overlay.addEventListener("click", cerrarModalPago)
-    cancelBtn.addEventListener("click", cerrarModalPago)
-
-    // Evento para confirmar pago
-    confirmarBtn.addEventListener("click", procesarPago)
-
-    // Evento para cambiar método de pago
-    metodoPago.addEventListener("change", () => {
-        if (metodoPago.value === "Efectivo") {
-            efectivoContainer.style.display = "block"
-        } else {
-            efectivoContainer.style.display = "none"
-        }
-
-        // Actualizar ticket con nueva forma de pago
-        actualizarTicket()
+    console.log("Elementos del modal:", {
+        closeBtn: !!closeBtn,
+        cancelBtn: !!cancelBtn,
+        confirmarBtn: !!confirmarBtn,
+        metodoPago: !!metodoPago,
+        efectivoContainer: !!efectivoContainer,
+        efectivoRecibido: !!efectivoRecibido,
+        descuentoInput: !!descuentoInput,
+        totalConDescuentoElement: !!totalConDescuentoElement,
     })
 
+    // Evento para cerrar el modal
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            cerrarModalPago()
+        }
+        console.log("Evento de cierre configurado para el botón X")
+    }
+
+    overlay.onclick = () => {
+        cerrarModalPago()
+    }
+    console.log("Evento de cierre configurado para el overlay")
+
+    if (cancelBtn) {
+        cancelBtn.onclick = () => {
+            cerrarModalPago()
+        }
+        console.log("Evento de cierre configurado para el botón cancelar")
+    }
+
+    // Evento para confirmar pago
+    if (confirmarBtn) {
+        confirmarBtn.onclick = () => {
+            procesarPago()
+        }
+        console.log("Evento de procesamiento configurado para el botón confirmar")
+    }
+
+    // Evento para cambiar método de pago
+    if (metodoPago && efectivoContainer) {
+        metodoPago.onchange = () => {
+            console.log("Método de pago cambiado a:", metodoPago.value)
+
+            // Mostrar/ocultar contenedor de efectivo
+            if (metodoPago.value === "Efectivo") {
+                efectivoContainer.style.display = "block"
+                // Establecer descuento predeterminado para efectivo (15%)
+                if (descuentoInput) descuentoInput.value = "15"
+                descuentoAplicado = 15
+            } else if (metodoPago.value === "Tarjeta de Crédito" || metodoPago.value === "Tarjeta de Débito") {
+                efectivoContainer.style.display = "none"
+                // Establecer descuento predeterminado para tarjeta (10%)
+                if (descuentoInput) descuentoInput.value = "10"
+                descuentoAplicado = 10
+            } else {
+                efectivoContainer.style.display = "none"
+                // Sin descuento para otros métodos
+                if (descuentoInput) descuentoInput.value = "0"
+                descuentoAplicado = 0
+            }
+
+            // Actualizar total con descuento en el modal
+            actualizarTotalConDescuentoEnModal()
+
+            // Actualizar ticket con nueva forma de pago
+            actualizarTicket()
+        }
+        console.log("Evento de cambio de método de pago configurado")
+    }
+
     // Evento para calcular cambio
-    efectivoRecibido.addEventListener("input", calcularCambio)
+    if (efectivoRecibido) {
+        efectivoRecibido.oninput = () => {
+            calcularCambio()
+        }
+        console.log("Evento de cálculo de cambio configurado")
+    }
+
+    // Evento para actualizar descuento
+    if (descuentoInput) {
+        descuentoInput.oninput = () => {
+            actualizarDescuento()
+        }
+        console.log("Evento de actualización de descuento configurado")
+    }
 
     // Cerrar modal con ESC
     document.addEventListener("keydown", (e) => {
@@ -629,55 +825,159 @@ function configurarModalPago() {
             cerrarModalPago()
         }
     })
+    console.log("Evento de cierre con ESC configurado")
+}
+
+// Actualizar descuento
+function actualizarDescuento() {
+    console.log("Actualizando descuento...")
+
+    const descuentoInput = document.getElementById("descuento-input")
+
+    if (!descuentoInput) {
+        console.error("Elemento descuento-input no encontrado")
+        return
+    }
+
+    // Obtener valor del descuento
+    descuentoAplicado = Number.parseFloat(descuentoInput.value) || 0
+    console.log("Descuento aplicado:", descuentoAplicado + "%")
+
+    // Actualizar total con descuento en el modal
+    actualizarTotalConDescuentoEnModal()
+
+    // Actualizar ticket
+    actualizarTicket()
+
+    // Si hay efectivo recibido, recalcular cambio
+    const metodoPago = document.getElementById("metodo-pago")
+    if (metodoPago && metodoPago.value === "Efectivo") {
+        calcularCambio()
+    }
+}
+
+// Actualizar total con descuento en el modal
+function actualizarTotalConDescuentoEnModal() {
+    const totalConDescuentoElement = document.getElementById("total-con-descuento")
+
+    if (!totalConDescuentoElement) {
+        console.error("Elemento total-con-descuento no encontrado")
+        return
+    }
+
+    // Calcular subtotal
+    const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0)
+
+    // Calcular descuento
+    descuentoMonto = subtotal * (descuentoAplicado / 100)
+
+    // Calcular total con descuento
+    const totalConDescuento = subtotal - descuentoMonto
+
+    // Actualizar elemento en el modal
+    totalConDescuentoElement.textContent = `$${totalConDescuento.toFixed(2)}`
+    console.log("Total con descuento actualizado:", totalConDescuento.toFixed(2))
 }
 
 // Mostrar modal de pago
 function mostrarModalPago() {
+    console.log("Intentando mostrar modal de pago...")
+
     // Verificar que haya productos en la venta
     if (productosVenta.length === 0) {
         mostrarAlerta("No hay productos en el carrito", "error")
         return
     }
 
-    // Resetear campos de efectivo
-    document.getElementById("efectivo-recibido").value = ""
-    document.getElementById("cambio").value = ""
-    efectivoRecibidoValor = 0
-
-    // Mostrar el modal
+    // Obtener elementos del modal
     const modal = document.getElementById("modal-pago")
     const overlay = document.getElementById("modal-overlay")
+    const efectivoRecibido = document.getElementById("efectivo-recibido")
+    const cambio = document.getElementById("cambio")
+    const metodoPago = document.getElementById("metodo-pago")
+    const descuentoInput = document.getElementById("descuento-input")
+    const efectivoContainer = document.getElementById("efectivo-container")
+
+    if (!modal || !overlay) {
+        console.error("Elementos del modal no encontrados")
+        return
+    }
+
+    // Resetear campos de efectivo
+    if (efectivoRecibido) efectivoRecibido.value = ""
+    if (cambio) cambio.value = ""
+    efectivoRecibidoValor = 0
+
+    // Establecer descuento predeterminado según método de pago
+    if (metodoPago && descuentoInput) {
+        if (metodoPago.value === "Efectivo") {
+            descuentoInput.value = "15"
+            descuentoAplicado = 15
+            if (efectivoContainer) efectivoContainer.style.display = "block"
+        } else if (metodoPago.value === "Tarjeta de Crédito" || metodoPago.value === "Tarjeta de Débito") {
+            descuentoInput.value = "10"
+            descuentoAplicado = 10
+            if (efectivoContainer) efectivoContainer.style.display = "none"
+        } else {
+            descuentoInput.value = "0"
+            descuentoAplicado = 0
+            if (efectivoContainer) efectivoContainer.style.display = "none"
+        }
+    }
+
+    // Actualizar total con descuento en el modal
+    actualizarTotalConDescuentoEnModal()
+
+    // Actualizar ticket con el descuento
+    actualizarTicket()
+
+    // Mostrar el modal - IMPORTANTE: usar display block
     modal.style.display = "block"
     overlay.style.display = "block"
 
-    // Enfocar en el campo de efectivo recibido
-    document.getElementById("efectivo-recibido").focus()
+    // Enfocar en el campo de efectivo recibido si es efectivo
+    if (metodoPago && metodoPago.value === "Efectivo" && efectivoRecibido) {
+        efectivoRecibido.focus()
+    }
+
+    console.log("Modal de pago mostrado")
 }
 
 // Cerrar modal de pago
 function cerrarModalPago() {
+    console.log("Cerrando modal de pago...")
+
     const modal = document.getElementById("modal-pago")
     const overlay = document.getElementById("modal-overlay")
-    modal.style.display = "none"
-    overlay.style.display = "none"
+
+    if (modal) modal.style.display = "none"
+    if (overlay) overlay.style.display = "none"
 }
 
 // Calcular cambio
 function calcularCambio() {
-    const efectivoRecibido = Number.parseFloat(document.getElementById("efectivo-recibido").value) || 0
-    efectivoRecibidoValor = efectivoRecibido
+    const efectivoRecibido = document.getElementById("efectivo-recibido")
+    const cambioInput = document.getElementById("cambio")
+    const confirmarBtn = document.getElementById("btn-confirmar-pago")
+
+    if (!efectivoRecibido || !cambioInput) {
+        console.error("Elementos para calcular cambio no encontrados")
+        return
+    }
+
+    const efectivoRecibidoValor = Number.parseFloat(efectivoRecibido.value) || 0
+    this.efectivoRecibidoValor = efectivoRecibidoValor
 
     const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0)
-    const impuesto = subtotal * impuestoGlobal
-    const totalConImpuesto = subtotal + impuesto
+    const totalConDescuento = calcularTotalConDescuento(subtotal)
 
-    if (efectivoRecibido < totalConImpuesto) {
-        document.getElementById("cambio").value = "Monto insuficiente"
-        document.getElementById("btn-confirmar-pago").disabled = true
+    if (efectivoRecibidoValor < totalConDescuento) {
+        cambioInput.value = "Monto insuficiente"
+        if (confirmarBtn) confirmarBtn.disabled = true
     } else {
-        const cambio = efectivoRecibido - totalConImpuesto
-        document.getElementById("cambio").value = `$${cambio.toFixed(2)}`
-        document.getElementById("btn-confirmar-pago").disabled = false
+        const cambio = efectivoRecibidoValor - totalConDescuento
+        cambioInput.value = `$${cambio.toFixed(2)}`
+        if (confirmarBtn) confirmarBtn.disabled = false
     }
 
     // Actualizar ticket con el efectivo recibido
@@ -686,16 +986,21 @@ function calcularCambio() {
 
 // Procesar pago
 async function procesarPago() {
-    const metodoPago = document.getElementById("metodo-pago").value
+    const metodoPago = document.getElementById("metodo-pago")
+    const efectivoRecibido = document.getElementById("efectivo-recibido")
+
+    if (!metodoPago) {
+        console.error("Elemento metodo-pago no encontrado")
+        return
+    }
 
     // Validar pago en efectivo
-    if (metodoPago === "Efectivo") {
-        const efectivoRecibido = Number.parseFloat(document.getElementById("efectivo-recibido").value) || 0
+    if (metodoPago.value === "Efectivo" && efectivoRecibido) {
+        const efectivoRecibidoValor = Number.parseFloat(efectivoRecibido.value) || 0
         const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0)
-        const impuesto = subtotal * impuestoGlobal
-        const totalConImpuesto = subtotal + impuesto
+        const totalConDescuento = calcularTotalConDescuento(subtotal)
 
-        if (efectivoRecibido < totalConImpuesto) {
+        if (efectivoRecibidoValor < totalConDescuento) {
             mostrarAlerta("El monto recibido es insuficiente", "error")
             return
         }
@@ -704,8 +1009,7 @@ async function procesarPago() {
     try {
         // Calcular totales
         const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0)
-        const impuesto = subtotal * impuestoGlobal
-        const total = subtotal + impuesto
+        const totalConDescuento = calcularTotalConDescuento(subtotal)
 
         // Crear objeto de venta
         const venta = {
@@ -719,9 +1023,10 @@ async function procesarPago() {
                 subtotal: Number.parseFloat(p.subtotal),
             })),
             subtotal: subtotal,
-            impuesto: impuesto,
-            total: total,
-            metodoPago: metodoPago,
+            descuento: descuentoMonto,
+            descuentoPorcentaje: descuentoAplicado,
+            total: totalConDescuento,
+            metodoPago: metodoPago.value,
             estado: "Completada",
             numeroTicket: ticketNumero,
         }
@@ -746,6 +1051,9 @@ async function procesarPago() {
             }
         }
 
+        // Guardar el último número de ticket
+        await guardarUltimoNumeroTicket()
+
         // Cerrar modal
         cerrarModalPago()
 
@@ -761,11 +1069,13 @@ async function procesarPago() {
         ticketNumero = generarNumeroTicket()
 
         // Actualizar ticket con nuevo número
-        ticketNumeroElement.textContent = `Ticket #: ${ticketNumero.toString().padStart(8, "0")}`
-        ticketBarcodeText.textContent = `*${ticketNumero.toString().padStart(8, "0")}*`
+        if (ticketNumeroElement) ticketNumeroElement.textContent = `Ticket #: ${ticketNumero}`
+        if (ticketBarcodeText) ticketBarcodeText.textContent = `*${ticketNumero}*`
 
         // Limpiar venta
         productosVenta = []
+        descuentoAplicado = 0
+        descuentoMonto = 0
         actualizarCarrito()
         actualizarTicket()
     } catch (error) {
@@ -804,3 +1114,17 @@ function mostrarAlerta(mensaje, tipo) {
 window.pagar = mostrarModalPago
 window.cancelar = cancelarVenta
 window.imprimirTicket = imprimirTicket
+
+// Asegurarse de que el evento del botón de pago esté correctamente configurado
+document.addEventListener("DOMContentLoaded", () => {
+    const btnPagar = document.getElementById("btn-pagar")
+    if (btnPagar) {
+        console.log("Botón de pago encontrado, configurando evento")
+        btnPagar.onclick = () => {
+            console.log("Botón de pago clickeado")
+            mostrarModalPago()
+        }
+    } else {
+        console.error("Botón de pago no encontrado")
+    }
+})
