@@ -17,7 +17,6 @@ import {
 // Variables globales
 let productosVenta = []
 let usuarioActual = null
-let ticketCounter = 0 // Para generar números de ticket secuenciales
 let ticketNumero = ""
 let efectivoRecibidoValor = 0
 let descuentoAplicado = 0 // Porcentaje de descuento aplicado
@@ -58,9 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Verificar usuario autenticado
     verificarUsuario()
 
-    // Cargar último número de ticket
-    cargarUltimoNumeroTicket()
-
     // Configurar eventos
     configurarEventos()
 
@@ -75,48 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
 const logoutBtn = document.getElementById("logoutBtn")
 if (logoutBtn) {
     logoutBtn.addEventListener("click", logout)
-}
-
-// Función para cargar el último número de ticket
-async function cargarUltimoNumeroTicket() {
-    try {
-        // Obtener el último ticket de la colección de configuración
-        const configDoc = await getDoc(doc(db, "Settings", "tickets"))
-        if (configDoc.exists()) {
-            const config = configDoc.data()
-            if (config.lastTicketNumber) {
-                ticketCounter = config.lastTicketNumber
-            }
-        }
-        // Generar el número de ticket inicial
-        ticketNumero = generarNumeroTicket()
-    } catch (error) {
-        console.error("Error al cargar el último número de ticket:", error)
-        // Si hay error, generar un número aleatorio como fallback
-        ticketNumero = Math.floor(10000 + Math.random() * 90000)
-            .toString()
-            .padStart(8, "0")
-    }
-}
-
-// Función para guardar el último número de ticket
-async function guardarUltimoNumeroTicket() {
-    try {
-        await updateDoc(doc(db, "Settings", "tickets"), {
-            lastTicketNumber: ticketCounter,
-        })
-    } catch (error) {
-        console.error("Error al guardar el último número de ticket:", error)
-    }
-}
-
-// Función para generar número de ticket secuencial
-function generarNumeroTicket() {
-    // Incrementar el contador
-    ticketCounter++
-
-    // Formatear el número con ceros a la izquierda (8 dígitos)
-    return ticketCounter.toString().padStart(8, "0")
 }
 
 // Función para mostrar la fecha actual
@@ -984,32 +938,41 @@ function calcularCambio() {
     actualizarTicket()
 }
 
+function generarNumeroTicket() {
+  const timestamp = Date.now().toString().slice(-6);
+  const random = Math.floor(1000 + Math.random() * 9000);
+  return `${timestamp}${random}`;
+}
+
 // Procesar pago
 async function procesarPago() {
-    const metodoPago = document.getElementById("metodo-pago")
-    const efectivoRecibido = document.getElementById("efectivo-recibido")
+    const metodoPago = document.getElementById("metodo-pago");
+    const efectivoRecibido = document.getElementById("efectivo-recibido");
 
     if (!metodoPago) {
-        console.error("Elemento metodo-pago no encontrado")
-        return
+        console.error("Elemento metodo-pago no encontrado");
+        return;
     }
 
     // Validar pago en efectivo
     if (metodoPago.value === "Efectivo" && efectivoRecibido) {
-        const efectivoRecibidoValor = Number.parseFloat(efectivoRecibido.value) || 0
-        const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0)
-        const totalConDescuento = calcularTotalConDescuento(subtotal)
+        const efectivoRecibidoValor = Number.parseFloat(efectivoRecibido.value) || 0;
+        const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
+        const totalConDescuento = calcularTotalConDescuento(subtotal);
 
         if (efectivoRecibidoValor < totalConDescuento) {
-            mostrarAlerta("El monto recibido es insuficiente", "error")
-            return
+            mostrarAlerta("El monto recibido es insuficiente", "error");
+            return;
         }
     }
 
     try {
         // Calcular totales
-        const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0)
-        const totalConDescuento = calcularTotalConDescuento(subtotal)
+        const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
+        const totalConDescuento = calcularTotalConDescuento(subtotal);
+
+        // Generar ticket único aleatorio
+        ticketNumero = generarNumeroTicket();
 
         // Crear objeto de venta
         const venta = {
@@ -1029,58 +992,48 @@ async function procesarPago() {
             metodoPago: metodoPago.value,
             estado: "Completada",
             numeroTicket: ticketNumero,
-        }
+        };
 
-        // Guardar venta en Firestore
-        const ventaRef = await addDoc(collection(db, "Ventas"), venta)
-        console.log("Venta registrada con ID:", ventaRef.id)
+        // Guardar venta
+        const ventaRef = await addDoc(collection(db, "Ventas"), venta);
+        console.log("Venta registrada con ID:", ventaRef.id);
 
-        // Actualizar stock de productos
+        // Actualizar stock
         for (const producto of productosVenta) {
-            const productoRef = doc(db, "Productos", producto.id)
-            const productoDoc = await getDoc(productoRef)
+            const productoRef = doc(db, "Productos", producto.id);
+            const productoDoc = await getDoc(productoRef);
 
             if (productoDoc.exists()) {
-                const stockActual = productoDoc.data().stock || 0
-                const nuevoStock = Math.max(0, stockActual - producto.cantidad)
+                const stockActual = productoDoc.data().stock || 0;
+                const nuevoStock = Math.max(0, stockActual - producto.cantidad);
 
                 await updateDoc(productoRef, {
                     stock: nuevoStock,
                     updatedAt: serverTimestamp(),
-                })
+                });
             }
         }
 
-        // Guardar el último número de ticket
-        await guardarUltimoNumeroTicket()
+        // Mostrar en ticket
+        if (ticketNumeroElement) ticketNumeroElement.textContent = `Ticket #: ${ticketNumero}`;
+        if (ticketBarcodeText) ticketBarcodeText.textContent = `*${ticketNumero}*`;
 
-        // Cerrar modal
-        cerrarModalPago()
+        cerrarModalPago();
+        mostrarAlerta(`Venta realizada con éxito. Ticket: ${ticketNumero}`, "success");
 
-        // Mostrar mensaje de éxito
-        mostrarAlerta(`Venta realizada con éxito. Ticket: ${ticketNumero}`, "success")
-
-        // Imprimir ticket automáticamente si se desea
         if (confirm("¿Desea imprimir el ticket ahora?")) {
-            imprimirTicket()
+            imprimirTicket();
         }
 
-        // Generar nuevo número de ticket para la próxima venta
-        ticketNumero = generarNumeroTicket()
-
-        // Actualizar ticket con nuevo número
-        if (ticketNumeroElement) ticketNumeroElement.textContent = `Ticket #: ${ticketNumero}`
-        if (ticketBarcodeText) ticketBarcodeText.textContent = `*${ticketNumero}*`
-
-        // Limpiar venta
-        productosVenta = []
-        descuentoAplicado = 0
-        descuentoMonto = 0
-        actualizarCarrito()
-        actualizarTicket()
+        // Limpiar
+        productosVenta = [];
+        descuentoAplicado = 0;
+        descuentoMonto = 0;
+        actualizarCarrito();
+        actualizarTicket();
     } catch (error) {
-        console.error("Error al procesar venta:", error)
-        mostrarAlerta("Error al procesar venta: " + error.message, "error")
+        console.error("Error al procesar venta:", error);
+        mostrarAlerta("Error al procesar venta: " + error.message, "error");
     }
 }
 
