@@ -310,6 +310,7 @@ footer {
   background-color: var(--primary-red);
 }
 
+/* Products */
 .products-container {
   display: grid;
   grid-template-columns: 250px 1fr;
@@ -1300,6 +1301,12 @@ footer {
   .products-list {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  /* Make the search container full width */
+  .search-container {
+    max-width: none;
+    width: 100%;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1310,10 +1317,12 @@ footer {
 
   .logo-container {
     margin-bottom: 1rem;
+    padding: 10px 20px;
   }
 
   nav ul {
     justify-content: center;
+    flex-wrap: wrap;
   }
 
   nav ul li {
@@ -1332,6 +1341,7 @@ footer {
   .user-options {
     flex-direction: column;
     width: 100%;
+    gap: 0.5rem;
   }
 
   .option-button {
@@ -1339,55 +1349,53 @@ footer {
     justify-content: center;
   }
 
-  .search-container {
-    max-width: none;
-    width: 100%;
-  }
-
   .products-list {
     grid-template-columns: 1fr;
   }
 
-  .product-details-header {
-    flex-direction: column;
+  /* Improve filter section for mobile */
+  .filters {
+    position: relative;
+    z-index: 10;
   }
 
-  .product-details-image {
-    width: 100%;
-    margin-right: 0;
-    margin-bottom: 1.5rem;
+  .filter-section {
+    margin-bottom: 1rem;
   }
 
-  .specs-list {
-    grid-template-columns: 1fr;
+  .filter-options label {
+    padding: 8px 0;
   }
 
+  /* Make buttons more touch-friendly */
+  .filter-button,
+  .add-to-cart,
+  .sold-out,
+  .pre-order {
+    padding: 12px;
+    font-size: 1rem;
+  }
+
+  /* Improve cart display on mobile */
   .mini-cart {
     width: 100%;
     right: -100%;
   }
 
-  .cart-edit-item {
+  .cart-item {
     flex-direction: column;
-    align-items: flex-start;
   }
 
-  .cart-edit-image {
+  .cart-item-image {
     width: 100%;
-    height: 200px;
+    height: 120px;
     margin-right: 0;
     margin-bottom: 1rem;
   }
 
-  .cart-edit-remove {
-    margin-left: 0;
-    margin-top: 1rem;
+  .cart-item-remove {
+    margin-top: 0.5rem;
     align-self: flex-end;
-  }
-
-  .simple-ticket-form,
-  .simple-confirmation {
-    width: 95%;
   }
 }
 
@@ -1409,27 +1417,33 @@ footer {
     width: 100%;
   }
 
-  .cart-item {
+  /* Improve form elements on small screens */
+  .form-group input,
+  .search-container input {
+    padding: 12px;
+    font-size: 16px;
+    /* Prevents iOS zoom on focus */
+  }
+
+  /* Make lightbox content scrollable */
+  .lightbox-content {
+    width: 95%;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  /* Improve lost ticket form on mobile */
+  .lost-ticket-form {
+    padding: 1rem;
+  }
+
+  .form-actions {
     flex-direction: column;
   }
 
-  .cart-item-image {
+  .form-button {
     width: 100%;
-    height: 120px;
-    margin-right: 0;
-    margin-bottom: 1rem;
-  }
-
-  .cart-item-remove {
-    margin-top: 0.5rem;
-  }
-
-  .product-details-specs {
-    margin-bottom: 1rem;
-  }
-
-  .product-details-action {
-    margin-top: 1rem;
+    margin: 0.5rem 0;
   }
 }
 

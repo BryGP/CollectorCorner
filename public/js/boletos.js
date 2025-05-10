@@ -53,6 +53,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         const boletosPerPage = 15
         let filteredBoletos = []
 
+        // Ejecutar limpieza de boletos caducados
+        console.log("Ejecutando limpieza automática de boletos caducados...")
+        const deletedCount = await cleanExpiredTickets()
+        if (deletedCount > 0) {
+            console.log(`Se eliminaron ${deletedCount} boletos caducados automáticamente`)
+        }
+
         // Cargar boletos desde Firestore
         async function loadBoletos() {
             try {
@@ -151,6 +158,72 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (retryBtn) {
                     retryBtn.addEventListener("click", loadBoletos)
                 }
+            }
+        }
+
+        // Función para limpiar boletos caducados (más de 24 horas después de expiración)
+        async function cleanExpiredTickets() {
+            try {
+                console.log("Iniciando limpieza de boletos caducados...")
+
+                // Obtener todos los boletos
+                const boletosRef = collection(db, "Boleto")
+                const boletosSnapshot = await getDocs(boletosRef)
+
+                if (boletosSnapshot.empty) {
+                    console.log("No hay boletos para revisar")
+                    return 0
+                }
+
+                // Fecha actual
+                const now = new Date()
+
+                // Contador de boletos eliminados
+                let deletedCount = 0
+
+                // Revisar cada boleto
+                for (const boletoDoc of boletosSnapshot.docs) {
+                    try {
+                        const data = boletoDoc.data()
+
+                        // Obtener fecha de expiración
+                        let fechaExpiracion
+                        if (data.EXPIRACION) {
+                            if (data.EXPIRACION.toDate) {
+                                fechaExpiracion = data.EXPIRACION.toDate()
+                            } else if (data.EXPIRACION.seconds) {
+                                fechaExpiracion = new Date(data.EXPIRACION.seconds * 1000)
+                            }
+                        }
+
+                        if (!fechaExpiracion) {
+                            console.log(`Boleto ${boletoDoc.id} no tiene fecha de expiración válida`)
+                            continue
+                        }
+
+                        // Calcular diferencia en horas desde la expiración
+                        const hoursAfterExpiration = (now.getTime() - fechaExpiracion.getTime()) / (1000 * 60 * 60)
+
+                        // Si han pasado más de 24 horas desde la expiración, eliminar el boleto
+                        if (hoursAfterExpiration > 24) {
+                            console.log(
+                                `Eliminando boleto caducado ${data.ID_BOLETO || boletoDoc.id} (caducó hace ${Math.floor(hoursAfterExpiration)} horas)`,
+                            )
+
+                            // Eliminar el boleto
+                            await deleteDoc(doc(db, "Boleto", boletoDoc.id))
+                            deletedCount++
+                        }
+                    } catch (error) {
+                        console.error(`Error al procesar boleto ${boletoDoc.id}:`, error)
+                    }
+                }
+
+                console.log(`Limpieza completada. Se eliminaron ${deletedCount} boletos caducados.`)
+                return deletedCount
+            } catch (error) {
+                console.error("Error al limpiar boletos caducados:", error)
+                return 0
             }
         }
 

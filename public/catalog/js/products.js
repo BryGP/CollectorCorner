@@ -1,4 +1,16 @@
-import { db, collection, getDocs, updateDoc, doc, query, where, Timestamp, deleteDoc } from "./firebase-config.js"
+import {
+  db,
+  collection,
+  getDocs,
+  updateDoc,
+  doc,
+  query,
+  where,
+  Timestamp,
+  deleteDoc,
+  addDoc,
+  increment,
+} from "./firebase-config.js"
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM cargado - Iniciando aplicación de productos")
@@ -625,10 +637,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Agregar producto al carrito
   function addToCart(product) {
-    console.log("Agregando al carrito:", product.id)
+    console.log("Verificando stock antes de agregar al carrito:", product.id)
+
     // Verificar si el producto ya está en el carrito
     const existingItem = cart.find((item) => item.id === product.id)
 
+    // Calcular la cantidad total que tendría el producto en el carrito
+    const currentQuantity = existingItem ? existingItem.quantity : 0
+    const newQuantity = currentQuantity + 1
+
+    // Verificar si hay suficiente stock
+    if (newQuantity > product.stock) {
+      // Mostrar mensaje de error
+      alert(`Lo sentimos, solo hay ${product.stock} unidades disponibles de este producto.`)
+      return
+    }
+
+    // Si hay suficiente stock, proceder con la adición al carrito
     if (existingItem) {
       existingItem.quantity += 1
     } else {
@@ -640,6 +665,7 @@ document.addEventListener("DOMContentLoaded", () => {
         originalPrice: product.originalPrice,
         discount: product.discount,
         quantity: 1,
+        stock: product.stock, // Guardar el stock disponible para verificaciones futuras
       })
     }
 
@@ -737,6 +763,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function increaseQuantity(id) {
     const item = cart.find((item) => item.id === id)
     if (item) {
+      // Verificar si hay suficiente stock antes de aumentar la cantidad
+      if (item.quantity + 1 > item.stock) {
+        alert(`Lo sentimos, solo hay ${item.stock} unidades disponibles de este producto.`)
+        return
+      }
+
       item.quantity += 1
       localStorage.setItem("cart", JSON.stringify(cart))
       updateCartItems()
@@ -950,6 +982,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Asegurarse de que la función showOrderSummary esté definida correctamente
   // Añadir esta función si no existe o modificarla si ya existe:
+  // Modificar la función showOrderSummary para que guarde el boleto en la base de datos
   function showOrderSummary() {
     console.log("Mostrando resumen de orden")
     const orderSummaryLightbox = document.getElementById("order-summary-lightbox")
@@ -970,16 +1003,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const summaryItem = document.createElement("div")
       summaryItem.className = "summary-product-item"
       summaryItem.innerHTML = `
-      <div class="summary-product-image">
-        <img src="${item.image || "https://placehold.co/60x60/e2e8f0/1e293b?text=Sin+Imagen"
+    <div class="summary-product-image">
+      <img src="${item.image || "https://placehold.co/60x60/e2e8f0/1e293b?text=Sin+Imagen"
         }" alt="${item.name}" onerror="this.src='https://placehold.co/60x60/e2e8f0/1e293b?text=Sin+Imagen'">
-      </div>
-      <div class="summary-product-details">
-        <h4 class="summary-product-name">${item.name}</h4>
-        <span class="summary-product-price">$${item.price.toFixed(2)}</span>
-      </div>
-      <span class="summary-product-quantity">x${item.quantity}</span>
-    `
+    </div>
+    <div class="summary-product-details">
+      <h4 class="summary-product-name">${item.name}</h4>
+      <span class="summary-product-price">$${item.price.toFixed(2)}</span>
+    </div>
+    <span class="summary-product-quantity">x${item.quantity}</span>
+  `
 
       summaryProductsList.appendChild(summaryItem)
     })
@@ -1006,7 +1039,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("customer-phone").addEventListener("input", validateForm)
 
     // Agregar event listener para el formulario
-    customerInfoForm.addEventListener("submit", (e) => {
+    customerInfoForm.addEventListener("submit", async (e) => {
       e.preventDefault()
 
       const name = document.getElementById("customer-name").value
@@ -1016,13 +1049,71 @@ document.addEventListener("DOMContentLoaded", () => {
       // Generar ID único para el boleto
       const ticketId = "TKT" + Math.random().toString(36).substr(2, 8).toUpperCase()
 
-      // Mostrar confirmación de boleto
-      showTicketConfirmation(ticketId)
+      try {
+        // Guardar el boleto en Firebase
+        console.log("Intentando guardar boleto en Firebase...")
 
-      // Limpiar carrito
-      cart = []
-      localStorage.setItem("cart", JSON.stringify(cart))
-      updateCartCount()
+        // Calcular fecha de emisión (ahora)
+        const fechaEmision = new Date()
+
+        // Calcular fecha de expiración (48 horas después)
+        const fechaExpiracion = new Date(fechaEmision)
+        fechaExpiracion.setHours(fechaExpiracion.getHours() + 48)
+
+        // Crear un nuevo documento en la colección "Boleto"
+        const orderData = {
+          ID_BOLETO: ticketId,
+          Nombre: name.toUpperCase(),
+          CORREO_ELECTRONICO: email,
+          TELEFONO: phone,
+          Productos: cart.map((item) => ({
+            id: item.id,
+            nombre: item.name,
+            precio: item.price,
+            cantidad: item.quantity,
+          })),
+          Total: total,
+          Fecha_de_Emision: Timestamp.fromDate(fechaEmision),
+          EXPIRACION: Timestamp.fromDate(fechaExpiracion),
+          estado: "pendiente",
+        }
+
+        console.log("Datos del boleto a guardar:", orderData)
+
+        // Intentar guardar en Firestore directamente
+        const boletosRef = collection(db, "Boleto")
+        const docRef = await addDoc(boletosRef, orderData)
+
+        console.log("Boleto guardado exitosamente con ID:", docRef.id)
+
+        // Actualizar el stock de los productos
+        for (const item of cart) {
+          try {
+            // Obtener referencia al documento del producto
+            const productRef = doc(db, "Productos", item.id)
+
+            // Actualizar el stock (restar la cantidad comprada)
+            await updateDoc(productRef, {
+              stock: increment(-item.quantity),
+            })
+
+            console.log(`Stock del producto ${item.id} actualizado correctamente`)
+          } catch (productError) {
+            console.error(`Error al actualizar el stock del producto ${item.id}:`, productError)
+          }
+        }
+
+        // Mostrar confirmación de boleto
+        showTicketConfirmation(ticketId)
+
+        // Limpiar carrito
+        cart = []
+        localStorage.setItem("cart", JSON.stringify(cart))
+        updateCartCount()
+      } catch (error) {
+        console.error("Error al guardar el boleto:", error)
+        alert(`Error al guardar el boleto: ${error.message}. Por favor, intenta de nuevo.`)
+      }
     })
 
     // Mostrar el lightbox
@@ -1087,6 +1178,10 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("order-success").textContent =
         "Se ha enviado una copia de tu boleto al correo electrónico proporcionado."
 
+      // Eliminar el temporizador que cierra automáticamente el modal
+      // setTimeout(() => {
+      //   closeLostTicketModal()
+      // }, 3000)
     })
   }
 
@@ -1152,6 +1247,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("order-success").textContent =
           `Se ha aplazado la fecha de tu boleto hasta el ${fechaFormateada}.`
 
+        // Eliminar el temporizador que cierra automáticamente el modal
+        // setTimeout(() => {
+        //   closeLostTicketModal()
+        // }, 3000)
       } catch (error) {
         console.error("Error al aplazar boleto:", error)
         document.getElementById("order-error").style.display = "block"
@@ -1180,7 +1279,6 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("recover-error").style.display = "none"
 
       try {
-        //aqui se modifico :D
         // Buscar el boleto en Firestore
         const boletosRef = collection(db, "Boleto")
         const q = query(boletosRef, where("ID_BOLETO", "==", ticketId), where("Nombre", "==", name.toUpperCase()))
@@ -1193,13 +1291,41 @@ document.addEventListener("DOMContentLoaded", () => {
           return
         }
 
-        // Eliminar el documento
+        // Obtener el boleto
         const boletoDoc = querySnapshot.docs[0]
+        const boletoData = boletoDoc.data()
+
+        // Restaurar el stock de los productos
+        if (boletoData.Productos && boletoData.Productos.length > 0) {
+          console.log("Restaurando stock de productos...")
+
+          for (const producto of boletoData.Productos) {
+            try {
+              if (producto.id && producto.cantidad) {
+                // Obtener referencia al documento del producto
+                const productRef = doc(db, "Productos", producto.id)
+                console.log(`Restaurando ${producto.cantidad} unidades al stock del producto ${producto.id}`)
+
+                // Actualizar el stock (sumar la cantidad)
+                await updateDoc(productRef, {
+                  stock: increment(producto.cantidad),
+                })
+
+                console.log(`Stock del producto ${producto.id} restaurado correctamente`)
+              }
+            } catch (productError) {
+              console.error(`Error al restaurar el stock del producto ${producto.id}:`, productError)
+              // Continuar con los demás productos aunque uno falle
+            }
+          }
+        }
+
+        // Eliminar el documento
         await deleteDoc(doc(db, "Boleto", boletoDoc.id))
 
         document.getElementById("order-success").style.display = "block"
-        document.getElementById("order-success").textContent = "Tu boleto ha sido eliminado correctamente."
-
+        document.getElementById("order-success").textContent =
+          "Tu boleto ha sido eliminado correctamente y los productos han sido devueltos al inventario."
       } catch (error) {
         console.error("Error al eliminar boleto:", error)
         document.getElementById("order-error").style.display = "block"
@@ -1208,4 +1334,487 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     })
   }
+
+  // Add collapsible functionality for filters on mobile
+  function setupMobileFilters() {
+    const filtersSection = document.querySelector(".filters")
+    if (!filtersSection) return
+
+    // Create a toggle button for filters
+    const filterToggle = document.createElement("button")
+    filterToggle.className = "filter-toggle"
+    filterToggle.innerHTML = '<i class="fas fa-filter"></i> Mostrar/Ocultar Filtros'
+    filterToggle.style.display = "none"
+    filterToggle.style.width = "100%"
+    filterToggle.style.padding = "10px"
+    filterToggle.style.marginBottom = "15px"
+    filterToggle.style.backgroundColor = "var(--primary-blue)"
+    filterToggle.style.color = "white"
+    filterToggle.style.border = "none"
+    filterToggle.style.borderRadius = "4px"
+    filterToggle.style.cursor = "pointer"
+
+    // Insert the toggle button before the filters
+    const productsContainer = document.querySelector(".products-container")
+    if (productsContainer) {
+      productsContainer.insertBefore(filterToggle, filtersSection)
+    }
+
+    // Function to check window width and toggle filter visibility
+    function checkWidth() {
+      if (window.innerWidth <= 1024) {
+        filterToggle.style.display = "block"
+        filtersSection.style.display = "none"
+      } else {
+        filterToggle.style.display = "none"
+        filtersSection.style.display = "block"
+      }
+    }
+
+    // Toggle filters when button is clicked
+    filterToggle.addEventListener("click", () => {
+      if (filtersSection.style.display === "none") {
+        filtersSection.style.display = "block"
+        filterToggle.innerHTML = '<i class="fas fa-times"></i> Ocultar Filtros'
+      } else {
+        filtersSection.style.display = "none"
+        filterToggle.innerHTML = '<i class="fas fa-filter"></i> Mostrar Filtros'
+      }
+    })
+
+    // Check width on load and resize
+    checkWidth()
+    window.addEventListener("resize", checkWidth)
+  }
+
+  // Call the function to set up mobile filters
+  setupMobileFilters()
 })
+
+// Agregar función para guardar el boleto en Firebase
+async function saveOrderToFirebase(name, email, phone, ticketId, cartItems, total) {
+  try {
+    console.log("Iniciando guardado de boleto en Firebase...")
+    console.log("Datos a guardar:", { name, email, phone, ticketId, cartItems, total })
+
+    // Calcular fecha de emisión (ahora)
+    const fechaEmision = new Date()
+
+    // Calcular fecha de expiración (48 horas después)
+    const fechaExpiracion = new Date(fechaEmision)
+    fechaExpiracion.setHours(fechaExpiracion.getHours() + 48)
+
+    // Crear un nuevo documento en la colección "Boleto"
+    const orderData = {
+      ID_BOLETO: ticketId,
+      Nombre: name.toUpperCase(),
+      CORREO_ELECTRONICO: email,
+      TELEFONO: phone,
+      Productos: cartItems.map((item) => ({
+        id: item.id,
+        nombre: item.name,
+        precio: item.price,
+        cantidad: item.quantity,
+      })),
+      Total: total,
+      Fecha_de_Emision: Timestamp.fromDate(fechaEmision),
+      EXPIRACION: Timestamp.fromDate(fechaExpiracion),
+      estado: "pendiente",
+    }
+
+    console.log("Estructura de datos a guardar:", JSON.stringify(orderData, null, 2))
+
+    // Guardar en Firestore
+    const docRef = await addDoc(collection(db, "Boleto"), orderData)
+    console.log("Boleto guardado exitosamente con ID:", docRef.id)
+
+    // Actualizar el stock de los productos
+    for (const item of cartItems) {
+      try {
+        // Obtener referencia al documento del producto
+        const productRef = doc(db, "Productos", item.id)
+        console.log(`Actualizando stock del producto ${item.id}, restando ${item.quantity} unidades`)
+
+        // Actualizar el stock (restar la cantidad comprada)
+        await updateDoc(productRef, {
+          stock: increment(-item.quantity),
+        })
+        console.log(`Stock del producto ${item.id} actualizado correctamente`)
+      } catch (productError) {
+        console.error(`Error al actualizar el stock del producto ${item.id}:`, productError)
+        // Continuar con los demás productos aunque uno falle
+      }
+    }
+
+    return true
+  } catch (error) {
+    console.error("Error al guardar el boleto:", error)
+    console.error("Detalles del error:", error.code, error.message)
+    alert(`Error al guardar el boleto: ${error.message}. Por favor, contacta al administrador.`)
+    throw error
+  }
+}
+
+// Modificar la función showSimpleTicketForm para usar la función saveOrderToFirebase
+function showSimpleTicketForm() {
+  console.log("Mostrando formulario de boleto simple")
+  // Calcular el total
+  let total = 0
+  cart.forEach((item) => {
+    total += item.price * item.quantity
+  })
+
+  // Crear el contenido del formulario
+  const ticketFormHTML = `
+    <div class="simple-ticket-form">
+      <div class="simple-ticket-header">
+        <h2>Resumen</h2>
+        <button id="close-ticket-form" class="close-button">×</button>
+      </div>
+      <div class="simple-ticket-content">
+        <div class="simple-ticket-section">
+          <h3>Productos</h3>
+          <div class="simple-ticket-products">
+            ${cart
+      .map(
+        (item) => `
+              <div class="simple-ticket-product">
+                <span>${item.name} x ${item.quantity}</span>
+                <span>$${(item.price * item.quantity).toFixed(2)}</span>
+              </div>
+            `,
+      )
+      .join("")}
+          </div>
+        </div>
+        <div class="simple-ticket-total">
+          <span>Total:</span>
+          <span>$${total.toFixed(2)}</span>
+        </div>
+        <div class="simple-ticket-section">
+          <h3>Información de contacto</h3>
+          <form id="simple-ticket-form">
+            <div class="form-group">
+              <label for="simple-name">Nombre completo: *</label>
+              <input type="text" id="simple-name" required>
+            </div>
+            <div class="form-group">
+              <label for="simple-email">Correo electrónico: *</label>
+              <input type="email" id="simple-email" required>
+            </div>
+            <div class="form-group">
+              <label for="simple-phone">Número de celular: *</label>
+              <input type="tel" id="simple-phone" required>
+            </div>
+            <button type="submit" id="simple-generate-ticket" class="simple-button">Generar boleto</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  `
+
+  // Crear el contenedor del formulario
+  const ticketFormContainer = document.createElement("div")
+  ticketFormContainer.className = "simple-ticket-container"
+  ticketFormContainer.innerHTML = ticketFormHTML
+  document.body.appendChild(ticketFormContainer)
+
+  // Agregar eventos
+  document.getElementById("close-ticket-form").addEventListener("click", () => {
+    document.body.removeChild(ticketFormContainer)
+  })
+
+  document.getElementById("simple-ticket-form").addEventListener("submit", async (e) => {
+    e.preventDefault()
+    console.log("Formulario de boleto enviado")
+
+    const name = document.getElementById("simple-name").value
+    const email = document.getElementById("simple-email").value
+    const phone = document.getElementById("simple-phone").value
+
+    // Generar ID único
+    const ticketId = generateUniqueId()
+    console.log("ID de boleto generado:", ticketId)
+
+    try {
+      // Guardar el pedido en Firebase
+      console.log("Intentando guardar boleto en Firebase...")
+      await saveOrderToFirebase(name, email, phone, ticketId, cart, total)
+      console.log("Boleto guardado exitosamente")
+
+      // Mostrar confirmación
+      document.body.removeChild(ticketFormContainer)
+      showSimpleTicketConfirmation(name, email, phone, ticketId, total)
+    } catch (error) {
+      console.error("Error al guardar el pedido:", error)
+      alert("Hubo un error al generar tu boleto. Por favor, intenta de nuevo.")
+    }
+  })
+}
+
+// Generar ID único para el boleto
+function generateUniqueId() {
+  return "TKT" + Math.random().toString(36).substr(2, 8).toUpperCase()
+}
+
+// Mostrar confirmación de boleto simple
+function showSimpleTicketConfirmation(name, email, phone, ticketId, total) {
+  console.log("Mostrando confirmación de boleto:", ticketId)
+  // Calcular fecha de expiración (48 horas después)
+  const fechaEmision = new Date()
+  const fechaExpiracion = new Date(fechaEmision)
+  fechaExpiracion.setHours(fechaExpiracion.getHours() + 48)
+
+  // Formatear fechas para mostrar
+  const formatoFecha = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }
+
+  const fechaExpiracionStr = fechaExpiracion.toLocaleDateString("es-MX", formatoFecha)
+
+  const confirmationHTML = `
+<div class="simple-confirmation">
+  <div class="simple-confirmation-header">
+    <h2>Boleto Generado</h2>
+    <button id="close-confirmation" class="close-button">×</button>
+  </div>
+  <div class="simple-confirmation-content">
+    <p>Tu boleto ha sido generado exitosamente y enviado a tu correo electrónico.</p>
+    <div class="simple-confirmation-details">
+      <div class="simple-confirmation-item">
+        <span>ID del Boleto:</span>
+        <span>${ticketId}</span>
+      </div>
+      <div class="simple-confirmation-item">
+        <span>Nombre:</span>
+        <span>${name}</span>
+      </div>
+      <div class="simple-confirmation-item">
+        <span>Correo:</span>
+        <span>${email}</span>
+      </div>
+      <div class="simple-confirmation-item">
+        <span>Teléfono:</span>
+        <span>${phone}</span>
+      </div>
+      <div class="simple-confirmation-item">
+        <span>Total:</span>
+        <span>$${total.toFixed(2)}</span>
+      </div>
+      <div class="simple-confirmation-item">
+        <span>Expira:</span>
+        <span>${fechaExpiracionStr}</span>
+      </div>
+    </div>
+    <div class="ticket-warning">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p><strong>IMPORTANTE:</strong> Guarda este ID de boleto. Lo necesitarás en caso de pérdida para solicitar un reenvío.</p>
+    </div>
+    <p>Este boleto tiene una validez de 48 horas a partir de este momento.</p>
+    <button id="finish-confirmation" class="simple-button">Finalizar</button>
+  </div>
+</div>
+`
+
+  const confirmationContainer = document.createElement("div")
+  confirmationContainer.className = "simple-confirmation-container"
+  confirmationContainer.innerHTML = confirmationHTML
+  document.body.appendChild(confirmationContainer)
+
+  // Función para cerrar la confirmación y limpiar el carrito
+  const closeConfirmationAndCleanup = () => {
+    if (confirmationContainer && confirmationContainer.parentNode) {
+      document.body.removeChild(confirmationContainer)
+    }
+
+    // Limpiar carrito
+    cart = []
+    localStorage.setItem("cart", JSON.stringify(cart))
+    updateCartCount()
+
+    // Redirigir a la página principal
+    window.location.href = "catalog.html"
+  }
+
+  // Agregar evento al botón de cerrar
+  const closeButton = document.getElementById("close-confirmation")
+  if (closeButton) {
+    closeButton.addEventListener("click", closeConfirmationAndCleanup)
+  }
+
+  // Agregar evento al botón de finalizar
+  const finishButton = document.getElementById("finish-confirmation")
+  if (finishButton) {
+    finishButton.addEventListener("click", closeConfirmationAndCleanup)
+  }
+
+  // Agregar evento para cerrar con la tecla Escape
+  const handleEscKey = (event) => {
+    if (event.key === "Escape") {
+      closeConfirmationAndCleanup()
+      document.removeEventListener("keydown", handleEscKey)
+    }
+  }
+  document.addEventListener("keydown", handleEscKey)
+}
+
+// Añadir una función de prueba para verificar la conexión a Firebase
+async function testFirebaseConnection() {
+  try {
+    console.log("Probando conexión a Firebase...")
+
+    // Crear un documento de prueba
+    const testData = {
+      test: true,
+      timestamp: new Date(),
+      message: "Test connection",
+    }
+
+    // Intentar guardar en una colección de prueba
+    const testRef = collection(db, "test_connection")
+    const docRef = await addDoc(testRef, testData)
+
+    console.log("Conexión a Firebase exitosa. Documento de prueba creado con ID:", docRef.id)
+
+    // Eliminar el documento de prueba
+    await deleteDoc(doc(db, "test_connection", docRef.id))
+    console.log("Documento de prueba eliminado correctamente")
+
+    return true
+  } catch (error) {
+    console.error("Error al probar la conexión a Firebase:", error)
+    alert(`Error de conexión a Firebase: ${error.message}. Verifica tu configuración.`)
+    return false
+  }
+}
+
+// Agregar un botón de prueba para verificar la conexión (solo visible en desarrollo)
+function addTestButton() {
+  const testButton = document.createElement("button")
+  testButton.textContent = "Probar Firebase"
+  testButton.style.position = "fixed"
+  testButton.style.bottom = "60px"
+  testButton.style.right = "20px"
+  testButton.style.zIndex = "9999"
+  testButton.style.padding = "10px 15px"
+  testButton.style.backgroundColor = "#4CAF50"
+  testButton.style.color = "white"
+  testButton.style.border = "none"
+  testButton.style.borderRadius = "4px"
+  testButton.style.cursor = "pointer"
+
+  testButton.addEventListener("click", async () => {
+    testButton.textContent = "Probando..."
+    testButton.disabled = true
+
+    const result = await testFirebaseConnection()
+
+    if (result) {
+      testButton.textContent = "Conexión OK"
+      setTimeout(() => {
+        testButton.textContent = "Probar Firebase"
+        testButton.disabled = false
+      }, 3000)
+    } else {
+      testButton.textContent = "Error de conexión"
+      setTimeout(() => {
+        testButton.textContent = "Probar Firebase"
+        testButton.disabled = false
+      }, 3000)
+    }
+  })
+
+  document.body.appendChild(testButton)
+}
+
+// Descomentar para añadir el botón de prueba
+// addTestButton()
+
+// Añadir una función de prueba para guardar un boleto de prueba directamente
+async function saveTestTicket() {
+  try {
+    console.log("Creando boleto de prueba...")
+
+    // Datos de prueba
+    const testTicket = {
+      ID_BOLETO: "TEST" + Math.random().toString(36).substr(2, 8).toUpperCase(),
+      Nombre: "USUARIO DE PRUEBA",
+      CORREO_ELECTRONICO: "test@example.com",
+      TELEFONO: "1234567890",
+      Productos: [
+        {
+          id: "producto_test",
+          nombre: "Producto de Prueba",
+          precio: 100,
+          cantidad: 1,
+        },
+      ],
+      Total: 100,
+      Fecha_de_Emision: Timestamp.now(),
+      EXPIRACION: Timestamp.fromDate(new Date(Date.now() + 48 * 60 * 60 * 1000)),
+      estado: "pendiente",
+    }
+
+    console.log("Datos del boleto de prueba:", testTicket)
+
+    // Intentar guardar en Firestore directamente
+    const boletosRef = collection(db, "Boleto")
+    const docRef = await addDoc(boletosRef, testTicket)
+
+    console.log("Boleto de prueba guardado exitosamente con ID:", docRef.id)
+    alert(`Boleto de prueba creado con ID: ${docRef.id}`)
+
+    return true
+  } catch (error) {
+    console.error("Error al crear boleto de prueba:", error)
+    alert(`Error al crear boleto de prueba: ${error.message}`)
+    return false
+  }
+}
+
+// Agregar un botón para crear un boleto de prueba
+function addSaveTestTicketButton() {
+  const testButton = document.createElement("button")
+  testButton.textContent = "Crear Boleto Prueba"
+  testButton.style.position = "fixed"
+  testButton.style.bottom = "100px"
+  testButton.style.right = "20px"
+  testButton.style.zIndex = "9999"
+  testButton.style.padding = "10px 15px"
+  testButton.style.backgroundColor = "#2196F3"
+  testButton.style.color = "white"
+  testButton.style.border = "none"
+  testButton.style.borderRadius = "4px"
+  testButton.style.cursor = "pointer"
+
+  testButton.addEventListener("click", async () => {
+    testButton.textContent = "Creando..."
+    testButton.disabled = true
+
+    const result = await saveTestTicket()
+
+    if (result) {
+      testButton.textContent = "Boleto Creado"
+      setTimeout(() => {
+        testButton.textContent = "Crear Boleto Prueba"
+        testButton.disabled = false
+      }, 3000)
+    } else {
+      testButton.textContent = "Error al Crear"
+      setTimeout(() => {
+        testButton.textContent = "Crear Boleto Prueba"
+        testButton.disabled = false
+      }, 3000)
+    }
+  })
+
+  document.body.appendChild(testButton)
+}
+
+// Añadir el botón de prueba para crear boletos
+// addSaveTestTicketButton()

@@ -1,0 +1,293 @@
+/* Estilos responsivos para Toy Garage - Collector's Corner */
+
+/* Variables globales */
+:root {
+    --header-height-mobile: 120px;
+    --nav-height-mobile: 60px;
+}
+
+/* Estilos base responsivos */
+@media (max-width: 1024px) {
+
+    .container,
+    .debug-container,
+    .boletos-container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .footer-section {
+        width: 100%;
+    }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+
+    /* Header y navegación */
+    header {
+        flex-direction: column;
+    }
+
+    .logo-container {
+        width: 100%;
+        text-align: center;
+        padding: 10px 0;
+    }
+
+    nav ul {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    nav ul li {
+        margin: 0 5px;
+    }
+
+    /* Secciones principales */
+    .categories .category-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    /* Productos */
+    .products-container {
+        flex-direction: column;
+    }
+
+    .filters {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .products-grid {
+        width: 100%;
+    }
+
+    .products-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    /* Carrito */
+    .mini-cart {
+        width: 90%;
+        right: 5%;
+    }
+
+    /* Lightbox */
+    .lightbox-content {
+        width: 90%;
+        max-width: 600px;
+        padding: 15px;
+    }
+
+    /* Boletos */
+    .boletos-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .boletos-actions {
+        width: 100%;
+        margin-top: 15px;
+        flex-direction: column;
+    }
+
+    .search-bar {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .filter-options {
+        width: 100%;
+    }
+
+    .boletos-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Admin */
+    .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .header-top {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .user-info {
+        margin-top: 15px;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+
+    /* Header y navegación */
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    nav ul li {
+        margin: 5px 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    nav ul li a {
+        display: block;
+        padding: 10px;
+    }
+
+    /* Secciones principales */
+    .hero h2 {
+        font-size: 1.5rem;
+    }
+
+    .categories .category-container {
+        grid-template-columns: 1fr;
+    }
+
+    /* Productos */
+    .top-options {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .user-options {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .search-container {
+        width: 100%;
+    }
+
+    .products-list {
+        grid-template-columns: 1fr;
+    }
+
+    /* Formularios */
+    .form-group {
+        flex-direction: column;
+    }
+
+    .form-group label {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-button {
+        width: 100%;
+    }
+
+    /* Boletos */
+    .boletos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .boleto-card {
+        padding: 10px;
+    }
+
+    /* Admin */
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
+
+    /* Tablas */
+    .debug-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    /* Paginación */
+    .pagination {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+}
+
+/* Ajustes específicos para elementos interactivos en dispositivos táctiles */
+@media (hover: none) {
+
+    /* Mejorar tamaño de botones para tocar */
+    button,
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger,
+    .btn-success,
+    .form-button,
+    .filter-button,
+    .action-button {
+        min-height: 44px;
+        padding: 12px 15px;
+    }
+
+    /* Aumentar área de toque para checkboxes y radios */
+    input[type="checkbox"]+label,
+    input[type="radio"]+label {
+        padding: 10px;
+        display: inline-block;
+    }
+
+    /* Mejorar interacción con tarjetas */
+    .product-card,
+    .boleto-card,
+    .dashboard-card {
+        transition: none;
+    }
+
+    /* Ajustar hover states para touch */
+    .product-card:active,
+    .boleto-card:active,
+    .dashboard-card:active {
+        transform: translateY(2px);
+    }
+}
+
+/* Ajustes para orientación landscape en móviles */
+@media (max-width: 896px) and (orientation: landscape) {
+    .lightbox-content {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .products-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .boletos-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

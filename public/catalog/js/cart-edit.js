@@ -100,6 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function increaseQuantity(id) {
     const item = cart.find((item) => item.id === id)
     if (item) {
+      // Verificar si hay suficiente stock antes de aumentar la cantidad
+      if (item.quantity + 1 > item.stock) {
+        alert(`Lo sentimos, solo hay ${item.stock} unidades disponibles de este producto.`)
+        return
+      }
+
       item.quantity += 1
       updateCart()
     }
@@ -186,58 +192,75 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Crear el contenido del formulario
     const ticketFormHTML = `
-      <div class="simple-ticket-form">
-        <div class="simple-ticket-header">
-          <h2>Resumen</h2>
-          <button id="close-ticket-form" class="close-button">×</button>
-        </div>
-        <div class="simple-ticket-content">
-          <div class="simple-ticket-section">
-            <h3>Productos</h3>
-            <div class="simple-ticket-products">
-              ${cart
+    <div class="simple-ticket-form">
+      <div class="simple-ticket-header">
+        <h2>Resumen</h2>
+        <button id="close-ticket-form" class="close-button">×</button>
+      </div>
+      <div class="simple-ticket-content">
+        <div class="simple-ticket-section">
+          <h3>Productos</h3>
+          <div class="simple-ticket-products">
+            ${cart
         .map(
           (item) => `
-                <div class="simple-ticket-product">
-                  <span>${item.name} x ${item.quantity}</span>
-                  <span>$${(item.price * item.quantity).toFixed(2)}</span>
-                </div>
-              `,
+              <div class="simple-ticket-product">
+                <span>${item.name} x ${item.quantity}</span>
+                <span>$${(item.price * item.quantity).toFixed(2)}</span>
+              </div>
+            `,
         )
         .join("")}
-            </div>
-          </div>
-          <div class="simple-ticket-total">
-            <span>Total:</span>
-            <span>$${total.toFixed(2)}</span>
-          </div>
-          <div class="simple-ticket-section">
-            <h3>Información de contacto</h3>
-            <form id="simple-ticket-form">
-              <div class="form-group">
-                <label for="simple-name">Nombre completo: *</label>
-                <input type="text" id="simple-name" required>
-              </div>
-              <div class="form-group">
-                <label for="simple-email">Correo electrónico: *</label>
-                <input type="email" id="simple-email" required>
-              </div>
-              <div class="form-group">
-                <label for="simple-phone">Número de celular: *</label>
-                <input type="tel" id="simple-phone" required>
-              </div>
-              <button type="submit" id="simple-generate-ticket" class="simple-button">Generar boleto</button>
-            </form>
           </div>
         </div>
+        <div class="simple-ticket-total">
+          <span>Total:</span>
+          <span>$${total.toFixed(2)}</span>
+        </div>
+        <div class="simple-ticket-section">
+          <h3>Información de contacto</h3>
+          <form id="simple-ticket-form">
+            <div class="form-group">
+              <label for="simple-name">Nombre completo: *</label>
+              <input type="text" id="simple-name" required>
+            </div>
+            <div class="form-group">
+              <label for="simple-email">Correo electrónico: *</label>
+              <input type="email" id="simple-email" required>
+            </div>
+            <div class="form-group">
+              <label for="simple-phone">Número de celular: *</label>
+              <input type="tel" id="simple-phone" required>
+            </div>
+            <button type="submit" id="simple-generate-ticket" class="simple-button">Generar boleto</button>
+          </form>
+        </div>
       </div>
-    `
+    </div>
+  `
 
     // Crear el contenedor del formulario
     const ticketFormContainer = document.createElement("div")
     ticketFormContainer.className = "simple-ticket-container"
     ticketFormContainer.innerHTML = ticketFormHTML
     document.body.appendChild(ticketFormContainer)
+
+    // Agregar eventos para los radio buttons de tipo de pago
+    // const paymentRadios = document.querySelectorAll('input[name="payment-type"]')
+    // const discountedTotalElement = document.getElementById("discounted-total")
+
+    // Función para actualizar el total con descuento
+    // const updateDiscountedTotal = () => {
+    //   const selectedPayment = document.querySelector('input[name="payment-type"]:checked').value
+    //   const discountRate = selectedPayment === "tarjeta" ? 0.9 : 0.85 // 10% o 15% de descuento
+    //   const discountedTotal = total * discountRate
+    //   discountedTotalElement.textContent = `${discountedTotal.toFixed(2)}`
+    // }
+
+    // Añadir event listeners a los radio buttons
+    // paymentRadios.forEach((radio) => {
+    //   radio.addEventListener("change", updateDiscountedTotal)
+    // })
 
     // Agregar eventos
     document.getElementById("close-ticket-form").addEventListener("click", () => {
@@ -255,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const ticketId = generateUniqueId()
 
       try {
-        // Guardar el pedido en Firebase
+        // Guardar el pedido en Firebase sin descuentos
         await saveOrderToFirebase(name, email, phone, ticketId, cart, total)
 
         // Mostrar confirmación
@@ -271,6 +294,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Guardar pedido en Firebase
   async function saveOrderToFirebase(name, email, phone, ticketId, cartItems, total) {
     try {
+      console.log("Iniciando guardado de boleto en Firebase...")
+      console.log("Datos a guardar:", { name, email, phone, ticketId, cartItems, total })
+
       // Calcular fecha de emisión (ahora)
       const fechaEmision = new Date()
 
@@ -296,22 +322,51 @@ document.addEventListener("DOMContentLoaded", () => {
         estado: "pendiente",
       }
 
-      await addDoc(collection(db, "Boleto"), orderData)
+      console.log("Estructura de datos a guardar:", JSON.stringify(orderData, null, 2))
 
-      // Actualizar el stock de los productos
-      for (const item of cartItems) {
-        // Obtener referencia al documento del producto
-        const productRef = doc(db, "Productos", item.id)
+      // Verificar que la colección existe
+      try {
+        const boletosRef = collection(db, "Boleto")
+        console.log("Referencia a colección obtenida:", boletosRef)
 
-        // Actualizar el stock (restar la cantidad comprada)
-        await updateDoc(productRef, {
-          stock: increment(-item.quantity),
-        })
+        // Intentar agregar el documento
+        const docRef = await addDoc(boletosRef, orderData)
+        console.log("Boleto guardado exitosamente con ID:", docRef.id)
+
+        // Actualizar el stock de los productos
+        for (const item of cartItems) {
+          try {
+            // Obtener referencia al documento del producto
+            const productRef = doc(db, "Productos", item.id)
+            console.log(`Actualizando stock del producto ${item.id}, restando ${item.quantity} unidades`)
+
+            // Actualizar el stock (restar la cantidad comprada)
+            await updateDoc(productRef, {
+              stock: increment(-item.quantity),
+            })
+            console.log(`Stock del producto ${item.id} actualizado correctamente`)
+          } catch (productError) {
+            console.error(`Error al actualizar el stock del producto ${item.id}:`, productError)
+            // Continuar con los demás productos aunque uno falle
+          }
+        }
+
+        return true
+      } catch (collectionError) {
+        console.error("Error al acceder a la colección 'Boleto':", collectionError)
+
+        // Intentar crear la colección si no existe
+        console.log("Intentando crear la colección 'Boleto'...")
+        const newDocRef = await addDoc(collection(db, "Boleto"), orderData)
+        console.log("Colección creada y boleto guardado con ID:", newDocRef.id)
+        return true
       }
-
-      return true
     } catch (error) {
-      console.error("Error al guardar el pedido:", error)
+      console.error("Error al guardar el boleto:", error)
+      console.error("Detalles del error:", error.code, error.message)
+
+      // Mostrar alerta con información detallada
+      alert(`Error al guardar el boleto: ${error.message}. Por favor, contacta al administrador.`)
       throw error
     }
   }
@@ -367,7 +422,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div class="simple-confirmation-item">
           <span>Total:</span>
-          <span>$${total.toFixed(2)}</span>
+          <span style="font-weight: bold; color: var(--primary-red);">$${total.toFixed(2)}</span>
         </div>
         <div class="simple-confirmation-item">
           <span>Expira:</span>
