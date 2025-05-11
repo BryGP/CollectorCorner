@@ -1,5 +1,4 @@
-// js/cancelaciones.js - Funcionalidad para la página de cancelaciones con Firebase
-
+// js/cancelaciones.js
 // Importar Firebase y Firestore
 import { db } from "./firebase-config.js"
 import {
@@ -14,11 +13,10 @@ import {
     Timestamp,
     where,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
-import { checkAdminAccess } from "./auth-check.js"
+import { checkAuth } from "./auth-check.js" 
 
-// Reemplazar con esta forma de acceder a XLSX (ya que se carga desde CDN)
 // Al inicio del archivo, después de las importaciones de Firebase
-const XLSX = window.XLSX;
+const XLSX = window.XLSX
 
 // Variables globales
 let currentAction = ""
@@ -36,9 +34,14 @@ let totalPages = 1
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("Cargando página de cancelaciones...")
 
-    // Verificar si el usuario está autenticado y es administrador
-    const isAdmin = await checkAdminAccess()
-    if (!isAdmin) return // Si no es admin, la función ya redirigió
+    // Verificar si el usuario está autenticado
+    const user = await checkAuth()
+    if (!user) {
+        console.error("Usuario no autenticado, redirigiendo a la página de inicio de sesión...")
+        alert("Debes iniciar sesión para acceder a esta página.")
+        window.location.href = "login.html"
+        return
+    }
 
     // Cargar ventas desde Firebase
     await loadAllSalesFromFirebase()
@@ -205,14 +208,15 @@ function displaySalesPage(page) {
         // Formatear fecha
         let fechaFormateada = "Fecha no disponible"
         if (venta.fecha) {
+            let fecha
             if (venta.fecha instanceof Timestamp) {
-                const fecha = venta.fecha.toDate()
+                fecha = venta.fecha.toDate()
                 fechaFormateada = fecha.toISOString().split("T")[0]
             } else if (venta.fecha.seconds) {
-                const fecha = new Date(venta.fecha.seconds * 1000)
+                fecha = new Date(venta.fecha.seconds * 1000)
                 fechaFormateada = fecha.toISOString().split("T")[0]
             } else if (venta.fecha instanceof Date) {
-                fechaFormateada = venta.fecha.toISOString().split("T")[0]
+                fecha = venta.fecha.toISOString().split("T")[0]
             } else if (typeof venta.fecha === "string") {
                 fechaFormateada = venta.fecha
             }
@@ -970,7 +974,7 @@ function exportToExcel(data) {
 
     try {
         // Verificar que XLSX esté disponible
-        if (typeof XLSX === 'undefined') {
+        if (typeof XLSX === "undefined") {
             throw new Error("La librería XLSX no está cargada correctamente")
         }
 
@@ -1038,7 +1042,8 @@ function exportToPDF(data) {
     console.log("Exportación a PDF completada")
 }
 
-// Función para buscar tickets
+// Función para buscar tickets - CORREGIDA
+// Función para buscar tickets - CORREGIDA
 function searchTickets() {
     const searchTerm = document.getElementById("searchInput").value.toLowerCase()
     const statusFilter = document.getElementById("filterStatus").value
@@ -1047,7 +1052,7 @@ function searchTickets() {
         // Filtrar ventas
         const filteredSales = allSales.filter((venta) => {
             // Obtener valores para búsqueda
-            const ticketId = (venta.numeroTicket || venta.ticketId || venta.id || "").toLowerCase()
+            const ticketId = String(venta.numeroTicket || venta.ticketId || venta.id || "").toLowerCase()
 
             let fechaStr = ""
             if (venta.fecha) {
@@ -1067,17 +1072,14 @@ function searchTickets() {
                 }
             }
 
-            const usuario = (venta.usuario || "").toLowerCase()
-            const estado = (venta.estado || "Completada").toLowerCase()
+            const usuario = String(venta.usuario || "").toLowerCase()
+            const estado = String(venta.estado || "Completada").toLowerCase()
 
             // Verificar si coincide con la búsqueda y el filtro
-            const matchesSearch = !searchTerm ||
-                ticketId.includes(searchTerm) ||
-                fechaStr.includes(searchTerm) ||
-                usuario.includes(searchTerm)
+            const matchesSearch =
+                !searchTerm || ticketId.includes(searchTerm) || fechaStr.includes(searchTerm) || usuario.includes(searchTerm)
 
-            const matchesFilter = !statusFilter ||
-                estado === statusFilter.toLowerCase()
+            const matchesFilter = !statusFilter || estado === statusFilter.toLowerCase()
 
             return matchesSearch && matchesFilter
         })
@@ -1104,11 +1106,12 @@ function searchTickets() {
             // Formatear fecha
             let fechaFormateada = "Fecha no disponible"
             if (venta.fecha) {
+                let fecha
                 if (venta.fecha instanceof Timestamp) {
-                    const fecha = venta.fecha.toDate()
+                    fecha = venta.fecha.toDate()
                     fechaFormateada = fecha.toISOString().split("T")[0]
                 } else if (venta.fecha.seconds) {
-                    const fecha = new Date(venta.fecha.seconds * 1000)
+                    fecha = new Date(venta.fecha.seconds * 1000)
                     fechaFormateada = fecha.toISOString().split("T")[0]
                 } else if (venta.fecha instanceof Date) {
                     fechaFormateada = venta.fecha.toISOString().split("T")[0]
@@ -1131,7 +1134,7 @@ function searchTickets() {
         <td>${venta.numeroTicket || venta.ticketId || venta.id}</td>
         <td>${fechaFormateada}</td>
         <td>${venta.usuario || "No especificado"}</td>
-        <td>${total}</td>
+        <td>$${total}</td>
         <td>${venta.estado || "Completada"}</td>
         <td>
           <div class="action-buttons">

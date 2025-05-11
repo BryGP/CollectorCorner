@@ -1,5 +1,5 @@
 // Importar Firebase y Firestore
-import { logout } from "./auth-check.js"
+import { logout, checkEmployeeAccess } from "./auth-check.js" // Importamos checkEmployeeAccess
 import { displayUserInfo } from "./login.js"
 import { db } from "./firebase-config.js"
 import {
@@ -48,8 +48,15 @@ const ticketCambioContainer = document.getElementById("ticket-cambio-container")
 const ticketBarcodeText = document.getElementById("ticket-barcode-text")
 
 // Inicializar la página
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     console.log("Inicializando sistema de ventas...")
+
+    // Verificar si el usuario está autenticado
+    const isLoggedIn = await checkEmployeeAccess()
+    if (!isLoggedIn) {
+        // Si no está logueado, la función checkEmployeeAccess ya redirigió
+        return
+    }
 
     // Mostrar fecha actual
     mostrarFechaActual()
@@ -100,8 +107,8 @@ function verificarUsuario() {
         }
     } else {
         console.log("No hay usuario autenticado")
-        // Para pruebas, no redirigimos
-        // window.location.href = "login.html";
+        // Redirigir al login ya que se requiere autenticación
+        window.location.href = "login.html"
     }
 }
 
@@ -939,40 +946,40 @@ function calcularCambio() {
 }
 
 function generarNumeroTicket() {
-  const timestamp = Date.now().toString().slice(-6);
-  const random = Math.floor(1000 + Math.random() * 9000);
-  return `${timestamp}${random}`;
+    const timestamp = Date.now().toString().slice(-6)
+    const random = Math.floor(1000 + Math.random() * 9000)
+    return `${timestamp}${random}`
 }
 
 // Procesar pago
 async function procesarPago() {
-    const metodoPago = document.getElementById("metodo-pago");
-    const efectivoRecibido = document.getElementById("efectivo-recibido");
+    const metodoPago = document.getElementById("metodo-pago")
+    const efectivoRecibido = document.getElementById("efectivo-recibido")
 
     if (!metodoPago) {
-        console.error("Elemento metodo-pago no encontrado");
-        return;
+        console.error("Elemento metodo-pago no encontrado")
+        return
     }
 
     // Validar pago en efectivo
     if (metodoPago.value === "Efectivo" && efectivoRecibido) {
-        const efectivoRecibidoValor = Number.parseFloat(efectivoRecibido.value) || 0;
-        const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
-        const totalConDescuento = calcularTotalConDescuento(subtotal);
+        const efectivoRecibidoValor = Number.parseFloat(efectivoRecibido.value) || 0
+        const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0)
+        const totalConDescuento = calcularTotalConDescuento(subtotal)
 
         if (efectivoRecibidoValor < totalConDescuento) {
-            mostrarAlerta("El monto recibido es insuficiente", "error");
-            return;
+            mostrarAlerta("El monto recibido es insuficiente", "error")
+            return
         }
     }
 
     try {
         // Calcular totales
-        const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
-        const totalConDescuento = calcularTotalConDescuento(subtotal);
+        const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0)
+        const totalConDescuento = calcularTotalConDescuento(subtotal)
 
         // Generar ticket único aleatorio
-        ticketNumero = generarNumeroTicket();
+        ticketNumero = generarNumeroTicket()
 
         // Crear objeto de venta
         const venta = {
@@ -992,48 +999,48 @@ async function procesarPago() {
             metodoPago: metodoPago.value,
             estado: "Completada",
             numeroTicket: ticketNumero,
-        };
+        }
 
         // Guardar venta
-        const ventaRef = await addDoc(collection(db, "Ventas"), venta);
-        console.log("Venta registrada con ID:", ventaRef.id);
+        const ventaRef = await addDoc(collection(db, "Ventas"), venta)
+        console.log("Venta registrada con ID:", ventaRef.id)
 
         // Actualizar stock
         for (const producto of productosVenta) {
-            const productoRef = doc(db, "Productos", producto.id);
-            const productoDoc = await getDoc(productoRef);
+            const productoRef = doc(db, "Productos", producto.id)
+            const productoDoc = await getDoc(productoRef)
 
             if (productoDoc.exists()) {
-                const stockActual = productoDoc.data().stock || 0;
-                const nuevoStock = Math.max(0, stockActual - producto.cantidad);
+                const stockActual = productoDoc.data().stock || 0
+                const nuevoStock = Math.max(0, stockActual - producto.cantidad)
 
                 await updateDoc(productoRef, {
                     stock: nuevoStock,
                     updatedAt: serverTimestamp(),
-                });
+                })
             }
         }
 
         // Mostrar en ticket
-        if (ticketNumeroElement) ticketNumeroElement.textContent = `Ticket #: ${ticketNumero}`;
-        if (ticketBarcodeText) ticketBarcodeText.textContent = `*${ticketNumero}*`;
+        if (ticketNumeroElement) ticketNumeroElement.textContent = `Ticket #: ${ticketNumero}`
+        if (ticketBarcodeText) ticketBarcodeText.textContent = `*${ticketNumero}*`
 
-        cerrarModalPago();
-        mostrarAlerta(`Venta realizada con éxito. Ticket: ${ticketNumero}`, "success");
+        cerrarModalPago()
+        mostrarAlerta(`Venta realizada con éxito. Ticket: ${ticketNumero}`, "success")
 
         if (confirm("¿Desea imprimir el ticket ahora?")) {
-            imprimirTicket();
+            imprimirTicket()
         }
 
         // Limpiar
-        productosVenta = [];
-        descuentoAplicado = 0;
-        descuentoMonto = 0;
-        actualizarCarrito();
-        actualizarTicket();
+        productosVenta = []
+        descuentoAplicado = 0
+        descuentoMonto = 0
+        actualizarCarrito()
+        actualizarTicket()
     } catch (error) {
-        console.error("Error al procesar venta:", error);
-        mostrarAlerta("Error al procesar venta: " + error.message, "error");
+        console.error("Error al procesar venta:", error)
+        mostrarAlerta("Error al procesar venta: " + error.message, "error")
     }
 }
 

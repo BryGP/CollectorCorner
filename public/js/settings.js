@@ -1,129 +1,193 @@
 // js/settings.js - Funcionalidad para la página de configuraciones
 
 // Importar Firebase y Firestore
-import { db } from "./firebase-config.js";
-import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-import { displayUserInfo } from "./login.js";
-import { logout } from "./auth-check.js";
+import { db } from "./firebase-config.js"
+import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
+import { displayUserInfo } from "./login.js"
+import { logout } from "./auth-check.js"
+
+// Variable para controlar si ya se ha inicializado la página
+let initialized = false
 
 // Función para inicializar la página
 document.addEventListener("DOMContentLoaded", async () => {
-    console.log("Cargando página de configuraciones...");
+    // Evitar inicializaciones múltiples que podrían causar desplazamientos
+    if (initialized) return
+    initialized = true
 
-    // Mostrar información del usuario (usando la función centralizada)
-    displayUserInfo()
+    console.log("Cargando página de configuraciones...")
 
-    // Configurar botón de logout
-    const logoutBtn = document.getElementById("logoutBtn")
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", logout)
+    try {
+        // Mostrar información del usuario (usando la función centralizada)
+        displayUserInfo()
+
+        // Configurar botón de logout
+        const logoutBtn = document.getElementById("logoutBtn")
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", logout)
+        }
+
+        // Cargar configuraciones actuales
+        await loadSettings()
+
+        // Configurar eventos para los botones
+        setupEventListeners()
+    } catch (error) {
+        console.error("Error al inicializar la página de configuraciones:", error)
+        // No mostrar alerta aquí para evitar mensajes duplicados
     }
-
-    // Cargar configuraciones actuales
-    await loadSettings();
-
-    // Configurar eventos para los botones
-    setupEventListeners();
-});
+})
 
 // Función para cargar las configuraciones desde Firestore
 async function loadSettings() {
     try {
+        console.log("Intentando cargar configuraciones desde Firestore...")
+
+        // Verificar que db esté definido
+        if (!db) {
+            console.error("Error: La conexión a Firebase no está disponible")
+            setDefaultValues()
+            return
+        }
+
         // Intentar obtener el documento de configuraciones
-        const settingsDoc = await getDoc(doc(db, "Settings", "general"));
+        const settingsRef = doc(db, "Settings", "general")
+        console.log("Referencia al documento:", settingsRef)
+
+        const settingsDoc = await getDoc(settingsRef)
+        console.log("Documento obtenido:", settingsDoc)
 
         if (settingsDoc.exists()) {
-            const settings = settingsDoc.data();
-            console.log("Configuraciones cargadas:", settings);
+            const settings = settingsDoc.data()
+            console.log("Configuraciones cargadas correctamente:", settings)
 
             // Llenar los campos del formulario con los valores de la base de datos
-            document.getElementById("language").value = settings.language || "es";
-            document.getElementById("taxRate").value = settings.taxRate || "16.00";
-            document.getElementById("exchangeRate").value = settings.exchangeRate || "18.50";
-            document.getElementById("lowStockAlert").value = settings.lowStockAlert || "5";
-            document.getElementById("defaultPrinter").value = settings.defaultPrinter || "system";
-            document.getElementById("ticketFormat").value = settings.ticketFormat || "compact";
-            document.getElementById("ticketMessage").value = settings.ticketMessage || "Gracias por tu compra";
+            setFormValues(settings)
         } else {
-            console.log("No se encontraron configuraciones, se usarán valores predeterminados");
+            console.log("No se encontraron configuraciones, se usarán valores predeterminados")
+            setDefaultValues()
         }
     } catch (error) {
-        console.error("Error al cargar configuraciones:", error);
-        alert("Error al cargar configuraciones. Se usarán valores predeterminados.");
+        console.error("Error al cargar configuraciones:", error)
+        // Usar un enfoque silencioso para evitar alertas molestas
+        console.warn("Se usarán valores predeterminados debido al error")
+        setDefaultValues()
     }
+}
+
+// Función para establecer valores en el formulario
+function setFormValues(settings) {
+    const lowStockAlert = document.getElementById("lowStockAlert")
+    const defaultPrinter = document.getElementById("defaultPrinter")
+    const ticketFormat = document.getElementById("ticketFormat")
+    const ticketMessage = document.getElementById("ticketMessage")
+
+    if (lowStockAlert) lowStockAlert.value = settings.lowStockAlert || "4"
+    if (defaultPrinter) defaultPrinter.value = settings.defaultPrinter || "system"
+    if (ticketFormat) ticketFormat.value = settings.ticketFormat || "compact"
+    if (ticketMessage) ticketMessage.value = settings.ticketMessage || "Gracias por tu compra c:"
+}
+
+// Función para establecer valores predeterminados
+function setDefaultValues() {
+    setFormValues({
+        lowStockAlert: "4",
+        defaultPrinter: "system",
+        ticketFormat: "compact",
+        ticketMessage: "Gracias por tu compra c:",
+    })
 }
 
 // Función para guardar las configuraciones en Firestore
 async function saveSettings() {
     try {
-        // Obtener valores del formulario y validar que no sean NaN
-        const taxRateValue = document.getElementById("taxRate").value;
-        const exchangeRateValue = document.getElementById("exchangeRate").value;
-        const ticketMessageValue = document.getElementById("ticketMessage").value;
+        // Verificar que db esté definido
+        if (!db) {
+            throw new Error("La conexión a Firebase no está disponible")
+        }
+
+        // Obtener valores del formulario
+        const ticketMessage = document.getElementById("ticketMessage")
+        const lowStockAlert = document.getElementById("lowStockAlert")
+        const defaultPrinter = document.getElementById("defaultPrinter")
+        const ticketFormat = document.getElementById("ticketFormat")
+
+        if (!ticketMessage || !lowStockAlert || !defaultPrinter || !ticketFormat) {
+            throw new Error("No se pudieron encontrar todos los elementos del formulario")
+        }
 
         const settings = {
-            language: document.getElementById("language").value,
-            taxRate: isNaN(Number.parseFloat(taxRateValue)) || taxRateValue === "" ? 16.00 : Number.parseFloat(taxRateValue),
-            exchangeRate: isNaN(Number.parseFloat(exchangeRateValue)) || exchangeRateValue === "" ? 18.50 : Number.parseFloat(exchangeRateValue),
-            lowStockAlert: Number.parseInt(document.getElementById("lowStockAlert").value) || 5,
-            defaultPrinter: document.getElementById("defaultPrinter").value,
-            ticketFormat: document.getElementById("ticketFormat").value,
-            ticketMessage: ticketMessageValue.trim() === "" ? "Gracias por tu compra" : ticketMessageValue,
+            lowStockAlert: Number.parseInt(lowStockAlert.value) || 4,
+            defaultPrinter: defaultPrinter.value,
+            ticketFormat: ticketFormat.value,
+            ticketMessage: ticketMessage.value.trim() === "" ? "Gracias por tu compra c:" : ticketMessage.value,
             updatedAt: new Date(),
-        };
+        }
+
+        console.log("Guardando configuraciones:", settings)
 
         // Verificar si el documento ya existe
-        const settingsDoc = await getDoc(doc(db, "Settings", "general"));
+        const settingsRef = doc(db, "Settings", "general")
+        const settingsDoc = await getDoc(settingsRef)
 
         if (settingsDoc.exists()) {
             // Actualizar documento existente
-            await updateDoc(doc(db, "Settings", "general"), settings);
+            await updateDoc(settingsRef, settings)
+            console.log("Configuraciones actualizadas correctamente")
         } else {
             // Crear nuevo documento
-            await setDoc(doc(db, "Settings", "general"), {
+            await setDoc(settingsRef, {
                 ...settings,
                 createdAt: new Date(),
-            });
+            })
+            console.log("Configuraciones creadas correctamente")
         }
 
-        alert("Configuraciones guardadas correctamente");
+        alert("Configuraciones guardadas correctamente")
     } catch (error) {
-        console.error("Error al guardar configuraciones:", error);
-        alert("Error al guardar configuraciones. Por favor, intenta de nuevo.");
+        console.error("Error al guardar configuraciones:", error)
+        alert("Error al guardar configuraciones. Por favor, intenta de nuevo.")
     }
 }
 
 // Función para restablecer los valores predeterminados
 function resetSettings() {
     if (confirm("¿Estás seguro de que deseas restablecer todas las configuraciones a sus valores predeterminados?")) {
-        document.getElementById("language").value = "es";
-        document.getElementById("taxRate").value = "16.00";
-        document.getElementById("exchangeRate").value = "18.50";
-        document.getElementById("lowStockAlert").value = "5";
-        document.getElementById("defaultPrinter").value = "system";
-        document.getElementById("ticketFormat").value = "compact";
-        document.getElementById("ticketMessage").value = "Gracias por tu compra";
+        setDefaultValues()
     }
 }
 
 // Función para configurar los event listeners
 function setupEventListeners() {
     // Botón para guardar configuraciones
-    const saveBtn = document.getElementById("saveSettingsBtn");
-    const resetBtn = document.getElementById("resetSettingsBtn");
-    saveBtn.addEventListener("click", saveSettings);
-    resetBtn.addEventListener("click", resetSettings);
+    const saveBtn = document.getElementById("saveSettingsBtn")
+    const resetBtn = document.getElementById("resetSettingsBtn")
+
+    if (saveBtn) {
+        // Eliminar event listeners anteriores para evitar duplicados
+        saveBtn.removeEventListener("click", saveSettings)
+        saveBtn.addEventListener("click", saveSettings)
+    }
+
+    if (resetBtn) {
+        // Eliminar event listeners anteriores para evitar duplicados
+        resetBtn.removeEventListener("click", resetSettings)
+        resetBtn.addEventListener("click", resetSettings)
+    }
 
     // Validación de campos numéricos
-    document.getElementById("taxRate").addEventListener("input", function () {
-        if (this.value > 100) this.value = 100;
-        if (this.value < 0) this.value = 0;
-    });
+    const lowStockAlert = document.getElementById("lowStockAlert")
+    if (lowStockAlert) {
+        // Eliminar event listeners anteriores para evitar duplicados
+        lowStockAlert.removeEventListener("input", validateLowStock)
+        lowStockAlert.addEventListener("input", validateLowStock)
+    }
+}
 
-    document.getElementById("lowStockAlert").addEventListener("input", function () {
-        if (this.value < 1) this.value = 1;
-    });
+// Función para validar el campo de stock bajo
+function validateLowStock() {
+    if (this.value < 1) this.value = 1
 }
 
 // Exportar funciones para uso en otros archivos
-export { loadSettings, saveSettings, resetSettings };
+export { loadSettings, saveSettings, resetSettings }

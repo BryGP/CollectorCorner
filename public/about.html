@@ -1,58 +1,273 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collector's Corner - Home</title>
+    <title>RTI - About Us</title>
     <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/about.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Scripts para efectos -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 </head>
 
 <body>
+    <!-- Contenedor para el efecto de partículas -->
+    <div id="particles-js"></div>
+
     <header>
         <div class="logo">
             <h2>RARITY TECH INNOVATIONS</h2>
         </div>
         <nav>
-            <a href="index.html">Home</a>
-            <a href="about.html">About us</a>
-            <a href="contact.html">Contact us</a>
+            <a href="/catalog/catalog.html">Catalogo (Toy Garaje)</a>
+            <a href="about.html" class="active">About Us</a>
+            <a href="contact.html">Contact Us</a>
             <a href="login.html">Login</a>
         </nav>
     </header>
-    <section class="container_b">
-        <div class="rti-header">Acerca de Nosotros</div>
 
-        <div class="rti-container">
-            <div class="rti-box">
-                <h2>Nuestra Misión</h2>
-                <p>Desarrollar software innovador y de alta calidad que impulse la eficiencia operativa y el crecimiento
-                    de nuestros clientes.</p>
+    <!-- Hero Section -->
+    <section class="about-hero">
+        <div class="about-hero-content">
+            <h1 class="glow-text">Nuestra Historia</h1>
+            <p>Innovando en el mundo tecnológico desde 2018</p>
+        </div>
+    </section>
+
+    <!-- Nuestra Historia -->
+    <section class="about-section">
+        <div class="section-container left-align">
+            <div class="section-content">
+                <h2 class="section-title"><span class="highlight">Quiénes</span> Somos</h2>
+                <p>Fundada en 2018, <strong>RARITY TECH INNOVATIONS</strong> nació con la visión de transformar la
+                    manera en que las empresas gestionan sus inventarios y operaciones. Lo que comenzó como un pequeño
+                    equipo de desarrolladores apasionados, ha crecido hasta convertirse en una empresa líder en
+                    soluciones tecnológicas innovadoras.</p>
+                <p>Nuestra trayectoria ha estado marcada por un compromiso inquebrantable con la excelencia y la
+                    innovación, siempre buscando superar las expectativas de nuestros clientes y adaptarnos a un mercado
+                    en constante evolución.</p>
             </div>
-
-            <div class="rti-box">
-                <h2>Nuestra Visión</h2>
-                <p>Ser la empresa líder en desarrollo de software a nivel nacional, reconocida por nuestra capacidad de
-                    innovación y compromiso con la calidad.</p>
-            </div>
-
-            <div class="rti-box">
-                <h2>Nuestros Valores</h2>
-                <ul>
-                    <li>Calidad y Excelencia</li>
-                    <li>Ética y Responsabilidad</li>
-                    <li>Transparencia</li>
-                    <li>Colaboración</li>
-                </ul>
-            </div>
-
-            <div class="rti-box">
-                <h2>Nuestro Equipo</h2>
-                <p>Meet our team of dedicated professionals who work tirelessly to achieve excellence...</p>
+            <div class="section-image">
+                <img src="/placeholder.svg?height=400&width=600" alt="Equipo de RARITY TECH INNOVATIONS"
+                    class="about-img">
             </div>
         </div>
     </section>
-</body>
 
+    <!-- Misión, Visión y Valores -->
+    <section class="about-section dark-bg">
+        <div class="mission-vision-container">
+            <div class="mv-box mission">
+                <div class="icon-container">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h2>Nuestra Misión</h2>
+                <p>Desarrollar software innovador y de alta calidad que impulse la eficiencia operativa y el crecimiento
+                    de nuestros clientes, transformando desafíos complejos en soluciones elegantes y accesibles.</p>
+            </div>
+
+            <div class="mv-box vision">
+                <div class="icon-container">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h2>Nuestra Visión</h2>
+                <p>Ser la empresa líder en desarrollo de software a nivel nacional, reconocida por nuestra capacidad de
+                    innovación, compromiso con la calidad y por crear tecnologías que definan el futuro de la gestión
+                    empresarial.</p>
+            </div>
+
+            <div class="mv-box values">
+                <div class="icon-container">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h2>Nuestros Valores</h2>
+                <ul class="values-list">
+                    <li><i class="fas fa-check-circle"></i> Excelencia e Innovación</li>
+                    <li><i class="fas fa-check-circle"></i> Integridad y Transparencia</li>
+                    <li><i class="fas fa-check-circle"></i> Colaboración y Trabajo en Equipo</li>
+                    <li><i class="fas fa-check-circle"></i> Compromiso con el Cliente</li>
+                    <li><i class="fas fa-check-circle"></i> Responsabilidad Social</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Logros y Estadísticas -->
+    <section class="about-section">
+        <div class="section-container centered">
+            <h2 class="section-title">Nuestros <span class="highlight">Logros</span></h2>
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-number counter" data-target="150">0</div>
+                    <div class="stat-label">Clientes Satisfechos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number counter" data-target="200">0</div>
+                    <div class="stat-label">Proyectos Completados</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number counter" data-target="15">0</div>
+                    <div class="stat-label">Premios Recibidos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number counter" data-target="5">0</div>
+                    <div class="stat-label">Años de Experiencia</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nuestro Equipo -->
+    <section class="about-section dark-bg">
+        <div class="section-container centered">
+            <h2 class="section-title">Nuestro <span class="highlight">Equipo</span></h2>
+            <p class="team-intro">Conoce a los profesionales apasionados que hacen posible nuestra misión cada día.</p>
+
+            <div class="team-container">
+                <div class="team-member">
+                    <div class="member-image">
+                        <img src="/placeholder.svg?height=300&width=300" alt="CEO">
+                    </div>
+                    <h3>Carlos Rodríguez</h3>
+                    <p class="member-role">CEO & Fundador</p>
+                    <p class="member-desc">Con más de 15 años de experiencia en el sector tecnológico, Carlos lidera
+                        nuestra visión estratégica.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-image">
+                        <img src="/placeholder.svg?height=300&width=300" alt="CTO">
+                    </div>
+                    <h3>Ana Martínez</h3>
+                    <p class="member-role">CTO</p>
+                    <p class="member-desc">Especialista en arquitectura de software y desarrollo de soluciones
+                        escalables.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-image">
+                        <img src="/placeholder.svg?height=300&width=300" alt="Lead Developer">
+                    </div>
+                    <h3>Miguel Sánchez</h3>
+                    <p class="member-role">Lead Developer</p>
+                    <p class="member-desc">Experto en desarrollo full-stack con enfoque en soluciones de inventario.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-image">
+                        <img src="/placeholder.svg?height=300&width=300" alt="UX Designer">
+                    </div>
+                    <h3>Laura Gómez</h3>
+                    <p class="member-role">UX/UI Designer</p>
+                    <p class="member-desc">Creadora de experiencias de usuario intuitivas y diseños atractivos.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-behance"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonios -->
+    <section class="about-section">
+        <div class="section-container centered">
+            <h2 class="section-title">Lo Que Dicen <span class="highlight">Nuestros Clientes</span></h2>
+
+            <div class="testimonials-container">
+                <div class="testimonial">
+                    <div class="quote-icon"><i class="fas fa-quote-left"></i></div>
+                    <p class="testimonial-text">El sistema de inventario desarrollado por RARITY TECH ha transformado
+                        completamente nuestra operación. La eficiencia ha aumentado en un 40% desde su implementación.
+                    </p>
+                    <div class="testimonial-author">
+                        <img src="/placeholder.svg?height=60&width=60" alt="Cliente" class="author-img">
+                        <div class="author-info">
+                            <h4>Roberto Méndez</h4>
+                            <p>Director de Operaciones, TechStore</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial">
+                    <div class="quote-icon"><i class="fas fa-quote-left"></i></div>
+                    <p class="testimonial-text">Lo que más valoramos de RARITY TECH es su capacidad para entender
+                        nuestras necesidades específicas y convertirlas en soluciones tecnológicas a medida.</p>
+                    <div class="testimonial-author">
+                        <img src="/placeholder.svg?height=60&width=60" alt="Cliente" class="author-img">
+                        <div class="author-info">
+                            <h4>Elena Vázquez</h4>
+                            <p>CEO, Innovatech</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>¿Listo para transformar tu negocio?</h2>
+            <p>Descubre cómo nuestras soluciones pueden impulsar la eficiencia y el crecimiento de tu empresa.</p>
+            <a href="contact.html" class="cta-button pulse">Contáctanos Hoy</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-logo">
+                <h3>RARITY TECH INNOVATIONS</h3>
+                <p>Soluciones tecnológicas innovadoras</p>
+            </div>
+            <div class="footer-links">
+                <h4>Enlaces Rápidos</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="login.html">Login</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Contáctanos</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Av. Tecnológica 123, Ciudad de México</p>
+                <p><i class="fas fa-phone"></i> +52 55 1234 5678</p>
+                <p><i class="fas fa-envelope"></i> info@raritytech.com</p>
+            </div>
+            <div class="footer-social">
+                <h4>Síguenos</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 RARITY TECH INNOVATIONS. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="./js/effects.js"></script>
+    <script src="./js/about.js"></script>
+</body>
 
 </html>
