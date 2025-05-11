@@ -49,136 +49,392 @@
     <main class="ventas-container">
         <div class="fecha-actual" id="fecha-actual"></div>
 
-        <div class="ventas-panel">
-            <div class="busqueda-panel">
-                <h2><i class="fas fa-cash-register"></i> Punto de Venta</h2>
+        <!-- Sistema de tabs -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="ventas">Ventas</button>
+                <button class="tab-btn" data-tab="apartado-tienda">Apartado en Tienda</button>
+                <button class="tab-btn" data-tab="apartado-linea">Apartado en Línea</button>
+            </div>
+        </div>
 
-                <div class="search-box">
-                    <input type="text" id="busqueda-producto" placeholder="Buscar producto por nombre o código...">
-                    <div id="sugerencias-container" class="sugerencias-container"></div>
-                </div>
+        <!-- Contenido de los tabs -->
+        <div class="tab-content">
+            <!-- Tab de Ventas (contenido original) -->
+            <div class="tab-pane active" id="ventas">
+                <div class="ventas-panel">
+                    <div class="busqueda-panel">
+                        <h2><i class="fas fa-cash-register"></i> Punto de Venta</h2>
 
-                <div class="carrito-panel">
-                    <h3><i class="fas fa-shopping-cart"></i> Productos en venta</h3>
+                        <div class="search-box">
+                            <input type="text" id="busqueda-producto" placeholder="Buscar producto por nombre o código...">
+                            <div id="sugerencias-container" class="sugerencias-container"></div>
+                        </div>
 
-                    <div class="carrito-lista" id="carrito-lista">
-                        <div class="carrito-vacio">
-                            <i class="fas fa-shopping-basket"></i>
-                            <p>No hay productos agregados</p>
+                        <div class="carrito-panel">
+                            <h3><i class="fas fa-shopping-cart"></i> Productos en venta</h3>
+
+                            <div class="carrito-lista" id="carrito-lista">
+                                <div class="carrito-vacio">
+                                    <i class="fas fa-shopping-basket"></i>
+                                    <p>No hay productos agregados</p>
+                                </div>
+                            </div>
+
+                            <div class="carrito-totales">
+                                <div class="total-line">
+                                    <span>Subtotal:</span>
+                                    <span id="subtotal">$0.00</span>
+                                </div>
+                                <div class="total-line total-final">
+                                    <span>TOTAL:</span>
+                                    <span id="total">$0.00</span>
+                                </div>
+                            </div>
+
+                            <div class="carrito-acciones">
+                                <button id="btn-pagar" class="btn-primary">
+                                    <i class="fas fa-money-bill-wave"></i> Pagar
+                                </button>
+                                <button id="btn-cancelar" class="btn-secondary">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="carrito-totales">
-                        <div class="total-line">
-                            <span>Subtotal:</span>
-                            <span id="subtotal">$0.00</span>
-                        </div>
-                        <div class="total-line total-final">
-                            <span>TOTAL:</span>
-                            <span id="total">$0.00</span>
-                        </div>
-                    </div>
+                    <div class="ticket-preview-panel">
+                        <h3><i class="fas fa-receipt"></i> Vista Previa del Ticket</h3>
+                        <div class="ticket-container">
+                            <div class="ticket">
+                                <!-- Encabezado del ticket -->
+                                <div class="ticket-header">
+                                    <h1>Toy Garaje</h1>
+                                    <p>Tienda de Coleccionables</p>
+                                    <p>Calle Circuito, Jdn. 14C, Alamos 3ra Secc, 76147</p>
+                                    <p>Tel: (+52)446-145-1938</p>
+                                    <div class="ticket-divider"></div>
+                                    <p class="ticket-info">
+                                        <span id="ticket-numero">Ticket #: 00000000</span>
+                                        <span id="ticket-fecha">Fecha: 00/00/0000</span>
+                                    </p>
+                                    <p class="ticket-info">
+                                        <span id="ticket-hora">Hora: 00:00:00</span>
+                                        <span id="ticket-cajero">Cajero: Usuario</span>
+                                    </p>
+                                    <div class="ticket-divider"></div>
+                                </div>
 
-                    <div class="carrito-acciones">
-                        <button id="btn-pagar" class="btn-primary">
-                            <i class="fas fa-money-bill-wave"></i> Pagar
-                        </button>
-                        <button id="btn-cancelar" class="btn-secondary">
-                            <i class="fas fa-times"></i> Cancelar
-                        </button>
+                                <!-- Contenido del ticket (productos) -->
+                                <div class="ticket-content">
+                                    <table class="ticket-items">
+                                        <thead>
+                                            <tr>
+                                                <th class="item-qty">Cant</th>
+                                                <th class="item-name">Descripción</th>
+                                                <th class="item-price">Precio</th>
+                                                <th class="item-total">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="ticket-items-body">
+                                            <tr class="empty-ticket">
+                                                <td colspan="4" class="empty-message">Agregue productos a la venta</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="ticket-divider"></div>
+                                </div>
+
+                                <!-- Pie del ticket (totales) -->
+                                <div class="ticket-footer">
+                                    <div class="ticket-totals">
+                                        <div class="total-line">
+                                            <span class="total-label">Subtotal:</span>
+                                            <span class="total-value" id="ticket-subtotal">$0.00</span>
+                                        </div>
+                                        <div class="total-line" id="ticket-descuento-row" style="display: none;">
+                                            <span class="total-label">Descuento:</span>
+                                            <span class="total-value" id="ticket-descuento">$0.00</span>
+                                        </div>
+                                        <div class="total-line total-final">
+                                            <span class="total-label">TOTAL:</span>
+                                            <span class="total-value" id="ticket-total">$0.00</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="ticket-divider"></div>
+
+                                    <div class="payment-info">
+                                        <p><strong>Forma de pago:</strong> <span id="ticket-forma-pago">Efectivo</span></p>
+                                        <p id="ticket-recibido-container"><strong>Recibido:</strong> <span
+                                                id="ticket-recibido">$0.00</span></p>
+                                        <p id="ticket-cambio-container"><strong>Cambio:</strong> <span
+                                                id="ticket-cambio">$0.00</span></p>
+                                    </div>
+
+                                    <div class="ticket-divider"></div>
+                                    <div class="ticket-barcode">
+                                        <div class="barcode-placeholder"></div>
+                                        <p class="barcode-text" id="ticket-barcode-text">*00000000*</p>
+                                    </div>
+
+                                    <div class="ticket-footer-msg">
+                                        <p>¡Gracias por su compra!</p>
+                                        <p>Vuelva pronto</p>
+                                        <p class="small-text">Este ticket es su comprobante de compra</p>
+                                        <p class="small-text">www.toygaraje.com</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ticket-actions">
+                            <button id="btn-imprimir" class="btn-primary">
+                                <i class="fas fa-print"></i> Imprimir Ticket
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="ticket-preview-panel">
-                <h3><i class="fas fa-receipt"></i> Vista Previa del Ticket</h3>
-                <div class="ticket-container">
-                    <div class="ticket">
-                        <!-- Encabezado del ticket -->
-                        <div class="ticket-header">
-                            <h1>Toy Garaje</h1>
-                            <p>Tienda de Coleccionables</p>
-                            <p>Calle Circuito, Jdn. 14C, Alamos 3ra Secc, 76147</p>
-                            <p>Tel: (+52)446-145-1938</p>
-                            <div class="ticket-divider"></div>
-                            <p class="ticket-info">
-                                <span id="ticket-numero">Ticket #: 00000000</span>
-                                <span id="ticket-fecha">Fecha: 00/00/0000</span>
-                            </p>
-                            <p class="ticket-info">
-                                <span id="ticket-hora">Hora: 00:00:00</span>
-                                <span id="ticket-cajero">Cajero: Usuario</span>
-                            </p>
-                            <div class="ticket-divider"></div>
+            <!-- Tab de Apartado en Tienda -->
+            <div class="tab-pane" id="apartado-tienda">
+                <div class="apartado-container">
+                    <h2><i class="fas fa-store"></i> Apartado en Tienda</h2>
+                    
+                    <div class="apartado-info-card">
+                        <h3>¿Cómo funciona el apartado en tienda?</h3>
+                        <div class="proceso-apartado">
+                            <div class="paso-apartado">
+                                <div class="paso-numero">1</div>
+                                <div class="paso-contenido">
+                                    <h4>Selecciona tus productos</h4>
+                                    <p>Visita cualquiera de nuestras tiendas físicas y selecciona los productos que deseas apartar.</p>
+                                </div>
+                            </div>
+                            <div class="paso-apartado">
+                                <div class="paso-numero">2</div>
+                                <div class="paso-contenido">
+                                    <h4>Realiza un anticipo</h4>
+                                    <p>Paga un anticipo mínimo del 30% del valor total de tu compra para asegurar tus productos.</p>
+                                </div>
+                            </div>
+                            <div class="paso-apartado">
+                                <div class="paso-numero">3</div>
+                                <div class="paso-contenido">
+                                    <h4>Completa tu pago</h4>
+                                    <p>Tienes hasta 15 días para completar el pago y recoger tus productos en la tienda.</p>
+                                </div>
+                            </div>
                         </div>
+                    </div>
 
-                        <!-- Contenido del ticket (productos) -->
-                        <div class="ticket-content">
-                            <table class="ticket-items">
-                                <thead>
-                                    <tr>
-                                        <th class="item-qty">Cant</th>
-                                        <th class="item-name">Descripción</th>
-                                        <th class="item-price">Precio</th>
-                                        <th class="item-total">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="ticket-items-body">
-                                    <tr class="empty-ticket">
-                                        <td colspan="4" class="empty-message">Agregue productos a la venta</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="ticket-divider"></div>
-                        </div>
+                    <div class="apartado-info-card">
+                        <h3>Políticas de apartado en tienda</h3>
+                        <ul class="politicas-lista">
+                            <li><i class="fas fa-check-circle"></i> El anticipo mínimo es del 30% del valor total de la compra.</li>
+                            <li><i class="fas fa-check-circle"></i> El período máximo de apartado es de 15 días naturales.</li>
+                            <li><i class="fas fa-check-circle"></i> Si no completas tu pago en el período establecido, perderás tu anticipo.</li>
+                            <li><i class="fas fa-check-circle"></i> Los productos apartados no pueden ser cambiados por otros artículos.</li>
+                            <li><i class="fas fa-check-circle"></i> Puedes realizar pagos parciales durante el período de apartado.</li>
+                        </ul>
+                    </div>
 
-                        <!-- Pie del ticket (totales) -->
-                        <div class="ticket-footer">
-                            <div class="ticket-totals">
-                                <div class="total-line">
-                                    <span class="total-label">Subtotal:</span>
-                                    <span class="total-value" id="ticket-subtotal">$0.00</span>
-                                </div>
-                                <div class="total-line" id="ticket-descuento-row" style="display: none;">
-                                    <span class="total-label">Descuento:</span>
-                                    <span class="total-value" id="ticket-descuento">$0.00</span>
-                                </div>
-                                <div class="total-line total-final">
-                                    <span class="total-label">TOTAL:</span>
-                                    <span class="total-value" id="ticket-total">$0.00</span>
-                                </div>
+                    <div class="apartado-info-card">
+                        <h3>Nuestras tiendas</h3>
+                        <div class="tiendas-grid">
+                            <div class="tienda-card">
+                                <h4>Toy Garage - Centro</h4>
+                                <p><i class="fas fa-map-marker-alt"></i> Av. Constituyentes 123, Centro, 76000</p>
+                                <p><i class="fas fa-phone"></i> (442) 123-4567</p>
+                                <p><i class="fas fa-clock"></i> Lun-Sáb: 10:00 - 20:00, Dom: 11:00 - 18:00</p>
                             </div>
-
-                            <div class="ticket-divider"></div>
-
-                            <div class="payment-info">
-                                <p><strong>Forma de pago:</strong> <span id="ticket-forma-pago">Efectivo</span></p>
-                                <p id="ticket-recibido-container"><strong>Recibido:</strong> <span
-                                        id="ticket-recibido">$0.00</span></p>
-                                <p id="ticket-cambio-container"><strong>Cambio:</strong> <span
-                                        id="ticket-cambio">$0.00</span></p>
+                            <div class="tienda-card">
+                                <h4>Toy Garage - Plaza Comercial</h4>
+                                <p><i class="fas fa-map-marker-alt"></i> Blvd. Bernardo Quintana 4120, Local 15</p>
+                                <p><i class="fas fa-phone"></i> (442) 234-5678</p>
+                                <p><i class="fas fa-clock"></i> Lun-Dom: 11:00 - 21:00</p>
                             </div>
-
-                            <div class="ticket-divider"></div>
-                            <div class="ticket-barcode">
-                                <div class="barcode-placeholder"></div>
-                                <p class="barcode-text" id="ticket-barcode-text">*00000000*</p>
-                            </div>
-
-                            <div class="ticket-footer-msg">
-                                <p>¡Gracias por su compra!</p>
-                                <p>Vuelva pronto</p>
-                                <p class="small-text">Este ticket es su comprobante de compra</p>
-                                <p class="small-text">www.toygaraje.com</p>
+                            <div class="tienda-card">
+                                <h4>Toy Garage - Juriquilla</h4>
+                                <p><i class="fas fa-map-marker-alt"></i> Av. Universidad 256, Juriquilla</p>
+                                <p><i class="fas fa-phone"></i> (442) 345-6789</p>
+                                <p><i class="fas fa-clock"></i> Lun-Sáb: 10:00 - 20:00, Dom: 11:00 - 18:00</p>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="ticket-actions">
-                    <button id="btn-imprimir" class="btn-primary">
-                        <i class="fas fa-print"></i> Imprimir Ticket
-                    </button>
+            <!-- Tab de Apartado en Línea -->
+            <div class="tab-pane" id="apartado-linea">
+                <div class="apartado-container">
+                    <h2><i class="fas fa-globe"></i> Apartado en Línea</h2>
+                    
+                    <!-- Formulario de búsqueda de token -->
+                    <div class="apartado-info-card">
+                        <h3>Consultar Apartado Existente</h3>
+                        <div class="token-search-container">
+                            <form id="form-buscar-token" class="form-token">
+                                <div class="form-group">
+                                    <label for="token-apartado">Ingresa el código de tu apartado:</label>
+                                    <div class="token-input-group">
+                                        <input type="text" id="token-apartado" placeholder="Ej: AP-12345" required>
+                                        <button type="submit" class="btn-primary">
+                                            <i class="fas fa-search"></i> Buscar
+                                        </button>
+                                    </div>
+                                    <p class="form-hint">Ingresa el código que recibiste al realizar tu apartado.</p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Resumen de apartado (inicialmente oculto) -->
+                    <div id="resumen-apartado" class="apartado-info-card" style="display: none;">
+                        <h3>Resumen de tu Apartado</h3>
+                        <div class="apartado-details">
+                            <div class="apartado-header">
+                                <div>
+                                    <p><strong>Código de Apartado:</strong> <span id="codigo-apartado">AP-12345</span></p>
+                                    <p><strong>Fecha de Apartado:</strong> <span id="fecha-apartado">01/01/2025</span></p>
+                                    <p><strong>Estado:</strong> <span id="estado-apartado" class="badge badge-pending">Pendiente</span></p>
+                                </div>
+                                <div>
+                                    <p><strong>Cliente:</strong> <span id="cliente-apartado">Nombre del Cliente</span></p>
+                                    <p><strong>Método de Entrega:</strong> <span id="metodo-entrega-apartado">Recoger en tienda</span></p>
+                                    <p><strong>Fecha Límite:</strong> <span id="fecha-limite">15/01/2025</span></p>
+                                </div>
+                            </div>
+                            
+                            <div class="apartado-productos">
+                                <h4>Productos Apartados</h4>
+                                <div class="tabla-container">
+                                    <table class="tabla-productos">
+                                        <thead>
+                                            <tr>
+                                                <th>Producto</th>
+                                                <th>Cantidad</th>
+                                                <th>Precio Unitario</th>
+                                                <th>Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="productos-apartados">
+                                            <!-- Los productos se cargarán dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="apartado-totales">
+                                <div class="total-line">
+                                    <span>Subtotal:</span>
+                                    <span id="apartado-subtotal">$0.00</span>
+                                </div>
+                                <div class="total-line total-final">
+                                    <span>TOTAL:</span>
+                                    <span id="apartado-total">$0.00</span>
+                                </div>
+                            </div>
+                            
+                            <div class="apartado-acciones">
+                                <div class="search-box apartado-search-box">
+                                    <input type="text" id="busqueda-producto-boleto" placeholder="Buscar producto por nombre o código...">
+                                    <div id="sugerencias-container-boleto" class="sugerencias-container"></div>
+                                </div>
+                                <button id="btn-agregar-producto-boleto" class="btn-secondary">
+                                    <i class="fas fa-plus"></i> Agregar
+                                </button>
+                                <button id="btn-completar-compra" class="btn-primary">
+                                    <i class="fas fa-check-circle"></i> Completar Compra
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ticket-preview-apartado" class="apartado-info-card" style="display: none;">
+                        <h3><i class="fas fa-receipt"></i> Vista Previa del Ticket</h3>
+                        <div class="ticket-container">
+                            <div class="ticket">
+                                <!-- Encabezado del ticket -->
+                                <div class="ticket-header">
+                                    <h1>Toy Garaje</h1>
+                                    <p>Tienda de Coleccionables</p>
+                                    <p>Calle Circuito, Jdn. 14C, Alamos 3ra Secc, 76147</p>
+                                    <p>Tel: (+52)446-145-1938</p>
+                                    <div class="ticket-divider"></div>
+                                    <p class="ticket-info">
+                                        <span id="ticket-numero-apartado">Apartado #: 00000000</span>
+                                        <span id="ticket-fecha-apartado">Fecha: 00/00/0000</span>
+                                    </p>
+                                    <p class="ticket-info">
+                                        <span id="ticket-hora-apartado">Hora: 00:00:00</span>
+                                        <span id="ticket-cajero-apartado">Cajero: Usuario</span>
+                                    </p>
+                                    <div class="ticket-divider"></div>
+                                </div>
+
+                                <!-- Contenido del ticket (productos) -->
+                                <div class="ticket-content">
+                                    <table class="ticket-items">
+                                        <thead>
+                                            <tr>
+                                                <th class="item-qty">Cant</th>
+                                                <th class="item-name">Descripción</th>
+                                                <th class="item-price">Precio</th>
+                                                <th class="item-total">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="ticket-items-body-apartado">
+                                            <tr class="empty-ticket">
+                                                <td colspan="4" class="empty-message">Agregue productos al apartado</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="ticket-divider"></div>
+                                </div>
+
+                                <!-- Pie del ticket (totales) -->
+                                <div class="ticket-footer">
+                                    <div class="ticket-totals">
+                                        <div class="total-line">
+                                            <span class="total-label">Subtotal:</span>
+                                            <span class="total-value" id="ticket-subtotal-apartado">$0.00</span>
+                                        </div>
+                                        <div class="total-line total-final">
+                                            <span class="total-label">TOTAL:</span>
+                                            <span class="total-value" id="ticket-total-apartado">$0.00</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="ticket-divider"></div>
+
+                                    <div class="payment-info">
+                                        <p><strong>Cliente:</strong> <span id="ticket-cliente-apartado">Cliente</span></p>
+                                        <p><strong>Método de entrega:</strong> <span id="ticket-entrega-apartado">Recoger en tienda</span></p>
+                                    </div>
+
+                                    <div class="ticket-divider"></div>
+                                    <div class="ticket-barcode">
+                                        <div class="barcode-placeholder"></div>
+                                        <p class="barcode-text" id="ticket-barcode-text-apartado">*00000000*</p>
+                                    </div>
+
+                                    <div class="ticket-footer-msg">
+                                        <p>¡Gracias por tu apartado!</p>
+                                        <p>Te esperamos pronto</p>
+                                        <p class="small-text">Este ticket es tu comprobante de apartado</p>
+                                        <p class="small-text">www.toygaraje.com</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ticket-actions">
+                            <button id="btn-imprimir-apartado" class="btn-primary">
+                                <i class="fas fa-print"></i> Imprimir Ticket
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -230,6 +486,57 @@
         </div>
     </div>
     <div id="modal-overlay"></div>
+
+    <!-- Modal para completar compra de apartado -->
+    <div id="modal-completar-compra" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Completar Compra</h3>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="resumen-final">
+                <div class="total-line">
+                    <span>Subtotal:</span>
+                    <span id="modal-subtotal">$0.00</span>
+                </div>
+                <div class="total-line descuento-line">
+                    <span>Descuento:</span>
+                    <span id="modal-descuento">$0.00 (0%)</span>
+                </div>
+                <div class="total-line total-final">
+                    <span>Total a pagar:</span>
+                    <span id="modal-total">$0.00</span>
+                </div>
+            </div>
+            
+            <div class="forma-pago">
+                <h4>Forma de pago</h4>
+                <select id="metodo-pago-apartado">
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                    <option value="Tarjeta de Débito">Tarjeta de Débito</option>
+                    <option value="Transferencia">Transferencia</option>
+                </select>
+                
+                <div id="efectivo-container-apartado">
+                    <div class="input-group">
+                        <label for="efectivo-recibido-apartado">Efectivo recibido:</label>
+                        <input type="number" id="efectivo-recibido-apartado" min="0" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label for="cambio-apartado">Cambio:</label>
+                        <input type="text" id="cambio-apartado" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="btn-confirmar-compra" class="btn-primary">Confirmar Pago</button>
+            <button id="btn-cancelar-compra" class="btn-secondary">Cancelar</button>
+        </div>
+    </div>
+</div>
 
     <script type="module" src="js/ventas.js"></script>
 </body>
