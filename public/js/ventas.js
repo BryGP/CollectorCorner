@@ -1,5 +1,5 @@
 // Importar Firebase y Firestore
-import { logout, checkEmployeeAccess } from "./auth-check.js" // Importamos checkEmployeeAccess
+import { logout } from "./auth-check.js"
 import { displayUserInfo } from "./login.js"
 import { db } from "./firebase-config.js"
 import {
@@ -48,15 +48,8 @@ const ticketCambioContainer = document.getElementById("ticket-cambio-container")
 const ticketBarcodeText = document.getElementById("ticket-barcode-text")
 
 // Inicializar la página
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
     console.log("Inicializando sistema de ventas...")
-
-    // Verificar si el usuario está autenticado
-    const isLoggedIn = await checkEmployeeAccess()
-    if (!isLoggedIn) {
-        // Si no está logueado, la función checkEmployeeAccess ya redirigió
-        return
-    }
 
     // Mostrar fecha actual
     mostrarFechaActual()
@@ -72,6 +65,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Mostrar información del usuario
     displayUserInfo()
+
+    // Configurar sistema de tabs
+    configurarTabs()
+
+    // Configurar botón de imprimir apartado
+    const btnImprimirApartado = document.getElementById("btn-imprimir-apartado")
+    if (btnImprimirApartado) {
+        btnImprimirApartado.addEventListener("click", imprimirTicketApartado)
+    }
 })
 
 // Configurar botón de logout
@@ -107,8 +109,8 @@ function verificarUsuario() {
         }
     } else {
         console.log("No hay usuario autenticado")
-        // Redirigir al login ya que se requiere autenticación
-        window.location.href = "login.html"
+        // Para pruebas, no redirigimos
+        // window.location.href = "login.html";
     }
 }
 
@@ -156,17 +158,37 @@ function configurarEventos() {
         console.error("Elemento busqueda-producto no encontrado")
     }
 
+    // Configurar búsqueda de productos para apartado en línea
+    const busquedaProductoBoleto = document.getElementById("busqueda-producto-boleto")
+    if (busquedaProductoBoleto) {
+        busquedaProductoBoleto.addEventListener("input", buscarProductosApartado)
+    }
+
     // Evento para tecla Escape (cerrar sugerencias)
     document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && sugerenciasContainer) {
-            sugerenciasContainer.style.display = "none"
+        if (e.key === "Escape") {
+            if (sugerenciasContainer) sugerenciasContainer.style.display = "none"
+            const sugerenciasContainerBoleto = document.getElementById("sugerencias-container-boleto")
+            if (sugerenciasContainerBoleto) sugerenciasContainerBoleto.style.display = "none"
         }
     })
 
     // Evento para clic fuera de las sugerencias
     document.addEventListener("click", (e) => {
+        // Para sugerencias de ventas
         if (sugerenciasContainer && !sugerenciasContainer.contains(e.target) && e.target !== busquedaInput) {
             sugerenciasContainer.style.display = "none"
+        }
+
+        // Para sugerencias de apartado
+        const busquedaProductoBoleto = document.getElementById("busqueda-producto-boleto")
+        const sugerenciasContainerBoleto = document.getElementById("sugerencias-container-boleto")
+        if (
+            sugerenciasContainerBoleto &&
+            !sugerenciasContainerBoleto.contains(e.target) &&
+            e.target !== busquedaProductoBoleto
+        ) {
+            sugerenciasContainerBoleto.style.display = "none"
         }
     })
 
@@ -199,10 +221,73 @@ function configurarEventos() {
 
     // Configurar modal de pago
     configurarModalPago()
+
+    // Configurar formulario de búsqueda de token
+    const formBuscarToken = document.getElementById("form-buscar-token")
+    if (formBuscarToken) {
+        formBuscarToken.addEventListener("submit", async (e) => {
+            e.preventDefault()
+
+            const tokenInput = document.getElementById("token-apartado")
+            const token = tokenInput.value.trim()
+
+            if (!token) {
+                mostrarAlerta("Por favor, ingresa un código de apartado válido", "error")
+                return
+            }
+
+            // Mostrar indicador de carga
+            mostrarAlerta("Buscando apartado...", "info")
+
+            try {
+                // Buscar el apartado en Firebase
+                await buscarApartadoPorToken(token)
+            } catch (error) {
+                console.error("Error al buscar apartado:", error)
+                mostrarAlerta("Error al buscar apartado: " + error.message, "error")
+            }
+        })
+    }
+
+    // Botón para completar compra
+    const btnCompletarCompra = document.getElementById("btn-completar-compra")
+    if (btnCompletarCompra) {
+        btnCompletarCompra.addEventListener("click", mostrarModalCompletarCompra)
+    }
+
+    // Botón para agregar producto al boleto
+    const btnAgregarProductoBoleto = document.getElementById("btn-agregar-producto-boleto")
+    if (btnAgregarProductoBoleto) {
+        btnAgregarProductoBoleto.addEventListener("click", agregarProductoAlBoleto)
+    }
+}
+
+// Función para configurar el sistema de tabs
+function configurarTabs() {
+    const tabButtons = document.querySelectorAll(".tab-btn")
+    const tabPanes = document.querySelectorAll(".tab-pane")
+
+    tabButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            // Remover clase active de todos los botones y paneles
+            tabButtons.forEach((btn) => btn.classList.remove("active"))
+            tabPanes.forEach((pane) => pane.classList.remove("active"))
+
+            // Agregar clase active al botón clickeado
+            button.classList.add("active")
+
+            // Mostrar el panel correspondiente
+            const tabId = button.getAttribute("data-tab")
+            document.getElementById(tabId).classList.add("active")
+        })
+    })
 }
 
 // Inicializar ticket
 function inicializarTicket() {
+    // Generar número de ticket
+    ticketNumero = generarNumeroTicket()
+
     // Actualizar número de ticket
     if (ticketNumeroElement) {
         ticketNumeroElement.textContent = `Ticket #: ${ticketNumero}`
@@ -220,6 +305,13 @@ function inicializarTicket() {
 
     // Iniciar actualización de hora cada segundo
     setInterval(actualizarFechaHoraTicket, 1000)
+}
+
+// Función para generar número de ticket
+function generarNumeroTicket() {
+    const timestamp = Date.now().toString().slice(-6)
+    const random = Math.floor(1000 + Math.random() * 9000)
+    return `${timestamp}${random}`
 }
 
 // Actualizar fecha y hora en el ticket
@@ -332,6 +424,97 @@ async function buscarProductos() {
                 <span>Error al buscar productos</span>
             </div>
         `
+        sugerenciasContainer.style.display = "block"
+    }
+}
+
+// Función para buscar productos en apartado en línea
+async function buscarProductosApartado() {
+    const busquedaInput = document.getElementById("busqueda-producto-boleto")
+    const sugerenciasContainer = document.getElementById("sugerencias-container-boleto")
+
+    if (!busquedaInput || !sugerenciasContainer) {
+        console.error("Elementos de búsqueda para apartado no encontrados")
+        return
+    }
+
+    const busqueda = busquedaInput.value.trim()
+
+    // Limpiar y ocultar sugerencias si la búsqueda está vacía
+    if (!busqueda) {
+        sugerenciasContainer.innerHTML = ""
+        sugerenciasContainer.style.display = "none"
+        return
+    }
+
+    try {
+        // Buscar productos que coincidan con la búsqueda
+        const productosRef = collection(db, "Productos")
+
+        // Buscar por nombre (comienza con)
+        let q = query(productosRef, where("name", ">=", busqueda), where("name", "<=", busqueda + "\uf8ff"))
+        let querySnapshot = await getDocs(q)
+
+        // Si no hay resultados, buscar por código
+        if (querySnapshot.empty) {
+            q = query(productosRef, where("codigo", "==", busqueda))
+            querySnapshot = await getDocs(q)
+        }
+
+        // Limpiar sugerencias
+        sugerenciasContainer.innerHTML = ""
+
+        if (querySnapshot.empty) {
+            sugerenciasContainer.innerHTML = `
+        <div class="sugerencia-item">
+          <span>No se encontraron productos</span>
+        </div>
+      `
+            sugerenciasContainer.style.display = "block"
+            return
+        }
+
+        // Mostrar resultados
+        querySnapshot.forEach((doc) => {
+            const producto = doc.data()
+            const div = document.createElement("div")
+            div.className = "sugerencia-item"
+
+            // Mostrar código si existe
+            const codigoTexto = producto.codigo ? `${producto.codigo} - ` : ""
+
+            div.innerHTML = `
+        <div class="sugerencia-info">
+          <span class="sugerencia-nombre">${codigoTexto}${producto.name}</span>
+          <span class="sugerencia-stock">Stock: ${producto.stock || 0}</span>
+        </div>
+        <span class="sugerencia-precio">$${producto.precio ? producto.precio.toFixed(2) : "0.00"}</span>
+      `
+
+            // Guardar datos del producto en el elemento
+            div.dataset.id = doc.id
+            div.dataset.nombre = producto.name
+            div.dataset.precio = producto.precio || 0
+            div.dataset.stock = producto.stock || 0
+
+            // Evento al hacer clic en una sugerencia
+            div.addEventListener("click", () => {
+                agregarProductoAlBoletoDesdeSeleccion(div.dataset)
+                busquedaInput.value = ""
+                sugerenciasContainer.style.display = "none"
+            })
+
+            sugerenciasContainer.appendChild(div)
+        })
+
+        sugerenciasContainer.style.display = "block"
+    } catch (error) {
+        console.error("Error al buscar productos para apartado:", error)
+        sugerenciasContainer.innerHTML = `
+      <div class="sugerencia-item">
+        <span>Error al buscar productos</span>
+      </div>
+    `
         sugerenciasContainer.style.display = "block"
     }
 }
@@ -877,6 +1060,7 @@ function mostrarModalPago() {
             if (efectivoContainer) efectivoContainer.style.display = "block"
         } else if (metodoPago.value === "Tarjeta de Crédito" || metodoPago.value === "Tarjeta de Débito") {
             descuentoInput.value = "10"
+
             descuentoAplicado = 10
             if (efectivoContainer) efectivoContainer.style.display = "none"
         } else {
@@ -943,12 +1127,6 @@ function calcularCambio() {
 
     // Actualizar ticket con el efectivo recibido
     actualizarTicket()
-}
-
-function generarNumeroTicket() {
-    const timestamp = Date.now().toString().slice(-6)
-    const random = Math.floor(1000 + Math.random() * 9000)
-    return `${timestamp}${random}`
 }
 
 // Procesar pago
@@ -1044,6 +1222,739 @@ async function procesarPago() {
     }
 }
 
+// Función para buscar apartado por token
+async function buscarApartadoPorToken(token) {
+    try {
+        // Consultar la colección de boletos en Firebase
+        const boletosRef = collection(db, "Boleto")
+        const q = query(boletosRef, where("ID_BOLETO", "==", token))
+        const querySnapshot = await getDocs(q)
+
+        if (querySnapshot.empty) {
+            mostrarAlerta("No se encontró ningún boleto con ese código", "error")
+            return
+        }
+
+        // Obtener datos del boleto
+        const boletoDoc = querySnapshot.docs[0]
+        const boletoData = boletoDoc.data()
+
+        // Mostrar los datos del boleto
+        mostrarDatosBoleto(boletoDoc.id, boletoData)
+
+        // Mostrar el resumen
+        document.getElementById("resumen-apartado").style.display = "block"
+
+        // Desplazar la vista al resumen
+        document.getElementById("resumen-apartado").scrollIntoView({ behavior: "smooth" })
+
+        mostrarAlerta("Boleto encontrado", "success")
+    } catch (error) {
+        console.error("Error al buscar boleto:", error)
+        throw error
+    }
+}
+
+// Modificar la función mostrarDatosBoleto para quitar el anticipo y mostrar la vista previa del ticket
+function mostrarDatosBoleto(boletoId, boleto) {
+    // Guardar ID del boleto en un atributo data para usarlo después
+    document.getElementById("resumen-apartado").dataset.boletoId = boletoId
+
+    // Mostrar datos básicos
+    document.getElementById("codigo-apartado").textContent = boleto.ID_BOLETO || "Sin código"
+
+    // Formatear y mostrar fecha
+    let fechaEmision = new Date()
+    if (boleto.Fecha_de_Emision) {
+        if (boleto.Fecha_de_Emision.toDate) {
+            fechaEmision = boleto.Fecha_de_Emision.toDate()
+        } else if (boleto.Fecha_de_Emision.seconds) {
+            fechaEmision = new Date(boleto.Fecha_de_Emision.seconds * 1000)
+        }
+    }
+    const fechaFormateada = fechaEmision.toLocaleDateString("es-MX")
+    document.getElementById("fecha-apartado").textContent = fechaFormateada
+
+    // Obtener y mostrar fecha de expiración
+    let fechaExpiracion = new Date()
+    if (boleto.EXPIRACION) {
+        if (boleto.EXPIRACION.toDate) {
+            fechaExpiracion = boleto.EXPIRACION.toDate()
+        } else if (boleto.EXPIRACION.seconds) {
+            fechaExpiracion = new Date(boleto.EXPIRACION.seconds * 1000)
+        }
+    }
+    document.getElementById("fecha-limite").textContent = fechaExpiracion.toLocaleDateString("es-MX")
+
+    // Mostrar estado con clase de badge correspondiente
+    const estadoElement = document.getElementById("estado-apartado")
+    const estado = boleto.estado || "pendiente"
+    estadoElement.textContent = estado.charAt(0).toUpperCase() + estado.slice(1)
+    estadoElement.className =
+        "badge badge-" + (estado === "completado" ? "completed" : estado === "cancelado" ? "cancelled" : "pending")
+
+    // Mostrar datos del cliente
+    const nombreCliente = boleto.Nombre || "Cliente"
+    document.getElementById("cliente-apartado").textContent = nombreCliente
+
+    // Método de entrega (asumimos recoger en tienda para boletos)
+    const metodoEntrega = "Recoger en tienda"
+    document.getElementById("metodo-entrega-apartado").textContent = metodoEntrega
+
+    // Mostrar productos
+    const productosContainer = document.getElementById("productos-apartados")
+    productosContainer.innerHTML = ""
+
+    let total = 0
+
+    // Verificar si hay productos
+    if (boleto.Productos && boleto.Productos.length > 0) {
+        boleto.Productos.forEach((producto) => {
+            const tr = document.createElement("tr")
+
+            // Calcular subtotal del producto
+            const precio = producto.precio || 0
+            const cantidad = producto.cantidad || 1
+            const subtotalProducto = precio * cantidad
+            total += subtotalProducto
+
+            tr.innerHTML = `
+                <td>${producto.nombre || producto.name || "Producto"}</td>
+                <td>${cantidad}</td>
+                <td>$${precio.toFixed(2)}</td>
+                <td>$${subtotalProducto.toFixed(2)}</td>
+            `
+
+            productosContainer.appendChild(tr)
+        })
+    } else {
+        const tr = document.createElement("tr")
+        tr.innerHTML = `<td colspan="4" style="text-align: center;">No hay productos en este boleto</td>`
+        productosContainer.appendChild(tr)
+    }
+
+    // Calcular y mostrar totales
+    const totalFinal = boleto.Total || total
+
+    document.getElementById("apartado-subtotal").textContent = `$${totalFinal.toFixed(2)}`
+    document.getElementById("apartado-total").textContent = `$${totalFinal.toFixed(2)}`
+
+    // Actualizar vista previa del ticket
+    actualizarTicketApartado(boleto, nombreCliente, metodoEntrega)
+
+    // Mostrar la vista previa del ticket
+    document.getElementById("ticket-preview-apartado").style.display = "block"
+}
+
+// Agregar función para actualizar la vista previa del ticket de apartado
+function actualizarTicketApartado(boleto, nombreCliente, metodoEntrega) {
+    // Actualizar información básica del ticket
+    document.getElementById("ticket-numero-apartado").textContent = `Apartado #: ${boleto.ID_BOLETO || "00000000"}`
+    document.getElementById("ticket-barcode-text-apartado").textContent = `*${boleto.ID_BOLETO || "00000000"}*`
+
+    // Actualizar fecha y hora actuales
+    const now = new Date()
+    const day = String(now.getDate()).padStart(2, "0")
+    const month = String(now.getMonth() + 1).padStart(2, "0")
+    const year = now.getFullYear()
+    const dateStr = `${day}/${month}/${year}`
+
+    const hours = String(now.getHours()).padStart(2, "0")
+    const minutes = String(now.getMinutes()).padStart(2, "0")
+    const seconds = String(now.getSeconds()).padStart(2, "0")
+    const timeStr = `${hours}:${minutes}:${seconds}`
+
+    document.getElementById("ticket-fecha-apartado").textContent = `Fecha: ${dateStr}`
+    document.getElementById("ticket-hora-apartado").textContent = `Hora: ${timeStr}`
+
+    // Actualizar cajero
+    const nombreCajero = usuarioActual ? usuarioActual.nombre || usuarioActual.email : "Usuario"
+    document.getElementById("ticket-cajero-apartado").textContent = `Cajero: ${nombreCajero}`
+
+    // Actualizar cliente y método de entrega
+    document.getElementById("ticket-cliente-apartado").textContent = nombreCliente
+    document.getElementById("ticket-entrega-apartado").textContent = metodoEntrega
+
+    // Actualizar productos en el ticket
+    const ticketItemsBody = document.getElementById("ticket-items-body-apartado")
+    ticketItemsBody.innerHTML = ""
+
+    let total = 0
+
+    if (boleto.Productos && boleto.Productos.length > 0) {
+        boleto.Productos.forEach((producto) => {
+            const tr = document.createElement("tr")
+
+            // Calcular subtotal del producto
+            const precio = producto.precio || 0
+            const cantidad = producto.cantidad || 1
+            const subtotalProducto = precio * cantidad
+            total += subtotalProducto
+
+            tr.innerHTML = `
+        <td class="item-qty">${cantidad}</td>
+        <td class="item-name">${producto.nombre || producto.name || "Producto"}</td>
+        <td class="item-price">$${precio.toFixed(2)}</td>
+        <td class="item-total">$${subtotalProducto.toFixed(2)}</td>
+      `
+
+            ticketItemsBody.appendChild(tr)
+        })
+    } else {
+        ticketItemsBody.innerHTML = `
+      <tr class="empty-ticket">
+        <td colspan="4" class="empty-message">No hay productos en este apartado</td>
+      </tr>
+    `
+    }
+
+    // Actualizar totales
+    const totalFinal = boleto.Total || total
+    document.getElementById("ticket-subtotal-apartado").textContent = `$${totalFinal.toFixed(2)}`
+    document.getElementById("ticket-total-apartado").textContent = `$${totalFinal.toFixed(2)}`
+}
+
+// Modificar la función mostrarModalCompletarCompra para quitar referencias al anticipo
+function mostrarModalCompletarCompra() {
+    // Verificar que haya un boleto seleccionado
+    const boletoId = document.getElementById("resumen-apartado").dataset.boletoId
+    if (!boletoId) {
+        mostrarAlerta("No hay un boleto seleccionado", "error")
+        return
+    }
+
+    // Obtener elementos del modal
+    const modal = document.getElementById("modal-completar-compra")
+    const overlay = document.getElementById("modal-overlay")
+
+    if (!modal || !overlay) {
+        console.error("Elementos del modal no encontrados")
+        return
+    }
+
+    // Obtener total original del apartado (sin descuento)
+    const totalOriginal = Number.parseFloat(document.getElementById("apartado-total").textContent.replace("$", ""))
+
+    // Guardar el total original como atributo de datos para cálculos posteriores
+    document.getElementById("modal-total").dataset.totalOriginal = totalOriginal.toFixed(2)
+
+    // Aplicar descuento inicial según el método de pago predeterminado
+    const metodoPago = document.getElementById("metodo-pago-apartado")
+    aplicarDescuentoSegunMetodoPago(metodoPago.value, totalOriginal)
+
+    // Configurar eventos del modal
+    const closeBtn = modal.querySelector(".close")
+    const cancelBtn = document.getElementById("btn-cancelar-compra")
+    const confirmarBtn = document.getElementById("btn-confirmar-compra")
+    const efectivoRecibido = document.getElementById("efectivo-recibido-apartado")
+    const efectivoContainer = document.getElementById("efectivo-container-apartado")
+
+    // Mostrar/ocultar contenedor de efectivo según método de pago inicial
+    if (metodoPago.value === "Efectivo") {
+        efectivoContainer.style.display = "block"
+    } else {
+        efectivoContainer.style.display = "none"
+    }
+
+    // Evento para cambiar método de pago
+    metodoPago.onchange = () => {
+        // Aplicar descuento según el método seleccionado
+        aplicarDescuentoSegunMetodoPago(metodoPago.value, totalOriginal)
+
+        // Mostrar/ocultar contenedor de efectivo
+        if (metodoPago.value === "Efectivo") {
+            efectivoContainer.style.display = "block"
+            if (efectivoRecibido) efectivoRecibido.focus()
+        } else {
+            efectivoContainer.style.display = "none"
+        }
+
+        // Limpiar campos de efectivo
+        if (efectivoRecibido) efectivoRecibido.value = ""
+        const cambioApartado = document.getElementById("cambio-apartado")
+        if (cambioApartado) cambioApartado.value = ""
+    }
+
+    // Evento para calcular cambio
+    if (efectivoRecibido) {
+        efectivoRecibido.oninput = calcularCambioApartado
+    }
+
+    if (closeBtn) closeBtn.onclick = cerrarModalCompletarCompra
+    if (cancelBtn) cancelBtn.onclick = cerrarModalCompletarCompra
+    if (confirmarBtn) confirmarBtn.onclick = confirmarCompletarCompraFunc
+
+    // Mostrar el modal
+    modal.style.display = "block"
+    overlay.style.display = "block"
+
+    // Enfocar en el campo de efectivo recibido si es efectivo
+    if (metodoPago.value === "Efectivo" && efectivoRecibido) {
+        efectivoRecibido.focus()
+    }
+}
+
+// Función para aplicar descuento según método de pago
+function aplicarDescuentoSegunMetodoPago(metodoPago, totalOriginal) {
+    let porcentajeDescuento = 0
+
+    // Determinar porcentaje de descuento según método de pago
+    if (metodoPago === "Efectivo") {
+        porcentajeDescuento = 10 // 10% para efectivo
+    } else if (
+        metodoPago === "Tarjeta de Crédito" ||
+        metodoPago === "Tarjeta de Débito" ||
+        metodoPago === "Transferencia"
+    ) {
+        porcentajeDescuento = 15 // 15% para tarjetas y transferencia
+    }
+
+    // Calcular descuento y total con descuento
+    const descuento = totalOriginal * (porcentajeDescuento / 100)
+    const totalConDescuento = totalOriginal - descuento
+
+    // Actualizar total en el modal
+    const modalTotal = document.getElementById("modal-total")
+    if (modalTotal) {
+        modalTotal.textContent = `$${totalConDescuento.toFixed(2)}`
+        // Guardar porcentaje de descuento como atributo de datos
+        modalTotal.dataset.descuentoPorcentaje = porcentajeDescuento
+        modalTotal.dataset.descuentoMonto = descuento.toFixed(2)
+    }
+
+    // Si hay efectivo recibido, recalcular cambio
+    calcularCambioApartado()
+}
+
+// Función para calcular cambio en apartado
+function calcularCambioApartado() {
+    const efectivoRecibido = document.getElementById("efectivo-recibido-apartado")
+    const cambioInput = document.getElementById("cambio-apartado")
+    const confirmarBtn = document.getElementById("btn-confirmar-compra")
+    const modalTotal = document.getElementById("modal-total")
+
+    if (!efectivoRecibido || !cambioInput || !modalTotal) {
+        return
+    }
+
+    const efectivoRecibidoValor = Number.parseFloat(efectivoRecibido.value) || 0
+    const totalConDescuento = Number.parseFloat(modalTotal.textContent.replace("$", ""))
+
+    if (efectivoRecibidoValor < totalConDescuento) {
+        cambioInput.value = "Monto insuficiente"
+        if (confirmarBtn) confirmarBtn.disabled = true
+    } else {
+        const cambio = efectivoRecibidoValor - totalConDescuento
+        cambioInput.value = `$${cambio.toFixed(2)}`
+        if (confirmarBtn) confirmarBtn.disabled = false
+    }
+}
+
+// Modificar la función confirmarCompletarCompra para incluir descuento y cambio
+async function confirmarCompletarCompraFunc() {
+    try {
+        // Obtener ID del boleto
+        const boletoId = document.getElementById("resumen-apartado").dataset.boletoId
+        if (!boletoId) {
+            throw new Error("No se encontró el ID del boleto")
+        }
+
+        // Obtener método de pago y datos de descuento
+        const metodoPago = document.getElementById("metodo-pago-apartado").value
+        const modalTotal = document.getElementById("modal-total")
+        const porcentajeDescuento = Number.parseFloat(modalTotal.dataset.descuentoPorcentaje) || 0
+        const montoDescuento = Number.parseFloat(modalTotal.dataset.descuentoMonto) || 0
+        const totalOriginal = Number.parseFloat(modalTotal.dataset.totalOriginal) || 0
+        const totalConDescuento = Number.parseFloat(modalTotal.textContent.replace("$", ""))
+
+        // Obtener efectivo recibido y cambio si aplica
+        let efectivoRecibido = 0
+        let cambio = 0
+
+        if (metodoPago === "Efectivo") {
+            const efectivoRecibidoInput = document.getElementById("efectivo-recibido-apartado")
+            const cambioInput = document.getElementById("cambio-apartado")
+
+            if (efectivoRecibidoInput) {
+                efectivoRecibido = Number.parseFloat(efectivoRecibidoInput.value) || 0
+            }
+
+            if (cambioInput && cambioInput.value !== "Monto insuficiente") {
+                cambio = Number.parseFloat(cambioInput.value.replace("$", "")) || 0
+            }
+
+            // Validar que el efectivo sea suficiente
+            if (efectivoRecibido < totalConDescuento) {
+                throw new Error("El monto recibido es insuficiente")
+            }
+        }
+
+        // Obtener datos del boleto
+        const boletoRef = doc(db, "Boleto", boletoId)
+        const boletoSnap = await getDoc(boletoRef)
+
+        if (!boletoSnap.exists()) {
+            throw new Error("El boleto ya no existe")
+        }
+
+        // Actualizar estado del boleto
+        await updateDoc(boletoRef, {
+            estado: "completado",
+            metodoPagoFinal: metodoPago,
+            fechaCompletado: serverTimestamp(),
+            descuentoPorcentaje: porcentajeDescuento,
+            descuentoMonto: montoDescuento,
+            totalOriginal: totalOriginal,
+            totalFinal: totalConDescuento,
+            efectivoRecibido: efectivoRecibido,
+            cambio: cambio,
+        })
+
+        // Registrar venta
+        const ventaData = {
+            fecha: serverTimestamp(),
+            usuario: usuarioActual ? usuarioActual.email : "Usuario de prueba",
+            productos: boletoSnap.data().Productos,
+            subtotal: totalOriginal,
+            descuentoPorcentaje: porcentajeDescuento,
+            descuentoMonto: montoDescuento,
+            total: totalConDescuento,
+            metodoPago: metodoPago,
+            efectivoRecibido: efectivoRecibido,
+            cambio: cambio,
+            estado: "Completada",
+            boletoId: boletoId,
+            token: boletoSnap.data().ID_BOLETO,
+            tipo: "Apartado",
+        }
+
+        await addDoc(collection(db, "Ventas"), ventaData)
+
+        // Cerrar modal
+        cerrarModalCompletarCompra()
+
+        // Actualizar vista del boleto con los datos de descuento
+        const boletoActualizado = {
+            ...boletoSnap.data(),
+            estado: "completado",
+            descuentoPorcentaje: porcentajeDescuento,
+            descuentoMonto: montoDescuento,
+            totalOriginal: totalOriginal,
+            totalFinal: totalConDescuento,
+            metodoPagoFinal: metodoPago,
+            efectivoRecibido: efectivoRecibido,
+            cambio: cambio,
+        }
+
+        mostrarDatosBoleto(boletoId, boletoActualizado)
+
+        // Actualizar ticket con descuento y cambio
+        actualizarTicketApartadoConDescuento(boletoActualizado)
+
+        mostrarAlerta("¡Compra completada con éxito!", "success")
+    } catch (error) {
+        console.error("Error al completar compra:", error)
+        mostrarAlerta("Error: " + error.message, "error")
+    }
+}
+
+// Función para actualizar el ticket de apartado con descuento y cambio
+function actualizarTicketApartadoConDescuento(boleto) {
+    // Actualizar información básica del ticket
+    document.getElementById("ticket-numero-apartado").textContent = `Apartado #: ${boleto.ID_BOLETO || "00000000"}`
+    document.getElementById("ticket-barcode-text-apartado").textContent = `*${boleto.ID_BOLETO || "00000000"}*`
+
+    // Actualizar fecha y hora actuales
+    const now = new Date()
+    const day = String(now.getDate()).padStart(2, "0")
+    const month = String(now.getMonth() + 1).padStart(2, "0")
+    const year = now.getFullYear()
+    const dateStr = `${day}/${month}/${year}`
+
+    const hours = String(now.getHours()).padStart(2, "0")
+    const minutes = String(now.getMinutes()).padStart(2, "0")
+    const seconds = String(now.getSeconds()).padStart(2, "0")
+    const timeStr = `${hours}:${minutes}:${seconds}`
+
+    document.getElementById("ticket-fecha-apartado").textContent = `Fecha: ${dateStr}`
+    document.getElementById("ticket-hora-apartado").textContent = `Hora: ${timeStr}`
+
+    // Actualizar cajero
+    const nombreCajero = usuarioActual ? usuarioActual.nombre || usuarioActual.email : "Usuario"
+    document.getElementById("ticket-cajero-apartado").textContent = `Cajero: ${nombreCajero}`
+
+    // Actualizar cliente y método de entrega
+    const nombreCliente = boleto.Nombre || "Cliente"
+    document.getElementById("ticket-cliente-apartado").textContent = nombreCliente
+    document.getElementById("ticket-entrega-apartado").textContent = "Recoger en tienda"
+
+    // Actualizar productos en el ticket
+    const ticketItemsBody = document.getElementById("ticket-items-body-apartado")
+    ticketItemsBody.innerHTML = ""
+
+    let total = 0
+
+    if (boleto.Productos && boleto.Productos.length > 0) {
+        boleto.Productos.forEach((producto) => {
+            const tr = document.createElement("tr")
+
+            // Calcular subtotal del producto
+            const precio = producto.precio || 0
+            const cantidad = producto.cantidad || 1
+            const subtotalProducto = precio * cantidad
+            total += subtotalProducto
+
+            tr.innerHTML = `
+        <td class="item-qty">${cantidad}</td>
+        <td class="item-name">${producto.nombre || producto.name || "Producto"}</td>
+        <td class="item-price">$${precio.toFixed(2)}</td>
+        <td class="item-total">$${subtotalProducto.toFixed(2)}</td>
+      `
+
+            ticketItemsBody.appendChild(tr)
+        })
+    } else {
+        ticketItemsBody.innerHTML = `
+      <tr class="empty-ticket">
+        <td colspan="4" class="empty-message">No hay productos en este apartado</td>
+      </tr>
+    `
+    }
+
+    // Obtener el contenedor de totales
+    const ticketTotals = document.querySelector("#ticket-preview-apartado .ticket-totals")
+
+    // Limpiar totales existentes
+    ticketTotals.innerHTML = ""
+
+    // Agregar subtotal
+    const subtotalElement = document.createElement("div")
+    subtotalElement.className = "total-line"
+    subtotalElement.innerHTML = `
+    <span class="total-label">Subtotal:</span>
+    <span class="total-value" id="ticket-subtotal-apartado">$${(boleto.totalOriginal || total).toFixed(2)}</span>
+  `
+    ticketTotals.appendChild(subtotalElement)
+
+    // Agregar descuento si existe
+    if (boleto.descuentoPorcentaje && boleto.descuentoPorcentaje > 0) {
+        const descuentoElement = document.createElement("div")
+        descuentoElement.className = "total-line"
+        descuentoElement.innerHTML = `
+      <span class="total-label">Descuento (${boleto.descuentoPorcentaje}%):</span>
+      <span class="total-value" id="ticket-descuento-apartado">$${(boleto.descuentoMonto || 0).toFixed(2)}</span>
+    `
+        ticketTotals.appendChild(descuentoElement)
+    }
+
+    // Agregar total final
+    const totalElement = document.createElement("div")
+    totalElement.className = "total-line total-final"
+    totalElement.innerHTML = `
+    <span class="total-label">TOTAL:</span>
+    <span class="total-value" id="ticket-total-apartado">$${(boleto.totalFinal || boleto.Total || total).toFixed(2)}</span>
+  `
+    ticketTotals.appendChild(totalElement)
+
+    // Actualizar información de pago
+    const paymentInfo = document.querySelector("#ticket-preview-apartado .payment-info")
+
+    // Limpiar información de pago existente
+    paymentInfo.innerHTML = ""
+
+    // Agregar cliente y método de entrega
+    paymentInfo.innerHTML += `
+    <p><strong>Cliente:</strong> <span id="ticket-cliente-apartado">${nombreCliente}</span></p>
+    <p><strong>Método de entrega:</strong> <span id="ticket-entrega-apartado">Recoger en tienda</span></p>
+  `
+
+    // Agregar forma de pago
+    paymentInfo.innerHTML += `
+    <p><strong>Forma de pago:</strong> <span>${boleto.metodoPagoFinal || "Efectivo"}</span></p>
+  `
+
+    // Agregar efectivo recibido y cambio si aplica
+    if (boleto.metodoPagoFinal === "Efectivo" && boleto.efectivoRecibido) {
+        paymentInfo.innerHTML += `
+      <p><strong>Recibido:</strong> <span>$${boleto.efectivoRecibido.toFixed(2)}</span></p>
+      <p><strong>Cambio:</strong> <span>$${boleto.cambio.toFixed(2)}</span></p>
+    `
+    }
+}
+
+// Agregar función para imprimir ticket de apartado
+function imprimirTicketApartado() {
+    // Crear un estilo específico para la impresión
+    const style = document.createElement("style")
+    style.type = "text/css"
+    style.innerHTML = `
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #ticket-preview-apartado .ticket, 
+      #ticket-preview-apartado .ticket * {
+        visibility: visible;
+      }
+      #ticket-preview-apartado .ticket {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 80mm;
+        box-shadow: none;
+        padding: 0;
+      }
+      #ticket-preview-apartado .ticket-actions {
+        display: none;
+      }
+    }
+  `
+    document.head.appendChild(style)
+
+    window.print()
+
+    // Eliminar el estilo después de imprimir
+    document.head.removeChild(style)
+}
+
+// Función para agregar producto al boleto (botón agregar)
+async function agregarProductoAlBoleto() {
+    const busquedaInput = document.getElementById("busqueda-producto-boleto")
+
+    if (!busquedaInput || !busquedaInput.value.trim()) {
+        mostrarAlerta("Primero busca y selecciona un producto", "error")
+        return
+    }
+
+    try {
+        // Buscar el producto en Firebase
+        const productosRef = collection(db, "Productos")
+        const q = query(productosRef, where("name", "==", busquedaInput.value.trim()))
+        const querySnapshot = await getDocs(q)
+
+        if (querySnapshot.empty) {
+            mostrarAlerta("No se encontró el producto", "error")
+            return
+        }
+
+        const productoDoc = querySnapshot.docs[0]
+        const productoData = productoDoc.data()
+
+        // Crear objeto de producto para pasar a la función
+        const producto = {
+            id: productoDoc.id,
+            nombre: productoData.name,
+            precio: productoData.precio || 0,
+            stock: productoData.stock || 0,
+        }
+
+        // Usar la función común
+        await agregarProductoAlBoletoDesdeSeleccion(producto)
+
+        // Limpiar campo de búsqueda
+        busquedaInput.value = ""
+    } catch (error) {
+        console.error("Error al agregar producto:", error)
+        mostrarAlerta("Error: " + error.message, "error")
+    }
+}
+
+// Función para agregar producto al boleto desde la selección de sugerencias
+async function agregarProductoAlBoletoDesdeSeleccion(producto) {
+    try {
+        // Obtener ID del boleto actual
+        const boletoId = document.getElementById("resumen-apartado").dataset.boletoId
+        if (!boletoId) {
+            throw new Error("No se encontró el ID del boleto")
+        }
+
+        const { id, nombre, precio, stock } = producto
+        const precioNum = Number.parseFloat(precio)
+        const stockNum = Number.parseInt(stock)
+
+        // Verificar stock
+        if (stockNum <= 0) {
+            mostrarAlerta("Este producto está agotado", "error")
+            return
+        }
+
+        // Solicitar cantidad
+        const cantidad = prompt(`¿Cuántas unidades de ${nombre} deseas agregar? (Disponibles: ${stockNum})`)
+
+        if (!cantidad) return // Usuario canceló
+
+        const cantidadNum = Number.parseInt(cantidad)
+
+        if (isNaN(cantidadNum) || cantidadNum <= 0) {
+            mostrarAlerta("Por favor, ingresa una cantidad válida", "error")
+            return
+        }
+
+        if (cantidadNum > stockNum) {
+            mostrarAlerta("No hay suficiente stock disponible", "error")
+            return
+        }
+
+        // Obtener datos actuales del boleto
+        const boletoRef = doc(db, "Boleto", boletoId)
+        const boletoSnap = await getDoc(boletoRef)
+
+        if (!boletoSnap.exists()) {
+            throw new Error("El boleto ya no existe")
+        }
+
+        const boletoData = boletoSnap.data()
+
+        // Preparar el nuevo producto
+        const nuevoProducto = {
+            id,
+            nombre,
+            precio: precioNum,
+            cantidad: cantidadNum,
+        }
+
+        // Combinar productos existentes con el nuevo
+        const productosActualizados = [...(boletoData.Productos || [])]
+
+        // Verificar si el producto ya existe
+        const productoExistente = productosActualizados.findIndex((p) => p.id === nuevoProducto.id)
+
+        if (productoExistente >= 0) {
+            // Actualizar cantidad
+            productosActualizados[productoExistente].cantidad += cantidadNum
+        } else {
+            // Agregar nuevo producto
+            productosActualizados.push(nuevoProducto)
+        }
+
+        // Calcular nuevo total
+        const nuevoTotal = productosActualizados.reduce((total, p) => {
+            return total + p.precio * p.cantidad
+        }, 0)
+
+        // Actualizar boleto en Firebase
+        await updateDoc(boletoRef, {
+            Productos: productosActualizados,
+            Total: nuevoTotal,
+            updatedAt: serverTimestamp(),
+        })
+
+        // Actualizar vista
+        const boletoActualizado = {
+            ...boletoData,
+            Productos: productosActualizados,
+            Total: nuevoTotal,
+        }
+
+        mostrarDatosBoleto(boletoId, boletoActualizado)
+
+        mostrarAlerta(`${nombre} agregado al boleto`, "success")
+    } catch (error) {
+        console.error("Error al agregar producto:", error)
+        mostrarAlerta("Error: " + error.message, "error")
+    }
+}
+
 // Función para mostrar alertas
 function mostrarAlerta(mensaje, tipo) {
     // Eliminar alertas anteriores
@@ -1070,21 +1981,16 @@ function mostrarAlerta(mensaje, tipo) {
     }, 3000)
 }
 
+// Función para cerrar el modal de completar compra
+function cerrarModalCompletarCompra() {
+    const modal = document.getElementById("modal-completar-compra")
+    const overlay = document.getElementById("modal-overlay")
+
+    if (modal) modal.style.display = "none"
+    if (overlay) overlay.style.display = "none"
+}
+
 // Exportar funciones para uso en HTML
 window.pagar = mostrarModalPago
 window.cancelar = cancelarVenta
 window.imprimirTicket = imprimirTicket
-
-// Asegurarse de que el evento del botón de pago esté correctamente configurado
-document.addEventListener("DOMContentLoaded", () => {
-    const btnPagar = document.getElementById("btn-pagar")
-    if (btnPagar) {
-        console.log("Botón de pago encontrado, configurando evento")
-        btnPagar.onclick = () => {
-            console.log("Botón de pago clickeado")
-            mostrarModalPago()
-        }
-    } else {
-        console.error("Botón de pago no encontrado")
-    }
-})
