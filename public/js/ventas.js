@@ -1301,40 +1301,83 @@ function mostrarDatosBoleto(boletoId, boleto) {
     const metodoEntrega = "Recoger en tienda"
     document.getElementById("metodo-entrega-apartado").textContent = metodoEntrega
 
-    // Mostrar productos
-    const productosContainer = document.getElementById("productos-apartados")
-    productosContainer.innerHTML = ""
+    // Verificar si el boleto está completado
+    const estaCompletado = estado === "completado"
+    const estaExpirado = boleto.EXPIRACION && new Date() > new Date(boleto.EXPIRACION.seconds * 1000)
 
-    let total = 0
+    // Obtener elementos que deben ocultarse si el boleto está completado
+    const apartadoProductosSection = document.querySelector(".apartado-productos")
+    const apartadoAcciones = document.querySelector(".apartado-acciones")
 
-    // Verificar si hay productos
-    if (boleto.Productos && boleto.Productos.length > 0) {
-        boleto.Productos.forEach((producto) => {
-            const tr = document.createElement("tr")
-
-            // Calcular subtotal del producto
-            const precio = producto.precio || 0
-            const cantidad = producto.cantidad || 1
-            const subtotalProducto = precio * cantidad
-            total += subtotalProducto
-
-            tr.innerHTML = `
-                <td>${producto.nombre || producto.name || "Producto"}</td>
-                <td>${cantidad}</td>
-                <td>$${precio.toFixed(2)}</td>
-                <td>$${subtotalProducto.toFixed(2)}</td>
-            `
-
-            productosContainer.appendChild(tr)
-        })
+    // Ocultar o mostrar sección de productos y acciones según el estado
+    if (estaCompletado) {
+        if (apartadoProductosSection) apartadoProductosSection.style.display = "none"
+        if (apartadoAcciones) apartadoAcciones.style.display = "none"
     } else {
-        const tr = document.createElement("tr")
-        tr.innerHTML = `<td colspan="4" style="text-align: center;">No hay productos en este boleto</td>`
-        productosContainer.appendChild(tr)
+        if (apartadoProductosSection) apartadoProductosSection.style.display = "block"
+        if (apartadoAcciones) apartadoAcciones.style.display = "flex"
+
+        // Mostrar productos solo si no está completado
+        const productosContainer = document.getElementById("productos-apartados")
+        productosContainer.innerHTML = ""
+
+        let total = 0
+
+        // Verificar si hay productos
+        if (boleto.Productos && boleto.Productos.length > 0) {
+            boleto.Productos.forEach((producto, index) => {
+                const div = document.createElement("div")
+                div.className = "producto-apartado"
+
+                // Calcular subtotal del producto
+                const precio = producto.precio || 0
+                const cantidad = producto.cantidad || 1
+                const subtotalProducto = precio * cantidad
+                total += subtotalProducto
+
+                // Verificar si el boleto está expirado
+                const botonesDeshabilitados = estaExpirado
+
+                div.innerHTML = `
+            <div class="producto-header">
+                <span class="producto-nombre">${producto.nombre || producto.name || "Producto"}</span>
+                <div class="producto-acciones">
+                    <button class="btn-eliminar" data-index="${index}" ${botonesDeshabilitados ? "disabled" : ""}>
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="producto-detalles">
+                <div class="producto-cantidad">
+                    <button class="btn-cantidad btn-restar" data-index="${index}" ${botonesDeshabilitados ? "disabled" : ""}>
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <span class="cantidad-valor">${cantidad}</span>
+                    <button class="btn-cantidad btn-sumar" data-index="${index}" ${botonesDeshabilitados ? "disabled" : ""}>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <span class="producto-precio">$${subtotalProducto.toFixed(2)}</span>
+            </div>
+        `
+
+                productosContainer.appendChild(div)
+            })
+
+            // Agregar eventos a los botones
+            agregarEventosProductosApartados(boleto)
+        } else {
+            productosContainer.innerHTML = `
+        <div class="apartado-vacio">
+            <i class="fas fa-shopping-basket"></i>
+            <p>No hay productos en este apartado</p>
+        </div>
+      `
+        }
     }
 
     // Calcular y mostrar totales
-    const totalFinal = boleto.Total || total
+    const totalFinal = boleto.Total || 0
 
     document.getElementById("apartado-subtotal").textContent = `$${totalFinal.toFixed(2)}`
     document.getElementById("apartado-total").textContent = `$${totalFinal.toFixed(2)}`
@@ -1346,72 +1389,287 @@ function mostrarDatosBoleto(boletoId, boleto) {
     document.getElementById("ticket-preview-apartado").style.display = "block"
 }
 
-// Agregar función para actualizar la vista previa del ticket de apartado
-function actualizarTicketApartado(boleto, nombreCliente, metodoEntrega) {
-    // Actualizar información básica del ticket
-    document.getElementById("ticket-numero-apartado").textContent = `Apartado #: ${boleto.ID_BOLETO || "00000000"}`
-    document.getElementById("ticket-barcode-text-apartado").textContent = `*${boleto.ID_BOLETO || "00000000"}*`
+// Agregar función para manejar eventos de productos apartados
+function agregarEventosProductosApartados(boleto) {
+    // Verificar si el boleto está completado o expirado
+    const estaCompletado = boleto.estado === "completado"
+    const estaExpirado = boleto.EXPIRACION && new Date() > new Date(boleto.EXPIRACION.seconds * 1000)
 
-    // Actualizar fecha y hora actuales
-    const now = new Date()
-    const day = String(now.getDate()).padStart(2, "0")
-    const month = String(now.getMonth() + 1).padStart(2, "0")
-    const year = now.getFullYear()
-    const dateStr = `${day}/${month}/${year}`
-
-    const hours = String(now.getHours()).padStart(2, "0")
-    const minutes = String(now.getMinutes()).padStart(2, "0")
-    const seconds = String(now.getSeconds()).padStart(2, "0")
-    const timeStr = `${hours}:${minutes}:${seconds}`
-
-    document.getElementById("ticket-fecha-apartado").textContent = `Fecha: ${dateStr}`
-    document.getElementById("ticket-hora-apartado").textContent = `Hora: ${timeStr}`
-
-    // Actualizar cajero
-    const nombreCajero = usuarioActual ? usuarioActual.nombre || usuarioActual.email : "Usuario"
-    document.getElementById("ticket-cajero-apartado").textContent = `Cajero: ${nombreCajero}`
-
-    // Actualizar cliente y método de entrega
-    document.getElementById("ticket-cliente-apartado").textContent = nombreCliente
-    document.getElementById("ticket-entrega-apartado").textContent = metodoEntrega
-
-    // Actualizar productos en el ticket
-    const ticketItemsBody = document.getElementById("ticket-items-body-apartado")
-    ticketItemsBody.innerHTML = ""
-
-    let total = 0
-
-    if (boleto.Productos && boleto.Productos.length > 0) {
-        boleto.Productos.forEach((producto) => {
-            const tr = document.createElement("tr")
-
-            // Calcular subtotal del producto
-            const precio = producto.precio || 0
-            const cantidad = producto.cantidad || 1
-            const subtotalProducto = precio * cantidad
-            total += subtotalProducto
-
-            tr.innerHTML = `
-        <td class="item-qty">${cantidad}</td>
-        <td class="item-name">${producto.nombre || producto.name || "Producto"}</td>
-        <td class="item-price">$${precio.toFixed(2)}</td>
-        <td class="item-total">$${subtotalProducto.toFixed(2)}</td>
-      `
-
-            ticketItemsBody.appendChild(tr)
-        })
-    } else {
-        ticketItemsBody.innerHTML = `
-      <tr class="empty-ticket">
-        <td colspan="4" class="empty-message">No hay productos en este apartado</td>
-      </tr>
-    `
+    // Si el boleto está completado o expirado, no agregar eventos
+    if (estaCompletado || estaExpirado) {
+        return
     }
 
-    // Actualizar totales
-    const totalFinal = boleto.Total || total
-    document.getElementById("ticket-subtotal-apartado").textContent = `$${totalFinal.toFixed(2)}`
-    document.getElementById("ticket-total-apartado").textContent = `$${totalFinal.toFixed(2)}`
+    const botonesEliminar = document.querySelectorAll("#productos-apartados .btn-eliminar")
+    if (botonesEliminar) {
+        botonesEliminar.forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const index = Number.parseInt(this.getAttribute("data-index"))
+                eliminarProductoApartado(index)
+            })
+        })
+    }
+
+    const botonesRestar = document.querySelectorAll("#productos-apartados .btn-restar")
+    if (botonesRestar) {
+        botonesRestar.forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const index = Number.parseInt(this.getAttribute("data-index"))
+                restarCantidadApartado(index)
+            })
+        })
+    }
+
+    const botonesSumar = document.querySelectorAll("#productos-apartados .btn-sumar")
+    if (botonesSumar) {
+        botonesSumar.forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const index = Number.parseInt(this.getAttribute("data-index"))
+                sumarCantidadApartado(index)
+            })
+        })
+    }
+}
+
+// Función para eliminar producto del apartado
+async function eliminarProductoApartado(index) {
+    try {
+        // Obtener ID del boleto actual
+        const boletoId = document.getElementById("resumen-apartado").dataset.boletoId
+        if (!boletoId) {
+            throw new Error("No se encontró el ID del boleto")
+        }
+
+        // Obtener datos actuales del boleto
+        const boletoRef = doc(db, "Boleto", boletoId)
+        const boletoSnap = await getDoc(boletoRef)
+
+        if (!boletoSnap.exists()) {
+            throw new Error("El boleto ya no existe")
+        }
+
+        const boletoData = boletoSnap.data()
+
+        // Verificar si el boleto está completado o expirado
+        if (boletoData.estado === "completado") {
+            mostrarAlerta("No se pueden modificar apartados completados", "error")
+            return
+        }
+
+        const fechaExpiracion = boletoData.EXPIRACION ? new Date(boletoData.EXPIRACION.seconds * 1000) : null
+        if (fechaExpiracion && new Date() > fechaExpiracion) {
+            mostrarAlerta("Este apartado ha expirado", "error")
+            return
+        }
+
+        // Verificar que el índice sea válido
+        if (!boletoData.Productos || index < 0 || index >= boletoData.Productos.length) {
+            throw new Error("Producto no encontrado")
+        }
+
+        // Guardar nombre del producto para el mensaje
+        const nombreProducto = boletoData.Productos[index].nombre || boletoData.Productos[index].name || "Producto"
+
+        // Eliminar el producto
+        const productosActualizados = [...boletoData.Productos]
+        productosActualizados.splice(index, 1)
+
+        // Calcular nuevo total
+        const nuevoTotal = productosActualizados.reduce((total, p) => {
+            return total + (p.precio || 0) * (p.cantidad || 1)
+        }, 0)
+
+        // Actualizar boleto en Firebase
+        await updateDoc(boletoRef, {
+            Productos: productosActualizados,
+            Total: nuevoTotal,
+            updatedAt: serverTimestamp(),
+        })
+
+        // Actualizar vista
+        const boletoActualizado = {
+            ...boletoData,
+            Productos: productosActualizados,
+            Total: nuevoTotal,
+        }
+
+        mostrarDatosBoleto(boletoId, boletoActualizado)
+        mostrarAlerta(`${nombreProducto} eliminado del apartado`, "success")
+    } catch (error) {
+        console.error("Error al eliminar producto:", error)
+        mostrarAlerta("Error: " + error.message, "error")
+    }
+}
+
+// Función para restar cantidad de producto en apartado
+async function restarCantidadApartado(index) {
+    try {
+        // Obtener ID del boleto actual
+        const boletoId = document.getElementById("resumen-apartado").dataset.boletoId
+        if (!boletoId) {
+            throw new Error("No se encontró el ID del boleto")
+        }
+
+        // Obtener datos actuales del boleto
+        const boletoRef = doc(db, "Boleto", boletoId)
+        const boletoSnap = await getDoc(boletoRef)
+
+        if (!boletoSnap.exists()) {
+            throw new Error("El boleto ya no existe")
+        }
+
+        const boletoData = boletoSnap.data()
+
+        // Verificar si el boleto está completado o expirado
+        if (boletoData.estado === "completado") {
+            mostrarAlerta("No se pueden modificar apartados completados", "error")
+            return
+        }
+
+        const fechaExpiracion = boletoData.EXPIRACION ? new Date(boletoData.EXPIRACION.seconds * 1000) : null
+        if (fechaExpiracion && new Date() > fechaExpiracion) {
+            mostrarAlerta("Este apartado ha expirado", "error")
+            return
+        }
+
+        // Verificar que el índice sea válido
+        if (!boletoData.Productos || index < 0 || index >= boletoData.Productos.length) {
+            throw new Error("Producto no encontrado")
+        }
+
+        // Verificar la cantidad actual
+        const cantidadActual = boletoData.Productos[index].cantidad || 1
+
+        // Si la cantidad es 1, eliminar el producto
+        if (cantidadActual <= 1) {
+            return eliminarProductoApartado(index)
+        }
+
+        // Actualizar cantidad
+        const productosActualizados = [...boletoData.Productos]
+        productosActualizados[index] = {
+            ...productosActualizados[index],
+            cantidad: cantidadActual - 1,
+        }
+
+        // Calcular nuevo total
+        const nuevoTotal = productosActualizados.reduce((total, p) => {
+            return total + (p.precio || 0) * (p.cantidad || 1)
+        }, 0)
+
+        // Actualizar boleto en Firebase
+        await updateDoc(boletoRef, {
+            Productos: productosActualizados,
+            Total: nuevoTotal,
+            updatedAt: serverTimestamp(),
+        })
+
+        // Actualizar vista
+        const boletoActualizado = {
+            ...boletoData,
+            Productos: productosActualizados,
+            Total: nuevoTotal,
+        }
+
+        mostrarDatosBoleto(boletoId, boletoActualizado)
+    } catch (error) {
+        console.error("Error al restar cantidad:", error)
+        mostrarAlerta("Error: " + error.message, "error")
+    }
+}
+
+// Función para sumar cantidad de producto en apartado
+async function sumarCantidadApartado(index) {
+    try {
+        // Obtener ID del boleto actual
+        const boletoId = document.getElementById("resumen-apartado").dataset.boletoId
+        if (!boletoId) {
+            throw new Error("No se encontró el ID del boleto")
+        }
+
+        // Obtener datos actuales del boleto
+        const boletoRef = doc(db, "Boleto", boletoId)
+        const boletoSnap = await getDoc(boletoRef)
+
+        if (!boletoSnap.exists()) {
+            throw new Error("El boleto ya no existe")
+        }
+
+        const boletoData = boletoSnap.data()
+
+        // Verificar si el boleto está completado o expirado
+        if (boletoData.estado === "completado") {
+            mostrarAlerta("No se pueden modificar apartados completados", "error")
+            return
+        }
+
+        const fechaExpiracion = boletoData.EXPIRACION ? new Date(boletoData.EXPIRACION.seconds * 1000) : null
+        if (fechaExpiracion && new Date() > fechaExpiracion) {
+            mostrarAlerta("Este apartado ha expirado", "error")
+            return
+        }
+
+        // Verificar que el índice sea válido
+        if (!boletoData.Productos || index < 0 || index >= boletoData.Productos.length) {
+            throw new Error("Producto no encontrado")
+        }
+
+        // Obtener producto y verificar stock
+        const producto = boletoData.Productos[index]
+        const productoId = producto.id
+
+        if (!productoId) {
+            throw new Error("ID de producto no encontrado")
+        }
+
+        // Obtener stock actual del producto
+        const productoRef = doc(db, "Productos", productoId)
+        const productoSnap = await getDoc(productoRef)
+
+        if (!productoSnap.exists()) {
+            throw new Error("Producto no encontrado en la base de datos")
+        }
+
+        const stockDisponible = productoSnap.data().stock || 0
+        const cantidadActual = producto.cantidad || 1
+
+        // Verificar si hay suficiente stock
+        if (cantidadActual >= stockDisponible) {
+            mostrarAlerta("No hay suficiente stock disponible", "error")
+            return
+        }
+
+        // Actualizar cantidad
+        const productosActualizados = [...boletoData.Productos]
+        productosActualizados[index] = {
+            ...productosActualizados[index],
+            cantidad: cantidadActual + 1,
+        }
+
+        // Calcular nuevo total
+        const nuevoTotal = productosActualizados.reduce((total, p) => {
+            return total + (p.precio || 0) * (p.cantidad || 1)
+        }, 0)
+
+        // Actualizar boleto en Firebase
+        await updateDoc(boletoRef, {
+            Productos: productosActualizados,
+            Total: nuevoTotal,
+            updatedAt: serverTimestamp(),
+        })
+
+        // Actualizar vista
+        const boletoActualizado = {
+            ...boletoData,
+            Productos: productosActualizados,
+            Total: nuevoTotal,
+        }
+
+        mostrarDatosBoleto(boletoId, boletoActualizado)
+    } catch (error) {
+        console.error("Error al sumar cantidad:", error)
+        mostrarAlerta("Error: " + error.message, "error")
+    }
 }
 
 // Modificar la función mostrarModalCompletarCompra para quitar referencias al anticipo
@@ -1420,6 +1678,21 @@ function mostrarModalCompletarCompra() {
     const boletoId = document.getElementById("resumen-apartado").dataset.boletoId
     if (!boletoId) {
         mostrarAlerta("No hay un boleto seleccionado", "error")
+        return
+    }
+
+    // Verificar si el boleto está completado
+    const estadoElement = document.getElementById("estado-apartado")
+    if (estadoElement && estadoElement.textContent.toLowerCase() === "completado") {
+        mostrarAlerta("Este apartado ya está completado", "error")
+        return
+    }
+
+    // Verificar si el boleto está expirado
+    const fechaLimiteText = document.getElementById("fecha-limite").textContent
+    const fechaLimite = new Date(fechaLimiteText.split("/").reverse().join("-"))
+    if (fechaLimite && new Date() > fechaLimite) {
+        mostrarAlerta("Este apartado ha expirado", "error")
         return
     }
 
@@ -1988,6 +2261,105 @@ function cerrarModalCompletarCompra() {
 
     if (modal) modal.style.display = "none"
     if (overlay) overlay.style.display = "none"
+}
+
+// Función para actualizar la vista previa del ticket de apartado
+function actualizarTicketApartado(boleto, nombreCliente, metodoEntrega) {
+    // Actualizar información básica del ticket
+    document.getElementById("ticket-numero-apartado").textContent = `Apartado #: ${boleto.ID_BOLETO || "00000000"}`
+    document.getElementById("ticket-barcode-text-apartado").textContent = `*${boleto.ID_BOLETO || "00000000"}*`
+
+    // Actualizar fecha y hora actuales
+    const now = new Date()
+    const day = String(now.getDate()).padStart(2, "0")
+    const month = String(now.getMonth() + 1).padStart(2, "0")
+    const year = now.getFullYear()
+    const dateStr = `${day}/${month}/${year}`
+
+    const hours = String(now.getHours()).padStart(2, "0")
+    const minutes = String(now.getMinutes()).padStart(2, "0")
+    const seconds = String(now.getSeconds()).padStart(2, "0")
+    const timeStr = `${hours}:${minutes}:${seconds}`
+
+    document.getElementById("ticket-fecha-apartado").textContent = `Fecha: ${dateStr}`
+    document.getElementById("ticket-hora-apartado").textContent = `Hora: ${timeStr}`
+
+    // Actualizar cajero
+    const nombreCajero = usuarioActual ? usuarioActual.nombre || usuarioActual.email : "Usuario"
+    document.getElementById("ticket-cajero-apartado").textContent = `Cajero: ${nombreCajero}`
+
+    // Actualizar cliente y método de entrega
+    document.getElementById("ticket-cliente-apartado").textContent = nombreCliente
+    document.getElementById("ticket-entrega-apartado").textContent = metodoEntrega
+
+    // Actualizar productos en el ticket
+    const ticketItemsBody = document.getElementById("ticket-items-body-apartado")
+    ticketItemsBody.innerHTML = ""
+
+    let total = 0
+
+    if (boleto.Productos && boleto.Productos.length > 0) {
+        boleto.Productos.forEach((producto) => {
+            const tr = document.createElement("tr")
+
+            // Calcular subtotal del producto
+            const precio = producto.precio || 0
+            const cantidad = producto.cantidad || 1
+            const subtotalProducto = precio * cantidad
+            total += subtotalProducto
+
+            tr.innerHTML = `
+        <td class="item-qty">${cantidad}</td>
+        <td class="item-name">${producto.nombre || producto.name || "Producto"}</td>
+        <td class="item-price">$${precio.toFixed(2)}</td>
+        <td class="item-total">$${subtotalProducto.toFixed(2)}</td>
+      `
+
+            ticketItemsBody.appendChild(tr)
+        })
+    } else {
+        ticketItemsBody.innerHTML = `
+      <tr class="empty-ticket">
+        <td colspan="4" class="empty-message">No hay productos en este apartado</td>
+      </tr>
+    `
+    }
+
+    // Obtener el contenedor de totales
+    const ticketTotals = document.querySelector("#ticket-preview-apartado .ticket-totals")
+
+    // Limpiar totales existentes
+    ticketTotals.innerHTML = ""
+
+    // Agregar subtotal
+    const subtotalElement = document.createElement("div")
+    subtotalElement.className = "total-line"
+    subtotalElement.innerHTML = `
+    <span class="total-label">Subtotal:</span>
+    <span class="total-value" id="ticket-subtotal-apartado">$${total.toFixed(2)}</span>
+  `
+    ticketTotals.appendChild(subtotalElement)
+
+    // Agregar total final
+    const totalElement = document.createElement("div")
+    totalElement.className = "total-line total-final"
+    totalElement.innerHTML = `
+    <span class="total-label">TOTAL:</span>
+    <span class="total-value" id="ticket-total-apartado">$${total.toFixed(2)}</span>
+  `
+    ticketTotals.appendChild(totalElement)
+
+    // Actualizar información de pago
+    const paymentInfo = document.querySelector("#ticket-preview-apartado .payment-info")
+
+    // Limpiar información de pago existente
+    paymentInfo.innerHTML = ""
+
+    // Agregar cliente y método de entrega
+    paymentInfo.innerHTML += `
+    <p><strong>Cliente:</strong> <span id="ticket-cliente-apartado">${nombreCliente}</span></p>
+    <p><strong>Método de entrega:</strong> <span id="ticket-entrega-apartado">${metodoEntrega}</span></p>
+  `
 }
 
 // Exportar funciones para uso en HTML
