@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Boletos - Toy Garage</title>
+    <title>Gestión de apartados en línea - Toy Garage</title>
     <link rel="stylesheet" href="css/menu1.css">
     <link rel="stylesheet" href="css/boletos.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,7 +19,7 @@
                 </div>
                 <div class="logo-text">
                     <h1>Toy Garage</h1>
-                    <h2>Collector's Corner - Gestión de Boletos</h2>
+                    <h2>Collector's Corner - Gestión de apartados en línea </h2>
                 </div>
             </div>
 
@@ -39,7 +39,7 @@
             <ul>
                 <li><a href="menu1.html"><i class="fas fa-home"></i> Inicio</a></li>
                 <li><a href="usuarios.html"><i class="fas fa-users"></i> Usuarios</a></li>
-                <li><a href="boletos.html" class="active"><i class="fas fa-ticket-alt"></i> Boletos</a></li>
+                <li><a href="boletos.html" class="active"><i class="fas fa-ticket-alt"></i> Apartado en línea</a></li>
                 <li><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
             </ul>
         </nav>
@@ -48,7 +48,7 @@
     <main>
         <div class="boletos-container">
             <div class="boletos-header">
-                <h1 class="page-title">Gestión de Boletos</h1>
+                <h1 class="page-title">Gestión de apartados en línea</h1>
                 <div class="boletos-actions">
                     <div class="search-bar">
                         <input type="text" id="searchBoleto" placeholder="Buscar por ID o nombre...">
@@ -69,7 +69,7 @@
                 <!-- Los boletos se cargarán dinámicamente aquí -->
                 <div class="loading-spinner">
                     <i class="fas fa-spinner fa-spin"></i>
-                    <p>Cargando boletos...</p>
+                    <p>Cargando apartados...</p>
                 </div>
             </div>
 
@@ -105,10 +105,10 @@
     <div id="eliminarBoletoModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h3>Eliminar Boleto</h3>
-            <p>¿Estás seguro de que deseas eliminar este boleto? Esta acción no se puede deshacer.</p>
+            <h3>Eliminar Apartado</h3>
+            <p>¿Estás seguro de que deseas eliminar este apartado en línea? Esta acción no se puede deshacer.</p>
             <div class="boleto-info">
-                <p><strong>ID del Boleto:</strong> <span id="eliminarBoletoId"></span></p>
+                <p><strong>Token:</strong> <span id="eliminarBoletoId"></span></p>
                 <p><strong>Cliente:</strong> <span id="eliminarBoletoCliente"></span></p>
             </div>
             <div class="form-actions">
@@ -123,9 +123,9 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3>Completar Compra</h3>
-            <p>¿Confirmas que el cliente ha completado la compra de los productos en este boleto?</p>
+            <p>¿Confirmas que el cliente ha completado la compra de los productos en este apartado?</p>
             <div class="boleto-info">
-                <p><strong>ID del Boleto:</strong> <span id="completarCompraId"></span></p>
+                <p><strong>Token:</strong> <span id="completarCompraId"></span></p>
                 <p><strong>Cliente:</strong> <span id="completarCompraCliente"></span></p>
                 <p><strong>Total:</strong> $<span id="completarCompraTotal"></span></p>
             </div>
