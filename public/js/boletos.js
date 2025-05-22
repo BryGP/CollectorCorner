@@ -1,14 +1,20 @@
-// js/boletos.js - Gestión de boletos para administradores (versión corregida)
+// js/boletos.js - Gestión de boletos para administradores (versión optimizada)
 
-// Importaciones corregidas
+// Importaciones
 import { db, collection, getDocs, doc, updateDoc, deleteDoc, Timestamp } from "../catalog/js/firebase-config.js"
 import { displayUserInfo } from "./login.js"
 import { checkAdminAccess, logout } from "./auth-check.js"
 
 // Variable global para almacenar todos los boletos
 let allBoletos = []
+// Variable para controlar si ya se ha inicializado la página
+let initialized = false
 
 document.addEventListener("DOMContentLoaded", async () => {
+    // Evitar inicializaciones múltiples
+    if (initialized) return
+    initialized = true
+
     console.log("Cargando página de gestión de boletos...")
     console.log("currentUser:", sessionStorage.getItem("currentUser"))
 
@@ -26,6 +32,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         const isAdmin = await checkAdminAccess()
         if (!isAdmin) {
             console.warn("Usuario sin permisos de administrador")
+            document.body.innerHTML = `
+                <div style="text-align: center; padding: 50px; color: #721c24; background-color: #f8d7da; border-radius: 5px; margin: 50px auto; max-width: 500px;">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Acceso Denegado</h2>
+                    <p>No tienes permisos para acceder a esta sección.</p>
+                    <a href="menu1.html" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px;">Volver al Inicio</a>
+                </div>
+            `
             return
         }
 
@@ -70,6 +83,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                         <p>Cargando boletos...</p>
                     </div>
                 `
+
+                // Verificar que db esté definido
+                if (!db) {
+                    throw new Error("La conexión a Firebase no está disponible")
+                }
 
                 // Obtener referencia a la colección Boleto
                 console.log("Obteniendo referencia a la colección Boleto")
@@ -166,6 +184,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             try {
                 console.log("Iniciando limpieza de boletos caducados...")
 
+                // Verificar que db esté definido
+                if (!db) {
+                    throw new Error("La conexión a Firebase no está disponible")
+                }
+
                 // Obtener todos los boletos
                 const boletosRef = collection(db, "Boleto")
                 const boletosSnapshot = await getDocs(boletosRef)
@@ -205,7 +228,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         const hoursAfterExpiration = (now.getTime() - fechaExpiracion.getTime()) / (1000 * 60 * 60)
 
                         // Si han pasado más de 24 horas desde la expiración, eliminar el boleto
-                        if (hoursAfterExpiration > 24) {
+                        if (hoursAfterExpiration > 24 && data.estado === "pendiente") {
                             console.log(
                                 `Eliminando boleto caducado ${data.ID_BOLETO || boletoDoc.id} (caducó hace ${Math.floor(hoursAfterExpiration)} horas)`,
                             )
@@ -313,7 +336,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 <span>$${typeof boleto.total === "number" ? boleto.total.toFixed(2) : boleto.total}</span>
                             </div>
                             <div class="boleto-actions">
-                                <button class="btn-completar" data-id="${boleto.id}" ${boleto.estado !== "pendiente" ? "disabled" : ""}>
+                                <button class="btn-completar" data-id="${boleto.id}" ${boleto.estado === "completado" || estadoClase === "expirado" ? "disabled" : ""}>
                                     <i class="fas fa-check"></i> Completar
                                 </button>
                                 <button class="btn-cambiar-fecha" data-id="${boleto.id}" ${boleto.estado !== "pendiente" ? "disabled" : ""}>
@@ -331,8 +354,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                     const cambiarFechaBtn = boletoElement.querySelector(".btn-cambiar-fecha")
                     const eliminarBtn = boletoElement.querySelector(".btn-eliminar")
 
-                    if (completarBtn && !completarBtn.disabled) {
-                        completarBtn.addEventListener("click", () => mostrarCompletarCompra(boleto))
+                    if (completarBtn) {
+                        if (!completarBtn.disabled) {
+                            completarBtn.addEventListener("click", () => {
+                                console.log("Botón completar clickeado para boleto:", boleto.id)
+                                mostrarCompletarCompra(boleto)
+                            })
+                        } else {
+                            console.log("Botón completar deshabilitado para boleto:", boleto.id)
+                        }
                     }
 
                     if (cambiarFechaBtn && !cambiarFechaBtn.disabled) {
@@ -389,10 +419,24 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const matchesSearch =
                     !searchTerm ||
                     boleto.boletoId.toLowerCase().includes(searchTerm) ||
-                    boleto.nombre.toLowerCase().includes(searchTerm)
+                    boleto.nombre.toLowerCase().includes(searchTerm) ||
+                    boleto.correo.toLowerCase().includes(searchTerm)
 
                 // Filtrar por estado
-                const matchesEstado = estadoFilter === "todos" || boleto.estado === estadoFilter
+                let matchesEstado = estadoFilter === "todos"
+
+                if (estadoFilter === "pendiente") {
+                    // Para pendientes, verificar si no está expirado
+                    const now = new Date()
+                    matchesEstado = boleto.estado === "pendiente" && boleto.fechaExpiracion >= now
+                } else if (estadoFilter === "expirado") {
+                    // Para expirados, verificar si está expirado pero sigue en estado pendiente
+                    const now = new Date()
+                    matchesEstado = boleto.estado === "pendiente" && boleto.fechaExpiracion < now
+                } else if (estadoFilter !== "todos") {
+                    // Para otros estados (completado, cancelado)
+                    matchesEstado = boleto.estado === estadoFilter
+                }
 
                 return matchesSearch && matchesEstado
             })
@@ -452,6 +496,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // Guardar referencia al boleto para la acción de eliminar
             eliminarBoletoModal.dataset.boletoId = boleto.id
+            eliminarBoletoModal.dataset.boletoEmail = boleto.correo
+            eliminarBoletoModal.dataset.boletoNombre = boleto.nombre
 
             // Mostrar el modal
             eliminarBoletoModal.style.display = "block"
@@ -466,6 +512,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // Guardar referencia al boleto para la acción de completar
             completarCompraModal.dataset.boletoId = boleto.id
+            completarCompraModal.dataset.boletoEmail = boleto.correo
+            completarCompraModal.dataset.boletoNombre = boleto.nombre
 
             // Mostrar el modal
             completarCompraModal.style.display = "block"
@@ -487,11 +535,41 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const nuevaFecha = new Date(nuevaFechaStr)
                 console.log("Nueva fecha seleccionada:", nuevaFecha)
 
+                // Verificar que la fecha sea válida
+                if (isNaN(nuevaFecha.getTime())) {
+                    throw new Error("La fecha seleccionada no es válida")
+                }
+
+                // Verificar que la fecha sea futura
+                const now = new Date()
+                if (nuevaFecha <= now) {
+                    throw new Error("La fecha debe ser posterior a la fecha actual")
+                }
+
                 // Actualizar en Firestore
                 const boletoRef = doc(db, "Boleto", boletoId)
                 await updateDoc(boletoRef, {
                     EXPIRACION: Timestamp.fromDate(nuevaFecha),
                 })
+
+                // Obtener información del boleto para el correo
+                const boleto = allBoletos.find((b) => b.id === boletoId)
+                if (boleto && boleto.correo) {
+                    // Enviar correo de notificación
+                    try {
+                        await enviarCorreoActualizacion(
+                            boleto.correo,
+                            boleto.nombre,
+                            boleto.boletoId,
+                            formatDate(nuevaFecha),
+                            "fecha_actualizada",
+                        )
+                        console.log("Correo de actualización de fecha enviado correctamente")
+                    } catch (emailError) {
+                        console.error("Error al enviar correo de actualización:", emailError)
+                        // No interrumpir el flujo si falla el envío de correo
+                    }
+                }
 
                 // Cerrar modal
                 cambiarFechaModal.style.display = "none"
@@ -502,13 +580,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                 alert("Fecha de expiración actualizada correctamente.")
             } catch (error) {
                 console.error("Error al cambiar la fecha:", error)
-                alert("Error al cambiar la fecha. Por favor, intenta de nuevo.")
+                alert("Error al cambiar la fecha: " + error.message)
             }
         }
 
         // Eliminar boleto
         async function eliminarBoleto() {
             const boletoId = eliminarBoletoModal.dataset.boletoId
+            const email = eliminarBoletoModal.dataset.boletoEmail
+            const nombre = eliminarBoletoModal.dataset.boletoNombre
 
             if (!boletoId) {
                 alert("Error: No se pudo identificar el boleto a eliminar.")
@@ -519,6 +599,23 @@ document.addEventListener("DOMContentLoaded", async () => {
                 // Eliminar de Firestore
                 const boletoRef = doc(db, "Boleto", boletoId)
                 await deleteDoc(boletoRef)
+
+                // Enviar correo de notificación
+                if (email && nombre) {
+                    try {
+                        await enviarCorreoActualizacion(
+                            email,
+                            nombre,
+                            document.getElementById("eliminarBoletoId").textContent,
+                            "",
+                            "boleto_cancelado",
+                        )
+                        console.log("Correo de cancelación enviado correctamente")
+                    } catch (emailError) {
+                        console.error("Error al enviar correo de cancelación:", emailError)
+                        // No interrumpir el flujo si falla el envío de correo
+                    }
+                }
 
                 // Cerrar modal
                 eliminarBoletoModal.style.display = "none"
@@ -535,19 +632,41 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Completar compra
         async function completarCompra() {
-            const boletoId = completarCompraModal.dataset.boletoId
-
-            if (!boletoId) {
-                alert("Error: No se pudo identificar el boleto a completar.")
-                return
-            }
-
             try {
+                const boletoId = completarCompraModal.dataset.boletoId
+                const email = completarCompraModal.dataset.boletoEmail
+                const nombre = completarCompraModal.dataset.boletoNombre
+
+                if (!boletoId) {
+                    alert("Error: No se pudo identificar el boleto a completar.")
+                    return
+                }
+
+                console.log("Completando compra para boleto ID:", boletoId)
+
                 // Actualizar en Firestore
                 const boletoRef = doc(db, "Boleto", boletoId)
                 await updateDoc(boletoRef, {
                     estado: "completado",
                 })
+                console.log("Estado actualizado en Firestore")
+
+                // Enviar correo de notificación
+                if (email && nombre) {
+                    try {
+                        await enviarCorreoActualizacion(
+                            email,
+                            nombre,
+                            document.getElementById("completarCompraId").textContent,
+                            "",
+                            "compra_completada",
+                        )
+                        console.log("Correo de compra completada enviado correctamente")
+                    } catch (emailError) {
+                        console.error("Error al enviar correo de compra completada:", emailError)
+                        // No interrumpir el flujo si falla el envío de correo
+                    }
+                }
 
                 // Cerrar modal
                 completarCompraModal.style.display = "none"
@@ -558,7 +677,69 @@ document.addEventListener("DOMContentLoaded", async () => {
                 alert("Compra completada correctamente.")
             } catch (error) {
                 console.error("Error al completar la compra:", error)
-                alert("Error al completar la compra. Por favor, intenta de nuevo.")
+                alert("Error al completar la compra: " + error.message)
+            }
+        }
+
+        // Función para enviar correos de actualización
+        async function enviarCorreoActualizacion(email, nombre, boletoId, nuevaFecha, tipo) {
+            if (!email || !window.emailjs) {
+                console.error("No se puede enviar el correo: falta información o EmailJS no está disponible")
+                return false
+            }
+
+            try {
+                console.log(`Intentando enviar correo de tipo: ${tipo} a ${email}`)
+
+                // Parámetros básicos para todas las plantillas
+                const templateParams = {
+                    to_email: email,
+                    to_name: nombre,
+                    boleto_id: boletoId,
+                }
+
+                // Usar el ID de servicio correcto
+                const serviceId = "service_05onlwm"
+
+                // Determinar qué plantilla usar
+                let templateId = ""
+
+                switch (tipo) {
+                    case "fecha_actualizada":
+                        templateId = "template_imb5nbx" // Usar tu plantilla existente
+                        templateParams.fecha_expiracion = nuevaFecha
+                        templateParams.mensaje_adicional = "La fecha de expiración de tu apartado ha sido actualizada."
+                        break
+                    case "boleto_cancelado":
+                        templateId = "" // Usar tu plantilla existente
+                        templateParams.mensaje_adicional = "Tu apartado ha sido cancelado."
+                        break
+                    case "compra_completada":
+                        templateId = "" // Usar tu plantilla existente
+                        templateParams.mensaje_adicional = "¡Tu compra ha sido completada con éxito! Gracias por tu preferencia."
+                        break
+                    case "nuevo_apartado":
+                        templateId = "template_of9rwln" // Usar tu plantilla existente
+                        templateParams.mensaje_adicional =
+                            "¡Gracias por tu apartado! Presenta este código en tienda para recoger tus productos."
+                        break
+                    default:
+                        throw new Error("Tipo de correo no válido")
+                }
+
+                console.log("Enviando email con parámetros:", {
+                    serviceId,
+                    templateId,
+                    templateParams,
+                })
+
+                // Enviar el correo
+                const response = await emailjs.send(serviceId, templateId, templateParams)
+                console.log("Email enviado correctamente:", response)
+                return true
+            } catch (error) {
+                console.error("Error al enviar correo:", error)
+                return false
             }
         }
 
@@ -628,3 +809,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         alert("Se produjo un error al cargar la página. Consulta la consola para más detalles.")
     }
 })
+
+// Función para probar el envío de correo (puedes llamarla desde la consola)
+function probarEnvioCorreo() {
+    const email = prompt("Ingresa tu correo para la prueba:")
+    if (!email) return
+
+    enviarCorreoActualizacion(email, "Usuario de Prueba", "TEST-123", "22/05/2025, 11:14 a.m.", "nuevo_apartado").then(
+        (success) => {
+            if (success) {
+                alert("Correo de prueba enviado correctamente. Revisa tu bandeja de entrada.")
+            } else {
+                alert("Error al enviar correo de prueba. Revisa la consola para más detalles.")
+            }
+        },
+    )
+}
+
+// Añadir esta función al objeto window para poder llamarla desde la consola
+window.probarEnvioCorreo = probarEnvioCorreo

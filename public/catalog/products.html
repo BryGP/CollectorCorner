@@ -33,7 +33,7 @@
                     <span class="cart-count">0</span>
                 </a>
                 <a href="#" class="option-button">
-                    <i class="fas fa-ticket-alt"></i> ¿Perdiste tu ticket?
+                    <i class="fas fa-ticket-alt"></i> ¿Perdiste tu token?
                 </a>
             </div>
 
@@ -52,22 +52,7 @@
                 <div class="filter-section">
                     <h4>Marca</h4>
                     <div class="filter-options">
-                        <!-- Las marcas se cargarán dinámicamente desde Firebase -->
-                        <label><input type="checkbox" name="brand" value="hotwheels"> Hot Wheels</label>
-                        <label><input type="checkbox" name="brand" value="matchbox"> Matchbox</label>
-                        <label><input type="checkbox" name="brand" value="tomica"> Tomica</label>
-                        <label><input type="checkbox" name="brand" value="majorette"> Majorette</label>
-                        <label><input type="checkbox" name="brand" value="greenlight"> Greenlight</label>
-                    </div>
-                </div>
-
-                <div class="filter-section">
-                    <h4>Descuento</h4>
-                    <div class="filter-options">
-                        <label><input type="checkbox" name="discount" value="10"> 10% o más</label>
-                        <label><input type="checkbox" name="discount" value="20"> 20% o más</label>
-                        <label><input type="checkbox" name="discount" value="30"> 30% o más</label>
-                        <label><input type="checkbox" name="discount" value="50"> 50% o más</label>
+                        <!-- Las marcas se cargarán dinámicamente desde JavaScript -->
                     </div>
                 </div>
 
@@ -123,7 +108,7 @@
             </div>
             <div class="cart-buttons">
                 <button id="edit-cart" class="cart-button edit">Editar</button>
-                <button id="checkout" class="cart-button checkout">Generar boleto</button>
+                <button id="checkout" class="cart-button checkout">Generar apartado</button>
             </div>
         </div>
     </div>
@@ -146,7 +131,7 @@
             <button id="close-lost-ticket" class="close-lightbox"><i class="fas fa-times"></i></button>
             <div class="lost-ticket-form">
                 <h2>Opciones de compra</h2>
-                <p>Ingresa los datos de tu boleto para recuperarlo, aplazar la fecha o cancelarlo:</p>
+                <p>Ingresa los datos de tu apartado para recuperarlo, aplazar la fecha o cancelarlo:</p>
 
                 <form id="recover-ticket-form">
                     <div class="form-group">
@@ -177,12 +162,11 @@
                     <div id="order-success" class="success-message" style="display: none;"></div>
 
                     <div class="form-actions">
-                        <button type="button" id="recover-button" class="form-button">Recuperar boleto</button>
+                        <button type="button" id="recover-button" class="form-button">Recuperar apartado</button>
                         <button type="button" id="extend-order-button" class="form-button form-button-blue">Aplazar
-                            fecha</button> class="form-button form-button-blue">Aplazar
-                        fecha</button>
+                            fecha</button>
                         <button type="button" id="cancel-order-button" class="form-button form-button-red">Cancelar
-                            ticket</button>
+                            apartado</button>
                     </div>
                 </form>
             </div>
@@ -228,7 +212,7 @@
 
                         <div class="form-actions">
                             <button type="submit" id="generate-ticket" class="form-button" disabled>Generar
-                                boleto</button>
+                                apartado</button>
                         </div>
                     </form>
                 </div>
@@ -236,21 +220,21 @@
         </div>
     </div>
 
-    <!-- Lightbox para confirmación de boleto -->
+    <!-- Lightbox para confirmación de apartad en linea -->
     <div id="ticket-confirmation-lightbox" class="lightbox">
         <div class="lightbox-content">
             <div class="ticket-confirmation">
                 <i class="fas fa-check-circle confirmation-icon"></i>
-                <h2>¡Boleto generado correctamente!</h2>
-                <p>Se ha enviado una copia a tu correo electrónico y número de celular.</p>
-                <p>Tu boleto tiene una validez de 48 horas a partir de este momento.</p>
+                <h2>¡apartado generado correctamente!</h2>
+                <p>Se ha enviado una copia a tu correo electrónico </p>
+                <p>Tu apartado tiene una validez de 48 horas a partir de este momento.</p>
                 <div class="ticket-id">
-                    <span>ID de tu boleto:</span>
+                    <span>Tu token es:</span>
                     <span id="generated-ticket-id">ABC123456</span>
                 </div>
                 <div class="ticket-warning">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <p><strong>IMPORTANTE:</strong> Guarda este ID de boleto. Lo necesitarás en caso de pérdida para
+                    <p><strong>IMPORTANTE:</strong> Guarda este ID de tu token. Lo necesitarás en caso de pérdida para
                         solicitar un reenvío.</p>
                 </div>
                 <button id="close-confirmation" class="form-button">Finalizar</button>

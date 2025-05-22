@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Editar Carrito - Toy Garage - Collector's Corner</title>
+    <title>Editar Carrito - Toy Garage - RTIS</title>
     <link rel="stylesheet" href="./css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -13,7 +13,7 @@
     <header>
         <div class="logo-container">
             <h1>Toy Garage</h1>
-            <p>Collector's Corner</p>
+            <p>RTIS</p>
         </div>
         <nav>
             <ul>
@@ -42,7 +42,7 @@
         </div>
 
         <button id="order-button" class="order-button">
-            <i class="fas fa-ticket-alt"></i> Generar Boleto
+            <i class="fas fa-ticket-alt"></i> Generar apartado
         </button>
     </main>
 
@@ -88,7 +88,7 @@
 
                         <div class="form-actions">
                             <button type="submit" id="generate-ticket" class="form-button" disabled>Generar
-                                boleto</button>
+                                apartado</button>
                         </div>
                     </form>
                 </div>
@@ -96,21 +96,21 @@
         </div>
     </div>
 
-    <!-- Lightbox para confirmación de boleto -->
+    <!-- Lightbox para confirmación de apartado -->
     <div id="ticket-confirmation-lightbox" class="lightbox">
         <div class="lightbox-content">
             <div class="ticket-confirmation">
                 <i class="fas fa-check-circle confirmation-icon"></i>
-                <h2>¡Boleto generado correctamente!</h2>
+                <h2>¡apartado generado correctamente!</h2>
                 <p>Se ha enviado una copia a tu correo electrónico y número de celular.</p>
-                <p>Tu boleto tiene una validez de 48 horas a partir de este momento.</p>
+                <p>Tu apartado tiene una validez de 48 horas a partir de este momento.</p>
                 <div class="ticket-id">
-                    <span>ID de tu boleto:</span>
+                    <span>Tu token es:</span>
                     <span id="generated-ticket-id">ABC123456</span>
                 </div>
                 <div class="ticket-warning">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <p><strong>IMPORTANTE:</strong> Guarda este ID de boleto. Lo necesitarás en caso de pérdida para
+                    <p><strong>IMPORTANTE:</strong> Guarda este token. Lo necesitarás en caso de pérdida para
                         solicitar un reenvío.</p>
                 </div>
                 <button id="close-confirmation" class="form-button">Finalizar</button>
@@ -118,16 +118,16 @@
         </div>
     </div>
 
-    <!-- Contenedor para el boleto generado -->
+    <!-- Contenedor para el token generado -->
     <div id="ticket-container" class="ticket-container" style="display: none;">
         <div class="ticket-header">
-            <h3>Boleto de Compra</h3>
-            <p>Collector's Corner - Toy Garage</p>
+            <h3>Apartado en línea</h3>
+            <p>RTIS - Toy Garage</p>
         </div>
 
         <div class="ticket-info">
             <div class="ticket-info-item">
-                <span class="ticket-info-label">ID de Boleto:</span>
+                <span class="ticket-info-label">Tu token es:</span>
                 <span id="ticket-id" class="ticket-info-value">TKT12345678</span>
             </div>
             <div class="ticket-info-item">
@@ -169,12 +169,12 @@
         </div>
 
         <div class="ticket-footer">
-            <p>Este boleto tiene una validez de 48 horas a partir de la fecha de emisión.</p>
+            <p>Este apartado tiene una validez de 48 horas a partir de la fecha de emisión.</p>
             <p>Para cualquier duda o aclaración, comunícate al (442) 123-4567.</p>
         </div>
     </div>
 
-    <!-- Formulario simple de boleto (se creará dinámicamente) -->
+    <!-- Formulario simple de apartado (se creará dinámicamente) -->
     <!-- Este es un ejemplo de la estructura que se creará con JavaScript -->
     <!--
     <div class="simple-ticket-container">
@@ -290,7 +290,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2025 Toy Garage - Collector's Corner. Todos los derechos reservados.</p>
+            <p>&copy; 2025 RTI. Todos los derechos reservados.</p>
         </div>
     </footer>
 
