@@ -9,6 +9,7 @@ import {
     updateDoc,
     getDoc,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
+import { uploadImage, optimizeImage } from "./firebase-storage.js"
 
 // Variables para paginación
 let currentProductPage = 1
@@ -55,6 +56,81 @@ async function loadProductos() {
     } catch (error) {
         console.error("Error al cargar productos:", error)
         showErrorMessage("Error al cargar productos. Por favor, recarga la página.")
+    }
+}
+
+// Variable para almacenar la imagen seleccionada
+let selectedImageFile = null
+let selectedImageURL = null
+
+// Función para manejar la carga de imágenes
+function setupImageUpload() {
+    const uploadBtn = document.getElementById("uploadImageBtn")
+    const fileInput = document.getElementById("productoImagen")
+    const previewImg = document.getElementById("previewImg")
+
+    if (!uploadBtn || !fileInput || !previewImg) return
+
+    // Evento para el botón de carga
+    uploadBtn.addEventListener("click", () => {
+        fileInput.click()
+    })
+
+    // Evento para cuando se selecciona un archivo
+    fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+
+        // Verificar el tipo de archivo
+        if (!file.type.match("image/jpeg") && !file.type.match("image/png") && !file.type.match("image/webp")) {
+            alert("Por favor selecciona una imagen en formato JPG, PNG o WebP")
+            return
+        }
+
+        // Verificar el tamaño del archivo (1MB = 1048576 bytes)
+        if (file.size > 1048576) {
+            alert("La imagen es demasiado grande. El tamaño máximo es 1MB.")
+            return
+        }
+
+        // Guardar la referencia al archivo
+        selectedImageFile = file
+
+        // Mostrar vista previa
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            selectedImageURL = event.target.result
+            previewImg.src = selectedImageURL
+        }
+        reader.readAsDataURL(file)
+        console.log("Archivo listo para subir:", {
+            name: file.name,
+            type: file.type,
+            size: file.size + " bytes"
+        })
+
+    })
+}
+
+// Función para subir la imagen a Firebase Storage
+async function uploadImageToStorage(file, productId) {
+    if (!file) return null
+
+    try {
+        // Optimizar la imagen antes de subirla
+        const optimizedFile = await optimizeImage(file, 800, 0.8)
+
+        // Definir nombre del archivo
+        const storagePath = `productos/${productId || Date.now()}-${file.name}`
+
+        // Subir y obtener la URL de descarga
+        const downloadURL = await uploadImage(optimizedFile, storagePath)
+
+        console.log("Imagen subida correctamente:", downloadURL)
+        return downloadURL
+    } catch (error) {
+        console.error("Error al subir imagen optimizada:", error)
+        return null
     }
 }
 
@@ -336,6 +412,21 @@ async function editProducto(productoId) {
             document.getElementById("productoMarca").value = productoData.marca || ""
             document.getElementById("productoCantidad").value = productoData.stock || ""
 
+            // Cargar imagen si existe
+            const previewImg = document.getElementById("previewImg")
+            if (productoData.imagen && previewImg) {
+                previewImg.src = productoData.imagen
+                selectedImageURL = productoData.imagen
+            } else if (previewImg) {
+                previewImg.src = "https://placehold.co/200x200/e2e8f0/1e293b?text=Sin+Imagen"
+                selectedImageURL = null
+            }
+
+            // Resetear el input de archivo
+            const fileInput = document.getElementById("productoImagen")
+            if (fileInput) fileInput.value = ""
+            selectedImageFile = null
+
             // Abrir el modal
             openProductoModal()
         } else {
@@ -344,20 +435,6 @@ async function editProducto(productoId) {
     } catch (error) {
         console.error("Error al editar producto:", error)
         alert("Error al cargar datos del producto. Intenta de nuevo.")
-    }
-}
-
-// Función para eliminar producto
-async function deleteProducto(productoId) {
-    if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
-        try {
-            await deleteDoc(doc(db, "Productos", productoId))
-            alert("Producto eliminado exitosamente")
-            await loadProductos()
-        } catch (error) {
-            console.error("Error al eliminar producto:", error)
-            alert("Error al eliminar producto. Intenta de nuevo.")
-        }
     }
 }
 
@@ -390,6 +467,23 @@ async function saveProducto(event) {
                 }
             }
 
+            // Subir imagen si hay una seleccionada
+            let imageUrl = null
+            if (selectedImageFile) {
+                // Mostrar indicador de carga
+                const saveButton = document.querySelector("#productoForm button[type='submit']")
+                const originalText = saveButton.textContent
+                saveButton.textContent = "Subiendo imagen..."
+                saveButton.disabled = true
+
+                // Subir imagen
+                imageUrl = await uploadImageToStorage(selectedImageFile, productoId || "nuevo")
+
+                // Restaurar botón
+                saveButton.textContent = originalText
+                saveButton.disabled = false
+            }
+
             // Crear un objeto con todos los campos
             const productoData = {
                 codigo: codigo,
@@ -399,6 +493,11 @@ async function saveProducto(event) {
                 categoria: categoria,
                 marca: marca,
                 stock: stock,
+            }
+
+            // Agregar URL de imagen solo si hay una
+            if (imageUrl) {
+                productoData.imagen = imageUrl
             }
 
             console.log("Guardando producto con datos:", productoData) // Log para depuración
@@ -413,6 +512,10 @@ async function saveProducto(event) {
                 await addDoc(collection(db, "Productos"), productoData)
                 alert("Producto agregado exitosamente")
             }
+
+            // Limpiar la imagen seleccionada
+            selectedImageFile = null
+            selectedImageURL = null
 
             closeProductoModal()
             await loadProductos()
@@ -784,6 +887,14 @@ function closeProductoModal() {
     productoModal.style.display = "none"
     document.getElementById("productoForm").reset()
     document.getElementById("productoId").value = "" // Limpiar ID oculto
+
+    // Resetear la imagen
+    const previewImg = document.getElementById("previewImg")
+    if (previewImg) {
+        previewImg.src = "https://placehold.co/200x200/e2e8f0/1e293b?text=Sin+Imagen"
+    }
+    selectedImageFile = null
+    selectedImageURL = null
 }
 
 closeBtn.addEventListener("click", closeProductoModal)
@@ -895,6 +1006,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Cargar productos y categorías
     loadProductos()
     loadCategorias()
+
+    // Configurar carga de imágenes
+    setupImageUpload()
 
     // Configurar event listeners para búsqueda y filtrado
     document.getElementById("searchProducto").addEventListener("input", filterProductos)

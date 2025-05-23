@@ -371,6 +371,71 @@ body {
     background-color: var(--accent-color);
 }
 
+/* ======== ESTILOS PARA CARGA DE IMÁGENES ======== */
+.product-modal-content {
+    max-height: 80vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.image-upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    border: 1px dashed #ccc;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.image-preview {
+    width: 200px;
+    height: 200px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.upload-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+}
+
+.upload-btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 14px;
+}
+
+.upload-btn:hover {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+}
+
+.upload-controls small {
+    color: #666;
+    font-size: 12px;
+}
+
 /* ======== RESPONSIVE ======== */
 @media (max-width: 1024px) {
     .inventory-container {

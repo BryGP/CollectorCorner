@@ -320,7 +320,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Función para cargar marcas específicas según la categoría
   function loadBrandsFromProducts() {
-    console.log("Cargando marcas específicas para la categoría:", currentCategory)
+    console.log("Cargando marcas desde la base de datos para la categoría:", currentCategory)
     try {
       // Obtener el contenedor de filtros de marca
       const brandFilterOptions = document.querySelector(".filter-section:nth-child(2) .filter-options")
@@ -333,79 +333,49 @@ document.addEventListener("DOMContentLoaded", () => {
       // Limpiar el contenedor
       brandFilterOptions.innerHTML = ""
 
-      // Definir marcas específicas para cada categoría
-      let categoryBrands = []
+      // Extraer marcas únicas de los productos cargados
+      let uniqueBrands = []
 
-      if (currentCategory === "Coleccionable") {
-        categoryBrands = ["Hot Wheels", "Matchbox", "Mini GT", "Jada Toys"]
-        console.log("Cargando marcas para Carros Coleccionables")
-      } else if (currentCategory === "DulceAmericano") {
-        categoryBrands = [
-          "Jolly Rancher",
-          "Skittles",
-          "Reese's",
-          "M&M's",
-          "Hershey's Kisses",
-          "Sour Patch Kids",
-          "Twizzlers",
-          "Mr Beast Candy",
-        ]
-        console.log("Cargando marcas para Dulces Americanos")
-      } else if (currentCategory === "Accesorios") {
-        categoryBrands = ["IKEA Detolf", "Gabinetes de exhibición", "Estanterías modulares"]
-        console.log("Cargando marcas para Accesorios")
-      } else if (currentCategory === "Otros") {
-        categoryBrands = [
-          "Funko Pop!",
-          "Labubu",
-          "Posters de videojuegos",
-          "Organizadores de acrílico",
-          "Estantes y soportes",
-        ]
-        console.log("Cargando marcas para Otros productos")
+      // Si hay productos cargados, extraer las marcas únicas
+      if (products && products.length > 0) {
+        // Filtrar productos por categoría si es necesario
+        let productsToFilter = products
+        if (currentCategory && currentCategory !== "All") {
+          const firestoreCategory = categoryMap[currentCategory] || currentCategory
+          productsToFilter = products.filter(product =>
+            product.tipo === firestoreCategory || product.categoria === firestoreCategory
+          )
+        }
+
+        // Extraer marcas únicas
+        uniqueBrands = [...new Set(productsToFilter.map(product => product.brand))]
+          .filter(brand => brand && brand !== "Marca no especificada")
+          .sort()
+
+        console.log("Marcas únicas encontradas en la base de datos:", uniqueBrands)
       } else {
-        // Para "All" o sin categoría, mostrar todas las marcas
-        categoryBrands = [
-          // Carritos
-          "Hot Wheels",
-          "Matchbox",
-          "Mini GT",
-          "Jada Toys",
-          // Dulces
-          "Jolly Rancher",
-          "Skittles",
-          "Reese's",
-          "M&M's",
-          "Hershey's Kisses",
-          "Sour Patch Kids",
-          "Twizzlers",
-          "Mr Beast Candy",
-          // Accesorios
-          "IKEA Detolf",
-          "Gabinetes de exhibición",
-          "Estanterías modulares",
-          // Otros
-          "Funko Pop!",
-          "Labubu",
-          "Posters de videojuegos",
-          "Organizadores de acrílico",
-          "Estantes y soportes",
-        ]
-        console.log("Cargando todas las marcas (categoría All o sin categoría)")
+        console.log("No hay productos cargados para extraer marcas")
       }
 
-      console.log("Marcas a mostrar:", categoryBrands)
+      // Si no se encontraron marcas, mostrar mensaje
+      if (uniqueBrands.length === 0) {
+        const noMarksMessage = document.createElement("p")
+        noMarksMessage.textContent = "No hay marcas disponibles para esta categoría"
+        noMarksMessage.className = "no-brands-message"
+        brandFilterOptions.appendChild(noMarksMessage)
+        return
+      }
 
       // Agregar cada marca como un checkbox
-      categoryBrands.forEach((brand) => {
+      uniqueBrands.forEach((brand) => {
         const label = document.createElement("label")
         label.innerHTML = `<input type="checkbox" name="brand" value="${brand}"> ${brand}`
         brandFilterOptions.appendChild(label)
       })
 
-      console.log("Marcas cargadas correctamente para la categoría:", currentCategory)
+      console.log("Marcas cargadas correctamente desde la base de datos:", uniqueBrands.length)
     } catch (error) {
-      console.error("Error al cargar marcas:", error)
+      console.error("Error al cargar marcas desde la base de datos:", error)
     }
   }
 
@@ -1188,31 +1158,82 @@ document.addEventListener("DOMContentLoaded", () => {
   const extendOrderButton = document.getElementById("extend-order-button")
   const cancelOrderButton = document.getElementById("cancel-order-button")
 
+
+  // CÓDIGO NUEVO
   if (recoverButton) {
-    recoverButton.addEventListener("click", () => {
+    recoverButton.addEventListener("click", async () => {
       // Limpiar mensajes previos
       document.getElementById("order-error").style.display = "none"
       document.getElementById("order-success").style.display = "none"
-
-      const ticketId = document.getElementById("recover-id").value
-      const name = document.getElementById("recover-name").value
-      const email = document.getElementById("recover-email").value
-      const phone = document.getElementById("recover-phone").value
-
-      if (!ticketId || !name || !email || !phone) {
-        document.getElementById("recover-error").style.display = "block"
-        return
-      }
-
       document.getElementById("recover-error").style.display = "none"
-      document.getElementById("order-success").style.display = "block"
-      document.getElementById("order-success").textContent =
-        "Se ha enviado una copia de tu boleto al correo electrónico proporcionado."
 
-      // Eliminar el temporizador que cierra automáticamente el modal
-      // setTimeout(() => {
-      //   closeLostTicketModal()
-      // }, 3000)
+      const ticketId = document.getElementById("recover-id").value.trim()
+      const name = document.getElementById("recover-name").value.trim()
+      const email = document.getElementById("recover-email").value.trim()
+      const phone = document.getElementById("recover-phone").value.trim()
+
+      console.log("Datos del formulario:", { ticketId, name, email, phone })
+
+      // Validar que los campos obligatorios estén completos
+      if (!name || !email || !phone) {
+        console.log("Faltan campos obligatorios")
+        document.getElementById("recover-error").style.display = "block"
+        document.getElementById("recover-error").textContent = "Por favor, completa nombre, email y teléfono."
+        return
+      } else { document.getElementById("recover-error").textContent = " " }
+
+      try {
+        console.log("Iniciando búsqueda en la base de datos...")
+
+        // Buscar el boleto en Firestore
+        const boletosRef = collection(db, "Boleto")
+        let q;
+
+        // Si proporcionaron un ID, buscar por ID y nombre
+        if (ticketId) {
+          console.log("Buscando por ID y nombre...")
+          q = query(boletosRef, where("ID_BOLETO", "==", ticketId), where("Nombre", "==", name.toUpperCase()))
+        } else {
+          // Si no proporcionaron ID, buscar por nombre, email y teléfono
+          console.log("Buscando por nombre, email y teléfono...")
+          q = query(
+            boletosRef,
+            where("Nombre", "==", name.toUpperCase()),
+            where("CORREO_ELECTRONICO", "==", email),
+            where("TELEFONO", "==", phone)
+          )
+        }
+
+        const querySnapshot = await getDocs(q)
+        console.log("Resultados de la búsqueda:", querySnapshot.docs.length)
+
+        if (querySnapshot.empty) {
+          console.log("No se encontraron boletos")
+          document.getElementById("order-error").style.display = "block"
+          document.getElementById("order-error").textContent =
+            "No se encontró ningún boleto con los datos proporcionados."
+          return
+        }
+
+        // Obtener datos del boleto
+        const boletoDoc = querySnapshot.docs[0]
+        const boletoData = boletoDoc.data()
+        const foundTicketId = boletoData.ID_BOLETO
+
+        console.log("Boleto encontrado:", foundTicketId)
+
+        document.getElementById("order-error").style.display = "none"
+        document.getElementById("order-success").style.display = "block"
+        document.getElementById("order-success").innerHTML =
+          `Tu token ha sido recuperado exitosamente.<br><br>
+        <strong>ID de tu token:</strong> ${foundTicketId}<br>
+        <strong>Fecha de expiración:</strong> ${boletoData.EXPIRACION ? new Date(boletoData.EXPIRACION.seconds * 1000).toLocaleString() : 'No disponible'}`
+      } catch (error) {
+        console.error("Error al recuperar boleto:", error)
+        document.getElementById("order-error").style.display = "block"
+        document.getElementById("order-error").textContent =
+          "Ocurrió un error al procesar tu solicitud. Inténtalo de nuevo."
+      }
     })
   }
 
@@ -1904,3 +1925,127 @@ function addSaveTestTicketButton() {
 
 // Añadir el botón de prueba para crear boletos
 // addSaveTestTicketButton()
+
+
+//\`\`\`javascript
+//if (recoverButton) {
+//  recoverButton.addEventListener("click", async () => {
+//    // Limpiar mensajes previos
+//    document.getElementById("order-error").style.display = "none"
+//    document.getElementById("order-success").style.display = "none"
+//
+//    const ticketId = document.getElementById("recover-id").value
+//    const name = document.getElementById("recover-name").value
+//    const email = document.getElementById("recover-email").value
+//    const phone = document.getElementById("recover-phone").value
+//
+//    if (!ticketId || !name || !email || !phone) {
+//      document.getElementById("recover-error").style.display = "block"
+//      return
+//    }
+//
+//    try {
+//      // Buscar el boleto en Firestore
+//      const boletosRef = collection(db, "Boleto")
+//      const q = query(boletosRef, where("ID_BOLETO", "==", ticketId), where("Nombre", "==", name.toUpperCase()))
+//      const querySnapshot = await getDocs(q)
+//
+//      if (querySnapshot.empty) {
+//        document.getElementById("order-error").style.display = "block"
+//        document.getElementById("order-error").textContent =
+//          "No se encontró ningún boleto con los datos proporcionados."
+//        return
+//      }
+//
+//      // Obtener datos del boleto
+//      const boletoData = querySnapshot.docs[0].data()
+//
+//      // Enviar correo con resumen de compra
+///*        await sendOrderSummaryEmail(
+//        email,
+//        ticketId,
+//        name,
+//        boletoData.Productos || [],
+//        boletoData.Total || 0,
+//        boletoData.EXPIRACION ? boletoData.EXPIRACION.toDate() : new Date(),
+//      )*/
+//
+//      document.getElementById("order-error").style.display = "none"
+//      document.getElementById("order-success").style.display = "block"
+//      document.getElementById("order-success").textContent =
+//        "Tu tocken ha sido recuperado exitosamente."
+//    } catch (error) {
+//      console.error("Error al recuperar boleto:", error)
+//      document.getElementById("order-error").style.display = "block"
+//      document.getElementById("order-error").textContent =
+//        "Ocurrió un error al procesar tu solicitud. Inténtalo de nuevo."
+//    }
+//  })
+//}
+//\`\`\`
+
+//Este codigo fue descartado por que el cliente no pago :C
+
+//\`\`\`javascript
+if (recoverButton) {
+  recoverButton.addEventListener("click", async () => {
+    // Limpiar mensajes previos
+    document.getElementById("order-error").style.display = "none"
+    document.getElementById("order-success").style.display = "none"
+
+    const ticketId = document.getElementById("recover-id").value
+    const name = document.getElementById("recover-name").value
+    const email = document.getElementById("recover-email").value
+    const phone = document.getElementById("recover-phone").value
+
+    if (!name || !email || !phone) {
+      document.getElementById("recover-error").style.display = "block"
+      return
+    }
+
+    try {
+      // Buscar el boleto en Firestore
+      const boletosRef = collection(db, "Boleto")
+      let q;
+
+      // Si proporcionaron un ID, buscar por ID y nombre
+      if (ticketId) {
+        q = query(boletosRef, where("ID_BOLETO", "==", ticketId), where("Nombre", "==", name.toUpperCase()))
+      } else {
+        // Si no proporcionaron ID, buscar por nombre, email y teléfono
+        q = query(
+          boletosRef,
+          where("Nombre", "==", name.toUpperCase()),
+          where("CORREO_ELECTRONICO", "==", email),
+          where("TELEFONO", "==", phone)
+        )
+      }
+
+      const querySnapshot = await getDocs(q)
+
+      if (querySnapshot.empty) {
+        document.getElementById("order-error").style.display = "block"
+        document.getElementById("order-error").textContent =
+          "No se encontró ningún boleto con los datos proporcionados."
+        return
+      }
+
+      // Obtener datos del boleto
+      const boletoDoc = querySnapshot.docs[0]
+      const boletoData = boletoDoc.data()
+      const foundTicketId = boletoData.ID_BOLETO
+
+      document.getElementById("order-error").style.display = "none"
+      document.getElementById("order-success").style.display = "block"
+      document.getElementById("order-success").innerHTML =
+        `Tu token ha sido recuperado exitosamente.<br><br>
+        <strong>ID de tu token:</strong> ${foundTicketId}<br>
+        <strong>Fecha de expiración:</strong> ${boletoData.EXPIRACION ? new Date(boletoData.EXPIRACION.seconds * 1000).toLocaleString() : 'No disponible'}`
+    } catch (error) {
+      console.error("Error al recuperar boleto:", error)
+      document.getElementById("order-error").style.display = "block"
+      document.getElementById("order-error").textContent =
+        "Ocurrió un error al procesar tu solicitud. Inténtalo de nuevo."
+    }
+  })
+}
