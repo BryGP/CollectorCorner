@@ -1,0 +1,624 @@
+/*
+ * CSS Menú Principal - Toy Garage (Propuesta Alternativa 2)
+ * Estilo: Moderno y Minimalista
+ */
+
+/* ======== IMPORTACIÓN DE FUENTES ======== */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Racing+Sans+One&display=swap");
+
+/* ======== VARIABLES Y MIXINS ======== */
+:root {
+    --primary-red: #e61e25;
+    --primary-blue: #1e5799;
+    --accent-yellow: #fbce06;
+    --dark-gray: #333333;
+    --light-gray: #f5f5f5;
+    --white: #ffffff;
+    --black: #000000;
+    --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* ======== ANIMACIONES ======== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ======== ESTILOS GENERALES ======== */
+body {
+    font-family: "Montserrat", sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+}
+
+/* ======== HEADER ======== */
+header {
+    background-color: var(--white);
+    padding: 0;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-icon {
+    width: 50px;
+    height: 50px;
+    background-color: var(--primary-red);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 1.5em;
+    transition: var(--transition);
+}
+
+.logo:hover .logo-icon {
+    transform: rotate(15deg) scale(1.1);
+}
+
+.logo-text h1 {
+    font-family: "Racing Sans One", cursive;
+    margin: 0;
+    font-size: 1.8em;
+    color: var(--primary-red);
+    line-height: 1;
+}
+
+.logo-text h2 {
+    margin: 0;
+    font-size: 0.8em;
+    color: var(--dark-gray);
+    font-weight: 400;
+}
+
+/* ======== USER INFO ======== */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+}
+
+.user-details {
+    text-align: right;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.user-role {
+    font-size: 0.8em;
+    color: #777;
+}
+
+.logout-btn {
+    background-color: transparent;
+    border: 1px solid var(--primary-red);
+    color: var(--primary-red);
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    font-size: 0.8em;
+    transition: var(--transition);
+    margin-left: 10px;
+}
+
+.logout-btn:hover {
+    background-color: var(--primary-red);
+    color: var(--white);
+}
+
+/* ======== NAVBAR ======== */
+nav {
+    background-color: var(--white);
+    padding: 0 40px;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+nav li {
+    margin: 0;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--dark-gray);
+    font-weight: 600;
+    display: block;
+    padding: 15px 20px;
+    transition: var(--transition);
+    position: relative;
+    font-size: 0.9em;
+}
+
+nav a::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background-color: var(--primary-red);
+    transition: var(--transition);
+}
+
+nav a:hover {
+    color: var(--primary-red);
+}
+
+nav a:hover::after,
+nav a.active::after {
+    width: 100%;
+}
+
+nav a i {
+    margin-right: 8px;
+}
+
+/* ======== MAIN CONTENT ======== */
+main {
+    flex-grow: 1;
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.page-title {
+    font-family: "Racing Sans One", cursive;
+    font-size: 2.5em;
+    color: var(--primary-red);
+    margin-bottom: 30px;
+    position: relative;
+    display: inline-block;
+}
+
+.page-title::after {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 50px;
+    height: 4px;
+    background-color: var(--accent-yellow);
+}
+
+/* ======== DASHBOARD LAYOUT ======== */
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.dashboard-card {
+    background-color: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    text-decoration: none;
+    color: var(--dark-gray);
+    position: relative;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.6s ease-out backwards;
+}
+
+.dashboard-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.dashboard-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.dashboard-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    padding: 20px;
+    background-color: var(--primary-red);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dashboard-card:nth-child(2n) .card-header {
+    background-color: var(--primary-blue);
+}
+
+.dashboard-card:nth-child(3n) .card-header {
+    background-color: var(--accent-yellow);
+    color: var(--dark-gray);
+}
+
+.card-title {
+    font-weight: 800;
+    font-size: 1.2em;
+    margin: 0;
+}
+
+.card-icon {
+    font-size: 1.5em;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.dashboard-card:hover .card-icon {
+    transform: rotate(15deg);
+}
+
+.card-body {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-description {
+    margin: 0;
+    text-align: center;
+    font-size: 0.9em;
+    color: #777;
+}
+
+.card-action {
+    margin-top: 15px;
+    font-weight: 600;
+    color: var(--primary-red);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.card-action i {
+    font-size: 0.8em;
+    transition: var(--transition);
+}
+
+.dashboard-card:hover .card-action i {
+    transform: translateX(3px);
+}
+
+/* ======== FOOTER ======== */
+footer {
+    background-color: var(--dark-gray);
+    color: var(--white);
+    padding: 30px 40px;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-logo {
+    font-family: "Racing Sans One", cursive;
+    font-size: 1.5em;
+    color: var(--white);
+}
+
+.footer-text {
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 0.8em;
+    opacity: 0.7;
+    transition: var(--transition);
+}
+
+.footer-links a:hover {
+    opacity: 1;
+    color: var(--accent-yellow);
+}
+
+/* ======== Calendario ======== */
+
+#calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      max-width: 100%;
+      margin: 20px auto;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 40px 200px;
+    }
+
+    .day {
+      width: 100px; /* o el ancho que uses */
+      height: 100px; /* altura fija */
+      box-sizing: border-box;
+      overflow: hidden;
+      padding: 5px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      background-color: white;
+      position: relative;
+    }
+
+    .day-name {
+      font-weight: bold;
+      text-align: center;
+      color: #333;
+    }
+
+    .day { cursor: pointer; }
+    .day:hover {
+      background-color: var(--primary-red);
+      color: white;
+    }
+    .event {
+      background-color: var(--primary-red);
+      color: white;
+      margin-top: 4px;
+      padding: 2px 4px;
+      font-size: 12px;
+      border-radius: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
+    }
+    
+    .event:hover {
+      background-color: var(--primary-blue);
+      color: white;
+    }
+    .h2-calendar {
+      margin-bottom: 10px;
+      text-align: center;
+      flex: 1;
+    }
+    .button-month {
+      background-color: var(--accent-yellow);
+      color: var(--black);
+      border: none;
+      cursor: pointer;
+      border-radius: 15px;
+      padding: 10px 20px;
+      font-size: 1em;
+      flex-shrink: 0; /* evita que se estiren */
+      margin: 0 200px;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+    }
+
+    .close {
+      position: absolute;
+      top: 5px; right: 10px;
+      cursor: pointer;
+      font-size: 20px;
+      color: #888;
+    }
+
+    .close:hover {
+      color: var(--primary-red);
+    }
+
+    .event-entry {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+      background: #f0f0f0;
+      padding: 5px;
+      border-radius: 5px;
+    }
+
+    .event-entry small {
+      display: block;
+      font-size: 0.8em;
+      color: #555;
+    }
+
+    .input-event {
+      width: 100%;
+      padding: 5px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .button-event {
+      background-color: var(--dark-gray);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .button-event:hover {
+      background-color: var(--accent-yellow);
+      color: black;
+    }
+
+    .text-area-event {
+      width: 100%;
+      padding: 5px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 992px) {
+    .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .header-top {
+        flex-direction: column;
+        padding: 15px 20px;
+    }
+
+    .logo {
+        margin-bottom: 15px;
+    }
+
+    nav {
+        padding: 0 20px;
+    }
+
+    nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    nav a {
+        padding: 10px 15px;
+    }
+
+    main {
+        padding: 30px 20px;
+    }
+
+    .page-title {
+        font-size: 2em;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .user-info {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .user-details {
+        text-align: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+button:focus,
+a:focus {
+    outline: 2px solid var(--accent-yellow);
+    outline-offset: 2px;
+}

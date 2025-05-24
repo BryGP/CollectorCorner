@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Principal - Toy Garage</title>
+    <link rel="stylesheet" href="css/menu1.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Encabezado global -->
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Toy Garage</h1>
+                    <h2>Collector's Corner</h2>
+                </div>
+            </div>
+
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Usuario</div>
+                    <div class="user-role" id="userRole">Rol</div>
+                </div>
+                <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <nav>
+            <ul>
+                <li><a href="menu1.html" class="active"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="ventas.html"><i class="fas fa-cash-register"></i> Ventas</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Contenido principal -->
+    <div class="month-nav">
+    <button class="button-month" onclick="changeMonth(-1)">← Anterior</button>
+    <h2 class="h2-calendar" id="monthYear"></h2>
+    <button class="button-month" onclick="changeMonth(1)">Siguiente →</button>
+  </div>
+  <div id="calendar"></div>
+
+  <!-- Modal -->
+  <div id="eventModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3 id="modalTitle">Eventos</h3>
+
+      <div id="eventList"></div>
+
+      <hr>
+      <h4>Nuevo Evento</h4>
+      <input  class="input-event" type="text" id="eventTitle" placeholder="Título del evento" style="width: 100%;"><br><br>
+      <textarea class="text-area-event" id="eventDetails" placeholder="Detalles" rows="3" style="width: 100%;"></textarea><br><br>
+      <button class="button-event" onclick="addEvent()">Agregar Evento</button>
+    </div>
+  </div>
+
+  <script>
+    const calendar = document.getElementById("calendar");
+    const monthYear = document.getElementById("monthYear");
+    const modal = document.getElementById("eventModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const eventList = document.getElementById("eventList");
+    const eventTitle = document.getElementById("eventTitle");
+    const eventDetails = document.getElementById("eventDetails");
+
+    let currentDate = new Date();
+    let selectedDay = null;
+    let selectedKey = null;
+
+    function getKey(date) {
+      return `eventos-${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`;
+    }
+
+    function loadEvents(key) {
+      return JSON.parse(localStorage.getItem(key)) || {};
+    }
+
+    function saveEvents(key, events) {
+      localStorage.setItem(key, JSON.stringify(events));
+    }
+
+    function renderCalendar(date) {
+      calendar.innerHTML = "";
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const monthKey = getKey(date);
+      const events = loadEvents(monthKey);
+
+      const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      monthYear.textContent = `${monthNames[month]} ${year}`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].forEach(d => {
+        const dayName = document.createElement("div");
+        dayName.textContent = d;
+        dayName.classList.add("day-name");
+        calendar.appendChild(dayName);
+      });
+
+      for (let i = 0; i < firstDay; i++) {
+        calendar.appendChild(document.createElement("div"));
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayDiv = document.createElement("div");
+        dayDiv.classList.add("day");
+        dayDiv.innerHTML = `<strong>${day}</strong>`;
+
+        const dayKey = day.toString();
+        if (events[dayKey]) {
+          events[dayKey].forEach(ev => {
+            const eventDiv = document.createElement("div");
+            eventDiv.classList.add("event");
+            eventDiv.textContent = ev.title;
+            dayDiv.appendChild(eventDiv);
+          });
+        }
+
+        dayDiv.addEventListener("click", () => openModal(dayKey, monthKey, day, events));
+
+        calendar.appendChild(dayDiv);
+      }
+    }
+
+    function changeMonth(delta) {
+      currentDate.setMonth(currentDate.getMonth() + delta);
+      renderCalendar(currentDate);
+    }
+
+    function openModal(dayKey, monthKey, day, events) {
+      selectedDay = dayKey;
+      selectedKey = monthKey;
+      modal.style.display = "flex";
+      modalTitle.textContent = `Eventos del ${day} de ${monthYear.textContent}`;
+      eventTitle.value = "";
+      eventDetails.value = "";
+
+      eventList.innerHTML = "";
+
+      const eventArray = events[dayKey] || [];
+      eventArray.forEach((ev, index) => {
+        const entry = document.createElement("div");
+        entry.classList.add("event-entry");
+        entry.innerHTML = `
+          <div>
+            <strong>${ev.title}</strong>
+            <small>${ev.details}</small>
+          </div>
+          <button onclick="deleteEvent(${index})">🗑️</button>
+        `;
+        eventList.appendChild(entry);
+      });
+    }
+
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    function addEvent() {
+      const title = eventTitle.value.trim();
+      const details = eventDetails.value.trim();
+      if (!title) return alert("El título es obligatorio");
+
+      const events = loadEvents(selectedKey);
+      if (!events[selectedDay]) events[selectedDay] = [];
+
+      events[selectedDay].push({ title, details });
+      saveEvents(selectedKey, events);
+      renderCalendar(currentDate);
+      openModal(selectedDay, selectedKey, selectedDay, events);
+    }
+
+    function deleteEvent(index) {
+      const events = loadEvents(selectedKey);
+      if (!events[selectedDay]) return;
+
+      if (confirm("¿Estás seguro de eliminar este evento?")) {
+        events[selectedDay].splice(index, 1);
+        if (events[selectedDay].length === 0) delete events[selectedDay];
+        saveEvents(selectedKey, events);
+        renderCalendar(currentDate);
+        openModal(selectedDay, selectedKey, selectedDay, events);
+      }
+    }
+
+    renderCalendar(currentDate);
+  </script>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Toy Garage</div>
+            <p class="footer-text">&copy; 2024 RARITY TECH INNOVATIONS. Todos los derechos reservados.</p>
+            <div class="footer-links">
+                <a href="#">Términos</a>
+                <a href="#">Privacidad</a>
+                <a href="#">Soporte</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
