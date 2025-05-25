@@ -1,6 +1,5 @@
-// js/auth-check.js - Versión actualizada para incluir el nombre
+// Solución completa para el problema de autenticación y permisos
 
-// Importar Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"
 import {
@@ -11,7 +10,7 @@ import {
     query,
     where,
     getDocs,
-    addDoc,
+    updateDoc,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
 
 // Configuración de Firebase
@@ -29,204 +28,244 @@ const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
 
-// Entorno de desarrollo o producción
-const isDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-
-// Función de log segura
-function secureLog(message, data = null) {
-    if (isDev) {
-        if (data) {
-            console.log(message, data)
-        } else {
-            console.log(message)
-        }
-    }
-}
-
-// Función para verificar si el usuario está autenticado
-export function checkAuth() {
+// Función para verificar el estado de autenticación completo
+export async function checkFullAuthStatus() {
     return new Promise((resolve) => {
-        // Primero verificar si hay información en sessionStorage
-        const storedUser = sessionStorage.getItem("currentUser")
-
-        if (storedUser) {
-            secureLog("Usuario encontrado en sessionStorage")
-            const userData = JSON.parse(storedUser)
-
-            // Verificar si tenemos el rol en alguno de los campos
-            const userRole = userData.rol || userData.role || "employee"
-
-            // Actualizar el objeto userData para asegurarnos de que tenga ambos campos
-            userData.rol = userRole
-            userData.role = userRole
-
-            // Asegurarnos de que tenga un nombre
-            if (!userData.name) {
-                userData.name = userData.email ? userData.email.split("@")[0] : "Usuario"
-            }
-
-            resolve(userData)
-            return
-        }
-
-        // Si no hay información en sessionStorage, verificar con Firebase Auth
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                secureLog("Usuario autenticado")
-
-                // Obtener datos completos del usuario directamente de Firestore
-                let userRole = "employee" // Valor por defecto
-                let userName = user.displayName || (user.email ? user.email.split("@")[0] : "Usuario")
-
-                try {
-                    // Buscar por uid en la colección Users
-                    const usersRef = collection(db, "Users")
-                    const q = query(usersRef, where("uid", "==", user.uid))
-                    const querySnapshot = await getDocs(q)
-
-                    if (!querySnapshot.empty) {
-                        const userData = querySnapshot.docs[0].data()
-
-                        // Verificar explícitamente si existe el campo 'rol' o 'role'
-                        if (userData.rol) {
-                            userRole = userData.rol
-                        } else if (userData.role) {
-                            userRole = userData.role
-                        }
-
-                        // Obtener el nombre si existe
-                        if (userData.name) {
-                            userName = userData.name
-                        }
-                    } else {
-                        // Intentar buscar por ID directo
-                        const userDoc = await getDoc(doc(db, "Users", user.uid))
-                        if (userDoc.exists()) {
-                            const userData = userDoc.data()
-
-                            // Verificar explícitamente si existe el campo 'rol' o 'role'
-                            if (userData.rol) {
-                                userRole = userData.rol
-                            } else if (userData.role) {
-                                userRole = userData.role
-                            }
-
-                            // Obtener el nombre si existe
-                            if (userData.name) {
-                                userName = userData.name
-                            }
-                        }
-                    }
-                } catch (roleError) {
-                    secureLog("Error al obtener el rol")
-                }
-
-                // Guardar en sessionStorage
-                const userData = {
+                console.log("🔐 Usuario autenticado en Firebase Auth:", {
                     uid: user.uid,
                     email: user.email,
-                    name: userName,
-                    role: userRole,
-                    rol: userRole,
+                    emailVerified: user.emailVerified,
+                })
+
+                try {
+                    // Buscar usuario en Firestore
+                    const userData = await getUserFromFirestore(user.uid)
+
+                    if (userData) {
+                        console.log("✅ Usuario encontrado en Firestore:", userData)
+
+                        // Verificar que tenga rol de admin
+                        if (userData.role === "admin" || userData.rol === "admin") {
+                            console.log("✅ Usuario tiene permisos de administrador")
+                            resolve({
+                                authenticated: true,
+                                isAdmin: true,
+                                user: user,
+                                userData: userData,
+                            })
+                        } else {
+                            console.log("⚠️ Usuario NO tiene permisos de administrador:", userData.role || userData.rol)
+                            resolve({
+                                authenticated: true,
+                                isAdmin: false,
+                                user: user,
+                                userData: userData,
+                            })
+                        }
+                    } else {
+                        console.log("❌ Usuario NO encontrado en Firestore")
+                        resolve({
+                            authenticated: true,
+                            isAdmin: false,
+                            user: user,
+                            userData: null,
+                        })
+                    }
+                } catch (error) {
+                    console.error("❌ Error al verificar usuario en Firestore:", error)
+                    resolve({
+                        authenticated: true,
+                        isAdmin: false,
+                        user: user,
+                        userData: null,
+                        error: error,
+                    })
                 }
-
-                sessionStorage.setItem("currentUser", JSON.stringify(userData))
-                secureLog("Datos guardados en sessionStorage:", userData)
-
-                resolve(userData)
             } else {
-                secureLog("No hay usuario autenticado")
-                resolve(null)
+                console.log("❌ Usuario NO autenticado")
+                resolve({
+                    authenticated: false,
+                    isAdmin: false,
+                    user: null,
+                    userData: null,
+                })
             }
         })
     })
 }
 
-// Función para verificar si el usuario es administrador
-export async function checkAdminAccess() {
-    const userData = await checkAuth()
-
-    if (!userData) {
-        secureLog("No hay usuario autenticado, redirigiendo a login")
-        alert("Debes iniciar sesión para acceder a esta página.")
-        window.location.href = "login.html"
-        return false
-    }
-
-    // Verificar el rol - comprobar tanto 'role' como 'rol'
-    const userRole = userData.rol || userData.role || "employee"
-
-    if (userRole !== "admin") {
-        secureLog("Usuario no es administrador, redirigiendo a ventas")
-        alert("No tienes permisos para acceder a esta página.")
-        window.location.href = "ventas.html"
-        return false
-    }
-
-    secureLog("Acceso de administrador confirmado")
-    return true
-}
-
-// Función para verificar si el usuario es empleado (o administrador)
-export async function checkEmployeeAccess() {
-    const userData = await checkAuth()
-
-    if (!userData) {
-        secureLog("No hay usuario autenticado, redirigiendo a login")
-        alert("Debes iniciar sesión para acceder a esta página.")
-        window.location.href = "login.html"
-        return false
-    }
-
-    return true
-}
-
-// Función para cerrar sesión
-export function logout() {
-    auth
-        .signOut()
-        .then(() => {
-            // Limpiar sessionStorage
-            sessionStorage.removeItem("currentUser")
-            // Redirigir a la página de login
-            window.location.href = "login.html"
-        })
-        .catch((error) => {
-            secureLog("Error al cerrar sesión")
-        })
-}
-
-// Función para usuarios que solo existen en Firebase Auth
-export async function handleAuthOnlyUser(user) {
+// Función para buscar usuario en Firestore
+async function getUserFromFirestore(uid) {
     try {
-        // Verificar si el usuario ya existe en Firestore
-        const usersRef = collection(db, "Users")
-        const q = query(usersRef, where("uid", "==", user.uid))
-        const querySnapshot = await getDocs(q)
+        console.log("🔍 Buscando usuario en Firestore con UID:", uid)
 
-        // Si no existe, crear un registro básico
-        if (querySnapshot.empty) {
-            secureLog("Usuario existe solo en Auth, creando registro en Firestore")
+        // Método 1: Buscar por documento directo
+        const userDocRef = doc(db, "Users", uid)
+        const userDocSnap = await getDoc(userDocRef)
 
-            // Crear un nombre por defecto a partir del email
-            const defaultName = user.email ? user.email.split("@")[0] : "Usuario"
-
-            // Crear un registro básico en Firestore
-            await addDoc(collection(db, "Users"), {
-                uid: user.uid,
-                email: user.email,
-                name: user.displayName || defaultName,
-                rol: "employee", // Por defecto, asignar rol de empleado
-                createdAt: new Date(),
-                authOnly: true, // Marcar que fue creado automáticamente
-            })
-
-            return "employee" // Devolver rol por defecto
+        if (userDocSnap.exists()) {
+            console.log("✅ Usuario encontrado por documento directo")
+            return { id: userDocSnap.id, ...userDocSnap.data() }
         }
 
-        return null // No se necesitó crear usuario
-    } catch (error) {
-        secureLog("Error al manejar usuario solo de Auth")
+        // Método 2: Buscar por query con campo uid
+        const usersRef = collection(db, "Users")
+        const q = query(usersRef, where("uid", "==", uid))
+        const querySnapshot = await getDocs(q)
+
+        if (!querySnapshot.empty) {
+            console.log("✅ Usuario encontrado por query")
+            const userData = querySnapshot.docs[0].data()
+            return { id: querySnapshot.docs[0].id, ...userData }
+        }
+
+        console.log("❌ Usuario no encontrado en Firestore")
         return null
+    } catch (error) {
+        console.error("❌ Error al buscar usuario:", error)
+        throw error
     }
+}
+
+// Función para hacer a un usuario administrador
+export async function makeUserAdmin(email) {
+    try {
+        console.log("👑 Intentando hacer administrador a:", email)
+
+        // Buscar usuario por email
+        const usersRef = collection(db, "Users")
+        const q = query(usersRef, where("email", "==", email))
+        const querySnapshot = await getDocs(q)
+
+        if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0]
+            const userRef = doc(db, "Users", userDoc.id)
+
+            await updateDoc(userRef, {
+                role: "admin",
+                rol: "admin",
+                updatedAt: new Date(),
+            })
+
+            console.log("✅ Usuario actualizado a administrador")
+            return true
+        } else {
+            console.log("❌ Usuario no encontrado con email:", email)
+            return false
+        }
+    } catch (error) {
+        console.error("❌ Error al hacer administrador:", error)
+        throw error
+    }
+}
+
+// Función para diagnosticar problemas de autenticación
+export async function diagnoseAuthIssues() {
+    console.log("🔍 DIAGNÓSTICO DE AUTENTICACIÓN")
+    console.log("================================")
+
+    try {
+        const authStatus = await checkFullAuthStatus()
+
+        console.log("📊 Resultado del diagnóstico:")
+        console.log("- Autenticado:", authStatus.authenticated)
+        console.log("- Es Admin:", authStatus.isAdmin)
+        console.log("- Datos de usuario:", authStatus.userData)
+
+        if (!authStatus.authenticated) {
+            console.log("❌ PROBLEMA: Usuario no autenticado")
+            console.log("💡 SOLUCIÓN: Ir a login.html e iniciar sesión")
+            return {
+                problem: "not_authenticated",
+                solution: "Debes iniciar sesión primero",
+            }
+        }
+
+        if (!authStatus.userData) {
+            console.log("❌ PROBLEMA: Usuario no existe en Firestore")
+            console.log("💡 SOLUCIÓN: Crear registro en Firestore o verificar colección 'Users'")
+            return {
+                problem: "user_not_in_firestore",
+                solution: "El usuario no existe en la base de datos",
+            }
+        }
+
+        if (!authStatus.isAdmin) {
+            console.log("❌ PROBLEMA: Usuario no es administrador")
+            console.log("💡 SOLUCIÓN: Cambiar rol a 'admin' en Firestore")
+            return {
+                problem: "not_admin",
+                solution: "El usuario no tiene permisos de administrador",
+                userData: authStatus.userData,
+            }
+        }
+
+        console.log("✅ TODO CORRECTO: Usuario autenticado y es administrador")
+        return {
+            problem: null,
+            solution: "Todo está configurado correctamente",
+        }
+    } catch (error) {
+        console.error("❌ Error en diagnóstico:", error)
+        return {
+            problem: "diagnosis_error",
+            solution: "Error al realizar el diagnóstico",
+            error: error,
+        }
+    }
+}
+
+// Función para mostrar información de autenticación en la interfaz
+export function displayAuthInfo() {
+    checkFullAuthStatus().then((authStatus) => {
+        // Crear elemento de información
+        const authInfo = document.createElement("div")
+        authInfo.id = "auth-info"
+        authInfo.style.cssText = `
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: ${authStatus.isAdmin ? "#d4edda" : "#f8d7da"};
+      color: ${authStatus.isAdmin ? "#155724" : "#721c24"};
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid ${authStatus.isAdmin ? "#c3e6cb" : "#f5c6cb"};
+      font-size: 12px;
+      z-index: 9999;
+      max-width: 300px;
+    `
+
+        if (authStatus.authenticated) {
+            authInfo.innerHTML = `
+        <strong>${authStatus.isAdmin ? "✅" : "⚠️"} Estado de Autenticación</strong><br>
+        Email: ${authStatus.user.email}<br>
+        Rol: ${authStatus.userData?.role || authStatus.userData?.rol || "Sin rol"}<br>
+        Admin: ${authStatus.isAdmin ? "Sí" : "No"}<br>
+        ${!authStatus.isAdmin
+                    ? '<small style="color: #856404;">⚠️ Sin permisos para guardar productos</small>'
+                    : '<small style="color: #155724;">✅ Permisos completos</small>'
+                }
+      `
+        } else {
+            authInfo.innerHTML = `
+        <strong>❌ No Autenticado</strong><br>
+        <a href="login.html" style="color: #721c24;">Ir a Login</a>
+      `
+        }
+
+        // Remover info anterior si existe
+        const existingInfo = document.getElementById("auth-info")
+        if (existingInfo) {
+            existingInfo.remove()
+        }
+
+        document.body.appendChild(authInfo)
+
+        // Auto-remover después de 10 segundos
+        setTimeout(() => {
+            authInfo.remove()
+        }, 10000)
+    })
 }
