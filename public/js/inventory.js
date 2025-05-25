@@ -64,20 +64,65 @@ async function loadProductos() {
     }
 }
 
-// Función para manejar la carga de imágenes (corregida)
+// Función para manejar la carga de imágenes (MEJORADA)
 function setupImageUpload() {
     const uploadBtn = document.getElementById("uploadImageBtn")
     const fileInput = document.getElementById("productoImagen")
     const previewImg = document.getElementById("previewImg")
+    const uploadControls = document.querySelector(".upload-controls")
 
-    if (!uploadBtn || !fileInput || !previewImg) return
+    if (!uploadBtn || !fileInput || !previewImg || !uploadControls) return
 
-    // Evento para el botón de carga
+    // Función para actualizar la interfaz según el estado de la imagen
+    function updateImageInterface(hasImage = false) {
+        const removeBtn = document.getElementById("removeImageBtn")
+
+        if (hasImage) {
+            // Producto CON imagen - mostrar botón de cambiar/eliminar
+            uploadBtn.textContent = "Cambiar imagen"
+            uploadBtn.style.backgroundColor = "#f39c12"
+
+            // Crear botón eliminar si no existe
+            if (!removeBtn) {
+                const newRemoveBtn = document.createElement("button")
+                newRemoveBtn.type = "button"
+                newRemoveBtn.id = "removeImageBtn"
+                newRemoveBtn.className = "upload-btn remove-btn"
+                newRemoveBtn.textContent = "Eliminar imagen"
+                newRemoveBtn.style.backgroundColor = "#e74c3c"
+                newRemoveBtn.style.marginTop = "5px"
+
+                // Event listener para eliminar imagen
+                newRemoveBtn.addEventListener("click", () => {
+                    selectedImageFile = null
+                    selectedImageBase64 = null
+                    previewImg.src = createPlaceholderImage("Sin Imagen", 200, 200)
+                    fileInput.value = ""
+                    updateImageInterface(false)
+                })
+
+                uploadControls.appendChild(newRemoveBtn)
+            } else {
+                removeBtn.style.display = "block"
+            }
+        } else {
+            // Producto SIN imagen - mostrar botón normal
+            uploadBtn.textContent = "Seleccionar imagen"
+            uploadBtn.style.backgroundColor = "#2c3e50"
+
+            // Ocultar botón eliminar
+            if (removeBtn) {
+                removeBtn.style.display = "none"
+            }
+        }
+    }
+
+    // Evento para el botón de carga/cambio
     uploadBtn.addEventListener("click", () => {
         fileInput.click()
     })
 
-    // Evento para cuando se selecciona un archivo (corregido)
+    // Evento para cuando se selecciona un archivo (MEJORADO)
     fileInput.addEventListener("change", async (e) => {
         const file = e.target.files[0]
         if (!file) return
@@ -86,6 +131,7 @@ function setupImageUpload() {
             console.log("Archivo seleccionado:", file.name)
 
             // Mostrar indicador de carga
+            const originalText = uploadBtn.textContent
             uploadBtn.textContent = "Procesando..."
             uploadBtn.disabled = true
             previewImg.src = createPlaceholderImage("Procesando...", 200, 200)
@@ -100,6 +146,9 @@ function setupImageUpload() {
             // Mostrar vista previa
             previewImg.src = base64String
 
+            // Actualizar interfaz para mostrar que ahora hay imagen
+            updateImageInterface(true)
+
             console.log("Imagen procesada y lista para guardar")
         } catch (error) {
             console.error("Error al procesar imagen:", error)
@@ -109,12 +158,18 @@ function setupImageUpload() {
             previewImg.src = createPlaceholderImage("Error", 200, 200)
             selectedImageFile = null
             selectedImageBase64 = null
+            updateImageInterface(false)
         } finally {
             // Restaurar botón
-            uploadBtn.textContent = "Seleccionar imagen"
             uploadBtn.disabled = false
         }
     })
+
+    // Hacer la función updateImageInterface accesible globalmente
+    window.updateImageInterface = updateImageInterface
+
+    // Inicializar interfaz
+    updateImageInterface(false)
 }
 
 // Función simplificada para "subir" imagen (corregida)
@@ -205,22 +260,26 @@ function renderProductos() {
         div.classList.add("producto-item")
         div.setAttribute("data-producto-id", producto.id)
 
-        // Crear HTML con imagen si existe (AGREGADO)
+        // Crear HTML con imagen si existe (MEJORADO)
         let imagenHTML = ""
         if (producto.imagen) {
             imagenHTML = `<div class="producto-imagen">
-                <img src="${producto.imagen}" alt="${producto.name}" style="width: 100%; max-width: 150px; height: auto; border-radius: 5px; margin-bottom: 10px; object-fit: cover;">
+                <img src="${producto.imagen}" alt="${producto.name}">
             </div>`
         }
 
         div.innerHTML = `
             ${imagenHTML}
-            <h3>${producto.name || "Sin nombre"}</h3>
-            ${producto.codigo ? `<p class="codigo-label"><i class="fas fa-barcode"></i> ${producto.codigo}</p>` : ""}
-            <p class="categoria-label">${producto.categoria || "No especificada"}</p>
-            ${producto.marca ? `<p class="marca-label">Marca: ${producto.marca}</p>` : ""}
-            <p>Precio: $${producto.precio || 0}</p>
-            <p>Stock: ${producto.stock || 0}</p>
+            <div class="producto-info">
+                <h3>${producto.name || "Sin nombre"}</h3>
+                ${producto.codigo ? `<p class="codigo-label"><i class="fas fa-barcode"></i> ${producto.codigo}</p>` : ""}
+                <p class="categoria-label">${producto.categoria || "No especificada"}</p>
+                ${producto.marca ? `<p class="marca-label">Marca: ${producto.marca}</p>` : ""}
+                <div class="producto-precio-stock">
+                    <p>Precio: $${producto.precio || 0}</p>
+                    <p>Stock: ${producto.stock || 0}</p>
+                </div>
+            </div>
             <div class="actions">
                 <button class="edit-btn" data-producto-id="${producto.id}">Editar</button>
                 <button class="delete-btn" data-producto-id="${producto.id}">Eliminar</button>
@@ -263,7 +322,7 @@ function renderProductos() {
     updateProductPaginationInfo()
 }
 
-// Función para editar producto (corregida)
+// Función para editar producto (CORREGIDA)
 async function editProducto(productoId) {
     try {
         const productoRef = doc(db, "Productos", productoId)
@@ -287,10 +346,24 @@ async function editProducto(productoId) {
             const previewImg = document.getElementById("previewImg")
             if (productoData.imagen && previewImg) {
                 previewImg.src = productoData.imagen
-                selectedImageBase64 = productoData.imagen // Cambiado de selectedImageURL
+                selectedImageBase64 = productoData.imagen
+
+                // Actualizar interfaz para mostrar botones de cambiar/eliminar imagen
+                setTimeout(() => {
+                    if (window.updateImageInterface) {
+                        window.updateImageInterface(true)
+                    }
+                }, 100)
             } else if (previewImg) {
                 previewImg.src = createPlaceholderImage("Sin Imagen", 200, 200)
                 selectedImageBase64 = null
+
+                // Actualizar interfaz para mostrar botón de seleccionar imagen
+                setTimeout(() => {
+                    if (window.updateImageInterface) {
+                        window.updateImageInterface(false)
+                    }
+                }, 100)
             }
 
             // Resetear el input de archivo
@@ -323,7 +396,7 @@ async function deleteProducto(productoId) {
     }
 }
 
-// Función para guardar producto (corregida)
+// Función para guardar producto (CORREGIDA)
 async function saveProducto(event) {
     event.preventDefault()
 
@@ -377,7 +450,7 @@ async function saveProducto(event) {
                 alert("Producto agregado exitosamente")
             }
 
-            // Limpiar variables de imagen (CORREGIDO)
+            // Limpiar variables de imagen
             selectedImageFile = null
             selectedImageBase64 = null
 
@@ -606,7 +679,14 @@ function closeProductoModal() {
         previewImg.src = createPlaceholderImage("Sin Imagen", 200, 200)
     }
     selectedImageFile = null
-    selectedImageBase64 = null // Cambiado de selectedImageURL
+    selectedImageBase64 = null
+
+    // Resetear interfaz de imagen
+    setTimeout(() => {
+        if (window.updateImageInterface) {
+            window.updateImageInterface(false)
+        }
+    }, 100)
 }
 
 if (closeBtn) {
@@ -823,6 +903,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             selectedImageFile = null
             selectedImageBase64 = null
+
+            // Actualizar interfaz
+            setTimeout(() => {
+                if (window.updateImageInterface) {
+                    window.updateImageInterface(false)
+                }
+            }, 100)
 
             openProductoModal()
         })
