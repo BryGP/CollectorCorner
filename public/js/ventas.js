@@ -406,6 +406,12 @@ async function crearApartadoEnTienda() {
         mostrarAlerta("Por favor, ingresa el nombre del cliente", "error");
         return;
     }
+    
+    // Validar que al menos se ingrese teléfono o correo electrónico
+    if (!apartadoClienteTelefono.value.trim() && !apartadoClienteEmail.value.trim()) {
+        mostrarAlerta("Por favor, ingresa el teléfono o el correo electrónico del cliente", "error");
+        return;
+    }
 
     const engancheRequerido = Number.parseFloat(apartadoEngancheElement.textContent.replace("$", "")) || 0;
     const montoRecibido = Number.parseFloat(apartadoMontoRecibido.value) || 0;
@@ -413,6 +419,79 @@ async function crearApartadoEnTienda() {
     if (montoRecibido < engancheRequerido) {
         mostrarAlerta("El monto recibido es menor al enganche requerido", "error");
         return;
+    }
+    
+    // Asegurar que el monto recibido sea mayor a cero
+    if (montoRecibido <= 0) {
+        mostrarAlerta("Por favor, ingresa el monto recibido del enganche", "error");
+        return;
+    }
+
+    try {
+        // Calcular totales
+        const subtotal = productosApartado.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
+        const total = subtotal; // El total del apartado es el subtotal de los productos
+
+        // Crear objeto de apartado adaptado a la estructura de la colección 'Boleto'
+        // Esto es lo que se envía a Firestore
+        const apartadoParaBoleto = {
+            // Campos de tu esquema 'Boleto'
+            CORREO_ELECTRONICO: apartadoClienteEmail.value.trim() || "", // Usa el valor o cadena vacía
+            EXPIRACION: new Date(new Date().setDate(new Date().getDate() + 15)), // Calcula 15 días a partir de hoy
+            Fecha_de_Emision: serverTimestamp(), // Fecha y hora del servidor
+            ID_BOLETO: generarNumeroApartado(), // Usa tu función existente para generar el ID
+            Nombre: apartadoClienteNombre.value.trim(),
+            Productos: productosApartado.map(p => ({
+                cantidad: p.cantidad,
+                id: p.id,
+                nombre: p.nombre,
+                precio: p.precioUnitario // Asegura que el precio sea el unitario
+            })),
+            TELEFONO: apartadoClienteTelefono.value.trim() || "", // Usa el valor o cadena vacía
+            Total: total, // El total del apartado (subtotal de productos)
+            estado: "apartado", // Nuevo campo para identificar que es un apartado
+
+            // Campos adicionales que no estaban en tu esquema 'Boleto' pero son relevantes para el apartado
+            enganchePagado: engancheRequerido,
+            montoRecibidoEnganche: montoRecibido,
+            cambioEnganche: montoRecibido - engancheRequerido,
+            metodoPagoEnganche: apartadoMetodoPagoEnganche.value,
+            creadoPor: typeof usuarioActual !== 'undefined' && usuarioActual && usuarioActual.email ? usuarioActual.email : "sistema",
+            fechaLimiteLiquidacion: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0) // Último día del mes actual
+        };
+
+        // Guardar el apartado en la colección "Boleto"
+        const boletoRef = await addDoc(collection(db, "Boleto"), apartadoParaBoleto);
+        console.log("Apartado creado en Boleto con ID:", boletoRef.id);
+
+        // Actualizar stock de productos
+        for (const producto of productosApartado) {
+            const productoRef = doc(db, "Productos", producto.id);
+            const productoDoc = await getDoc(productoRef);
+
+            if (productoDoc.exists()) {
+                const stockActual = productoDoc.data().stock || 0;
+                const nuevoStock = Math.max(0, stockActual - producto.cantidad);
+
+                await updateDoc(productoRef, {
+                    stock: nuevoStock,
+                    updatedAt: serverTimestamp()
+                });
+            } else {
+                console.warn(`Producto con ID ${producto.id} no encontrado para actualizar stock.`);
+            }
+        }
+
+        // Mostrar mensaje de éxito
+        mostrarAlerta(`Apartado creado con éxito. Número de Boleto: ${apartadoParaBoleto.ID_BOLETO}`, "success");
+
+        // Limpiar formulario
+        cancelarApartadoEnTienda();
+
+        // TODO: Mostrar ticket de apartado
+    } catch (error) {
+        console.error("Error al crear apartado:", error);
+        mostrarAlerta("Error al crear apartado: " + error.message, "error");
     }
 
     try {
