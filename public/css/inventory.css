@@ -169,8 +169,18 @@ body {
     text-align: center;
     display: flex;
     flex-direction: column;
+}
+
+/* Altura específica para productos */
+.producto-item {
     min-height: 400px;
-    /* Altura mínima consistente */
+}
+
+/* Altura menor para categorías */
+.categoria-item {
+    min-height: 80px;
+    min-width: 120px; /* Puedes ajustar este valor según lo que necesites */
+    max-width: 300px; /* Opcional: para limitar la anchura máxima */
 }
 
 .producto-item:hover,
@@ -510,27 +520,27 @@ body {
 
 /* ======== ESTILOS PARA BOTÓN ELIMINAR IMAGEN ======== */
 .remove-btn {
-  background-color: #e74c3c !important;
-  margin-top: 5px;
+    background-color: #e74c3c !important;
+    margin-top: 5px;
 }
 
 .remove-btn:hover {
-  background-color: #c0392b !important;
+    background-color: #c0392b !important;
 }
 
 /* Mejoras al contenedor de controles de imagen */
 .upload-controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
 }
 
 /* Mejorar el botón de cambiar imagen */
 .upload-btn {
-  transition: all 0.3s ease;
-  min-width: 140px;
+    transition: all 0.3s ease;
+    min-width: 140px;
 }
 
 /* ======== RESPONSIVE ======== */

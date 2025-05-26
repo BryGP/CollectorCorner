@@ -61,7 +61,7 @@ async function loadProductos() {
 
 // Variable para almacenar la imagen seleccionada
 let selectedImageFile = null
-let selectedImageURL = null
+let selectedImageBase64 = null // <- Agregado
 
 // Función para manejar la carga de imágenes en base64 (mejorada)
 function setupImageUpload() {
