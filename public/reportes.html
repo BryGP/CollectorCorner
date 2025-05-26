@@ -7,26 +7,22 @@
     <meta name="description" content="Sistema de reportes de ventas para Toy Garage">
     <title>Reportes de Ventas | Toy Garage</title>
 
-    <!-- Preconexión para mejorar rendimiento -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
 
-    <!-- Hojas de estilo -->
     <link rel="stylesheet" href="css/menu1.css">
     <link rel="stylesheet" href="css/reportes.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Racing+Sans+One&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Racing+Sans+One&display=swap" rel="stylesheet">
 
-    <!-- Preload para scripts críticos -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/chart.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js" as="script">
     <link rel="preload" href="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js" as="script">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" as="script">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js" as="script">
 </head>
 
 <body>
-    <!-- Encabezado global -->
     <header>
         <div class="header-top">
             <div class="logo">
@@ -47,7 +43,7 @@
                     <div class="user-name" id="userName">Bryan GP</div>
                     <div class="user-role" id="userRole">Administrador</div>
                 </div>
-                <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
+                <button type="button" id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
             </div>
         </div>
 
@@ -57,11 +53,11 @@
                 <li><a href="usuarios.html"><i class="fas fa-users"></i> Usuarios</a></li>
                 <li><a href="calendario.html"><i class="fas fa-calendar-alt"></i> Calendario</a></li>
                 <li><a href="configuracion.html"><i class="fas fa-cog"></i> Configuración</a></li>
+                <li><a href="reportes.html" class="active"><i class="fas fa-chart-line"></i> Reportes</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Contenido principal -->
     <main>
         <h1 class="page-title">Reportes de Ventas</h1>
 
@@ -83,8 +79,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="metodo-pago">Método de Pago:</label>
-                        <select id="metodo-pago" class="form-control">
+                        <label for="filtro-metodo-pago">Método de Pago:</label>
+                        <select id="filtro-metodo-pago" class="form-control">
                             <option value="">Todos</option>
                             <option value="Efectivo">Efectivo</option>
                             <option value="Tarjeta">Tarjeta</option>
@@ -104,22 +100,22 @@
                         <button type="button" id="btn-limpiar" class="btn btn-secondary">
                             <i class="fas fa-eraser"></i> Limpiar Filtros
                         </button>
-                    </div>
 
-                    <div class="export-dropdown">
-                        <button type="button" id="btn-exportar" class="btn btn-secondary">
-                            <i class="fas fa-file-export"></i> Exportar
-                        </button>
-                        <div class="dropdown-menu" id="export-options">
-                            <a href="#" id="export-excel" class="dropdown-item">
-                                <i class="fas fa-file-excel"></i> Excel
-                            </a>
-                            <a href="#" id="export-csv" class="dropdown-item">
-                                <i class="fas fa-file-csv"></i> CSV
-                            </a>
-                            <a href="#" id="export-pdf" class="dropdown-item">
-                                <i class="fas fa-file-pdf"></i> PDF
-                            </a>
+                        <div class="export-dropdown">
+                            <button type="button" id="btn-exportar" class="btn btn-secondary">
+                                <i class="fas fa-file-export"></i> Exportar
+                            </button>
+                            <div class="dropdown-menu" id="export-options">
+                                <a href="#" id="export-excel" class="dropdown-item">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </a>
+                                <a href="#" id="export-csv" class="dropdown-item">
+                                    <i class="fas fa-file-csv"></i> CSV
+                                </a>
+                                <a href="#" id="export-pdf" class="dropdown-item">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -162,17 +158,6 @@
                         <div class="card-body">
                             <div class="chart-container">
                                 <canvas id="grafico-productos-vendidos"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card chart-card">
-                        <div class="card-header">
-                            <h3 class="card-title">Total Ventas por Vendedor</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-container">
-                                <canvas id="grafico-ventas-vendedor"></canvas>
                             </div>
                         </div>
                     </div>
@@ -222,6 +207,60 @@
             </div>
         </section>
 
+        <section class="report-section comparativa-final">
+            <div class="comparativa-header">
+                <h3>Comparativa Mensual de Ventas</h3>
+            </div>
+            <div class="section-content card-body layout-final"> <div class="grafico-principal">
+                    <canvas id="grafico-comparativa-mensual"></canvas>
+                </div>
+
+                <div class="panel-derecho">
+                    <div class="controles-meses">
+                        <div class="control-group">
+                            <label for="mes-comparar-1">Mes 1:</label>
+                            <select id="mes-comparar-1" class="form-control">
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5" selected>Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="mes-comparar-2">Mes 2:</label>
+                            <select id="mes-comparar-2" class="form-control">
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7" selected>Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <button type="button" id="btn-comparar" class="btn btn-primary">
+                            <i class="fas fa-sync-alt"></i> Comparar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
         <section class="report-section bitacora-panel">
             <div class="section-header">
                 <h2><i class="fas fa-clipboard-list"></i> Bitácora de Ventas</h2>
@@ -230,11 +269,11 @@
             <div class="section-content">
                 <div class="table-actions">
                     <div class="pagination">
-                        <button id="btn-anterior" class="btn-icon" disabled>
+                        <button type="button" id="btn-anterior" class="btn-icon" disabled>
                             <i class="fas fa-chevron-left"></i>
                         </button>
                         <span>Página <span id="pagina-actual">1</span> de <span id="total-paginas">1</span></span>
-                        <button id="btn-siguiente" class="btn-icon" disabled>
+                        <button type="button" id="btn-siguiente" class="btn-icon" disabled>
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
@@ -255,8 +294,7 @@
                         </thead>
                         <tbody id="bitacora-body">
                             <tr>
-                                <td colspan="7" class="empty-message">No hay datos disponibles. Aplique filtros para ver
-                                    resultados.</td>
+                                <td colspan="7" class="empty-message" style="display: none;">No hay datos disponibles. Aplique filtros para ver resultados.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -277,12 +315,11 @@
         </div>
     </footer>
 
-    <!-- Modal Detalle Venta -->
     <div id="modal-detalle" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Detalle de Venta <span id="detalle-ticket-num"></span></h3>
-                <button class="close-btn" id="btn-cerrar-detalle">&times;</button>
+                <button type="button" class="close-btn" id="btn-cerrar-detalle">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="detalle-info">
@@ -305,7 +342,6 @@
                                 </tr>
                             </thead>
                             <tbody id="detalle-productos-body">
-                                <!-- Datos se cargarán dinámicamente -->
                             </tbody>
                         </table>
                     </div>
@@ -316,10 +352,6 @@
                         <span>Subtotal:</span>
                         <span>$<span id="detalle-subtotal">0.00</span></span>
                     </div>
-                    <div class="total-line">
-                        <span>IVA (16%):</span>
-                        <span>$<span id="detalle-iva">0.00</span></span>
-                    </div>
                     <div class="total-line total-final">
                         <span>TOTAL:</span>
                         <span>$<span id="detalle-total">0.00</span></span>
@@ -327,17 +359,17 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="btn-reimprimir" class="btn btn-primary">
+                <button type="button" id="btn-reimprimir" class="btn btn-primary">
                     <i class="fas fa-print"></i> Reimprimir Ticket
                 </button>
-                <button id="btn-cerrar" class="btn btn-secondary">Cerrar</button>
+                <button type="button" id="btn-cerrar" class="btn btn-secondary">Cerrar</button>
             </div>
         </div>
     </div>
     <div id="modal-overlay"></div>
 
-    <!-- Scripts al final del body para mejor rendimiento -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>

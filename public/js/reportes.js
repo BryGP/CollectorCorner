@@ -29,13 +29,24 @@ const state = {
         ventasDia: null,
         metodosPago: null,
         productosVendidos: null,
-        ventasVendedor: null
+        comparativaMensual: null
     }
 };
 
 // Inicialización de la aplicación
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("🔄 Inicializando aplicación de reportes");
+
+    // Configurar meses por defecto (mes actual y anterior)
+    const fechaActual = new Date();
+    const mesActual = fechaActual.getMonth() + 1;
+    const mesAnterior = mesActual === 1 ? 12 : mesActual - 1;
+
+    const selectMes1 = document.getElementById('mes-comparar-1');
+    const selectMes2 = document.getElementById('mes-comparar-2');
+
+    if (selectMes1) selectMes1.value = mesAnterior;
+    if (selectMes2) selectMes2.value = mesActual;
 
     if (!document.getElementById("bitacora-body")) {
         console.error("❌ Elemento #bitacora-body no encontrado");
@@ -493,10 +504,10 @@ async function openTicketPreviewModal(ticketId) {
 
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
-                        <td>${cantidad}</td>
-                        <td>${producto.nombre || "Producto"}</td>
-                        <td>$${precio.toFixed(2)}</td>
-                        <td>$${total.toFixed(2)}</td>`;
+                    <td>${cantidad}</td>
+                    <td>${producto.nombre || "Producto"}</td>
+                    <td>$${precio.toFixed(2)}</td>
+                    <td>$${total.toFixed(2)}</td>`;
 
                     fragment.appendChild(tr);
                 });
@@ -504,7 +515,7 @@ async function openTicketPreviewModal(ticketId) {
                 tbody.appendChild(fragment);
             } else {
                 tbody.innerHTML = `<tr><td colspan="4" class="empty-message">
-                    No hay productos en este ticket</td></tr>`;
+                No hay productos en este ticket</td></tr>`;
             }
 
             // Calcular totales
@@ -530,7 +541,7 @@ function initCharts() {
     initVentasPorDiaChart();
     initMetodosPagoChart();
     initProductosVendidosChart();
-    initVentasVendedorChart();
+    initComparativaMensualChart();
 }
 
 function initVentasPorDiaChart() {
@@ -685,40 +696,39 @@ function initProductosVendidosChart() {
     });
 }
 
-function initVentasVendedorChart() {
-    const ctx = document.getElementById('grafico-ventas-vendedor')?.getContext('2d');
+function initComparativaMensualChart() {
+    const ctx = document.getElementById('grafico-comparativa-mensual')?.getContext('2d');
     if (!ctx) return;
 
-    state.charts.ventasVendedor = new Chart(ctx, {
-        type: 'bar',
+    state.charts.comparativaMensual = new Chart(ctx, {
+        type: 'line',
         data: {
             labels: [],
-            datasets: [{
-                label: 'Total vendido',
-                data: [],
-                backgroundColor: CHART_COLORS[1],
-                borderColor: CHART_COLORS[1],
-                borderWidth: 1
-            }]
+            datasets: []
         },
         options: {
-            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: false
+                    position: 'top',
+                    labels: {
+                        font: {
+                            size: 12,
+                            family: "'Open Sans', sans-serif"
+                        }
+                    }
                 },
                 tooltip: {
                     callbacks: {
                         label: function (context) {
-                            return ` $${context.raw.toFixed(2)}`;
+                            return ` ${context.dataset.label}: $${context.raw.toFixed(2)}`;
                         }
                     }
                 }
             },
             scales: {
-                x: {
+                y: {
                     beginAtZero: true,
                     ticks: {
                         callback: function (value) {
@@ -729,6 +739,11 @@ function initVentasVendedorChart() {
             }
         }
     });
+
+    // Event listener para el botón de comparar
+    document.getElementById('btn-comparar')?.addEventListener('click', () => {
+        updateComparativaMensualChart(state.filteredSales);
+    });
 }
 
 function updateAllCharts(sales) {
@@ -736,7 +751,7 @@ function updateAllCharts(sales) {
     updateVentasPorDiaChart(sales);
     updateMetodosPagoChart(sales);
     updateProductosVendidosChart(sales);
-    updateVentasVendedorChart(sales);
+    updateComparativaMensualChart(sales);
 }
 
 function updateVentasPorDiaChart(sales) {
@@ -847,36 +862,76 @@ function updateProductosVendidosChart(sales) {
     chart.update();
 }
 
-function updateVentasVendedorChart(sales) {
-    const chart = state.charts.ventasVendedor;
+function updateComparativaMensualChart(sales) {
+    const chart = state.charts.comparativaMensual;
     if (!chart) return;
 
-    // Agrupar ventas por vendedor
-    const ventasPorVendedor = sales.reduce((acc, venta) => {
-        const vendedor = venta.usuario || 'No especificado';
-        const monto = parseFloat(venta.total) || 0;
+    // Obtener meses seleccionados
+    const mes1 = parseInt(document.getElementById('mes-comparar-1')?.value || 1);
+    const mes2 = parseInt(document.getElementById('mes-comparar-2')?.value || 2);
 
-        if (!acc[vendedor]) {
-            acc[vendedor] = 0;
+    // Obtener año actual
+    const añoActual = new Date().getFullYear();
+
+    // Filtrar ventas para cada mes
+    const ventasMes1 = sales.filter(venta => {
+        const fecha = parseDate(venta.fecha);
+        return fecha && fecha.getMonth() + 1 === mes1 && fecha.getFullYear() === añoActual;
+    });
+
+    const ventasMes2 = sales.filter(venta => {
+        const fecha = parseDate(venta.fecha);
+        return fecha && fecha.getMonth() + 1 === mes2 && fecha.getFullYear() === añoActual;
+    });
+
+    // Agrupar ventas por día para cada mes
+    const datosMes1 = agruparVentasPorDia(ventasMes1);
+    const datosMes2 = agruparVentasPorDia(ventasMes2);
+
+    // Obtener todos los días únicos para los labels
+    const todosLosDias = [...new Set([...Object.keys(datosMes1), ...Object.keys(datosMes2)])].sort();
+
+    // Preparar datasets
+    chart.data.labels = todosLosDias.map(dia => `Día ${dia}`);
+    chart.data.datasets = [
+        {
+            label: `Ventas Mes ${mes1}`,
+            data: todosLosDias.map(dia => datosMes1[dia] || 0),
+            borderColor: CHART_COLORS[0],
+            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true
+        },
+        {
+            label: `Ventas Mes ${mes2}`,
+            data: todosLosDias.map(dia => datosMes2[dia] || 0),
+            borderColor: CHART_COLORS[1],
+            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true
+        }
+    ];
+
+    chart.update();
+}
+
+function agruparVentasPorDia(ventas) {
+    return ventas.reduce((acc, venta) => {
+        const fecha = parseDate(venta.fecha);
+        if (!fecha) return acc;
+
+        const dia = fecha.getDate();
+        const total = parseFloat(venta.total) || 0;
+
+        if (!acc[dia]) {
+            acc[dia] = 0;
         }
 
-        acc[vendedor] += monto;
+        acc[dia] += total;
         return acc;
     }, {});
-
-    // Ordenar vendedores por total vendido
-    const vendedoresOrdenados = Object.entries(ventasPorVendedor)
-        .sort((a, b) => b[1] - a[1]);
-
-    // Separar etiquetas y datos
-    const labels = vendedoresOrdenados.map(item => item[0]);
-    const data = vendedoresOrdenados.map(item => item[1]);
-
-    // Actualizar gráfico
-    chart.data.labels = labels;
-    chart.data.datasets[0].data = data;
-    chart.data.datasets[0].backgroundColor = '#36A2EB';
-    chart.update();
 }
 
 // Funciones para resumen de ventas
@@ -984,7 +1039,6 @@ function exportToCSV(data) {
             });
             csvContent += row.join(",") + "\n";
         });
-
         // Crear blob y descargar
         const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
@@ -1051,9 +1105,9 @@ function exportToPDF(data) {
         const fecha = new Date().toISOString().split('T')[0];
         doc.save(`reporte_ventas_${fecha}.pdf`);
 
-        console.log("✅ Exportación a PDF completada");
+        console.log(" Exportación a PDF completada");
     } catch (error) {
-        console.error("❌ Error al exportar a PDF:", error);
+        console.error(" Error al exportar a PDF:", error);
         alert("Error al exportar a PDF: " + error.message);
     }
 }
