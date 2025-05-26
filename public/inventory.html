@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario - Collector's Corner</title>
+    <title>Inventario - RTIS</title>
     <link rel="stylesheet" href="css/menu1.css">
     <link rel="stylesheet" href="css/inventory.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,7 +26,7 @@
                 </div>
                 <div class="logo-text">
                     <h1>Toy Garage</h1>
-                    <h2>Collector's Corner - Inventario General</h2>
+                    <h2>RTIS - Inventario General</h2>
                 </div>
             </div>
         </div>
@@ -71,7 +71,7 @@
 
     <!-- Modal para agregar productos -->
     <div id="productoModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content product-modal-content">
             <span class="close">&times;</span>
             <h3>Editar/Agregar Producto</h3>
             <form id="productoForm">
@@ -94,6 +94,20 @@
 
                 <label for="productoMarca">Marca:</label>
                 <input type="text" id="productoMarca" placeholder="Ej: Hot Wheels, Matchbox, etc.">
+
+                <label for="productoImagen">Imagen del producto:</label>
+                <div class="image-upload-container">
+                    <div id="imagePreview" class="image-preview">
+                        <img id="previewImg" src="https://placehold.co/200x200/e2e8f0/1e293b?text=Sin+Imagen"
+                            alt="Vista previa">
+                    </div>
+                    <div class="upload-controls">
+                        <input type="file" id="productoImagen" accept="image/jpeg, image/png, image/webp"
+                            style="display: none;">
+                        <button type="button" id="uploadImageBtn" class="upload-btn">Seleccionar imagen</button>
+                        <small>Formatos: JPG, PNG, WebP (máx. 1MB)</small>
+                    </div>
+                </div>
 
                 <label for="productoCantidad">Cantidad:</label>
                 <input type="number" id="productoCantidad" required>

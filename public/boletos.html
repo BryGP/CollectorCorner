@@ -4,13 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Boletos - Toy Garage</title>
+    <title>Gestión de Apartados - Toy Garage</title>
     <link rel="stylesheet" href="css/menu1.css">
     <link rel="stylesheet" href="css/boletos.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Racing+Sans+One&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
+    <!-- Encabezado de menu1 -->
     <header>
         <div class="header-top">
             <div class="logo">
@@ -19,7 +23,7 @@
                 </div>
                 <div class="logo-text">
                     <h1>Toy Garage</h1>
-                    <h2>Collector's Corner - Gestión de Boletos</h2>
+                    <h2>RTIS - Gestión de apartados en línea</h2>
                 </div>
             </div>
 
@@ -39,25 +43,26 @@
             <ul>
                 <li><a href="menu1.html"><i class="fas fa-home"></i> Inicio</a></li>
                 <li><a href="usuarios.html"><i class="fas fa-users"></i> Usuarios</a></li>
-                <li><a href="boletos.html" class="active"><i class="fas fa-ticket-alt"></i> Boletos</a></li>
                 <li><a href="settings.html"><i class="fas fa-cog"></i> Configuración</a></li>
             </ul>
         </nav>
     </header>
 
+    <!-- Contenido principal -->
     <main>
         <div class="boletos-container">
             <div class="boletos-header">
-                <h1 class="page-title">Gestión de Boletos</h1>
+                <h2 class="page-title">Gestión de apartados en línea</h2>
                 <div class="boletos-actions">
                     <div class="search-bar">
-                        <input type="text" id="searchBoleto" placeholder="Buscar por ID o nombre...">
+                        <input type="text" id="searchBoleto" placeholder="Buscar por ID, nombre o correo...">
                         <button id="searchBtn"><i class="fas fa-search"></i></button>
                     </div>
                     <div class="filter-options">
                         <select id="filterEstado">
                             <option value="todos">Todos los estados</option>
                             <option value="pendiente">Pendientes</option>
+                            <option value="expirado">Expirados</option>
                             <option value="completado">Completados</option>
                             <option value="cancelado">Cancelados</option>
                         </select>
@@ -66,7 +71,7 @@
             </div>
 
             <div id="boletosGrid" class="boletos-grid">
-                <!-- Los boletos se cargarán dinámicamente aquí -->
+                <!-- Aquí se cargarán los boletos dinámicamente -->
                 <div class="loading-spinner">
                     <i class="fas fa-spinner fa-spin"></i>
                     <p>Cargando boletos...</p>
@@ -75,23 +80,26 @@
 
             <div class="pagination">
                 <button id="prevPage" disabled><i class="fas fa-chevron-left"></i> Anterior</button>
-                <span id="pageInfo">Página 1 de 1</span>
-                <button id="nextPage">Siguiente <i class="fas fa-chevron-right"></i></button>
+                <div id="pageInfo">Página 1 de 1</div>
+                <button id="nextPage" disabled>Siguiente <i class="fas fa-chevron-right"></i></button>
             </div>
         </div>
     </main>
 
-    <!-- Modal para cambiar fecha -->
+    <!-- Modal para cambiar fecha de expiración -->
     <div id="cambiarFechaModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3>Cambiar Fecha de Expiración</h3>
+            <div class="boleto-info">
+                <p>Fecha actual: <span id="fechaActual">No disponible</span></p>
+            </div>
             <form id="cambiarFechaForm">
                 <input type="hidden" id="boletoId">
                 <div class="form-group">
                     <label for="nuevaFecha">Nueva fecha de expiración:</label>
                     <input type="datetime-local" id="nuevaFecha" required>
-                    <p class="form-help">La fecha actual de expiración es: <span id="fechaActual"></span></p>
+                    <div class="form-help">La nueva fecha debe ser posterior a la fecha actual.</div>
                 </div>
                 <div class="form-actions">
                     <button type="button" id="cancelarCambioFecha" class="btn-secondary">Cancelar</button>
@@ -101,56 +109,90 @@
         </div>
     </div>
 
-    <!-- Modal de confirmación para eliminar boleto -->
+    <!-- Modal para eliminar boleto -->
     <div id="eliminarBoletoModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3>Eliminar Boleto</h3>
-            <p>¿Estás seguro de que deseas eliminar este boleto? Esta acción no se puede deshacer.</p>
             <div class="boleto-info">
-                <p><strong>ID del Boleto:</strong> <span id="eliminarBoletoId"></span></p>
-                <p><strong>Cliente:</strong> <span id="eliminarBoletoCliente"></span></p>
+                <p><strong>ID:</strong> <span id="eliminarBoletoId">No disponible</span></p>
+                <p><strong>Cliente:</strong> <span id="eliminarBoletoCliente">No disponible</span></p>
             </div>
+            <p>¿Estás seguro de que deseas eliminar este boleto? Esta acción no se puede deshacer.</p>
             <div class="form-actions">
-                <button type="button" id="cancelarEliminar" class="btn-secondary">Cancelar</button>
-                <button type="button" id="confirmarEliminar" class="btn-danger">Eliminar</button>
+                <button id="cancelarEliminar" class="btn-secondary">Cancelar</button>
+                <button id="confirmarEliminar" class="btn-danger">Eliminar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de confirmación para completar compra -->
+    <!-- Modal para completar compra -->
     <div id="completarCompraModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3>Completar Compra</h3>
-            <p>¿Confirmas que el cliente ha completado la compra de los productos en este boleto?</p>
             <div class="boleto-info">
-                <p><strong>ID del Boleto:</strong> <span id="completarCompraId"></span></p>
-                <p><strong>Cliente:</strong> <span id="completarCompraCliente"></span></p>
-                <p><strong>Total:</strong> $<span id="completarCompraTotal"></span></p>
+                <p><strong>ID:</strong> <span id="completarCompraId">No disponible</span></p>
+                <p><strong>Cliente:</strong> <span id="completarCompraCliente">No disponible</span></p>
+                <p><strong>Total:</strong> $<span id="completarCompraTotal">0.00</span></p>
             </div>
+            <p>¿Confirmas que el cliente ha completado la compra y ha recogido sus productos?</p>
             <div class="form-actions">
                 <button type="button" id="cancelarCompletar" class="btn-secondary">Cancelar</button>
-                <button type="button" id="confirmarCompletar" class="btn-success">Confirmar Compra</button>
+                <button type="button" id="confirmarCompletar" class="btn-success">Confirmar</button>
             </div>
         </div>
     </div>
 
     <footer>
-        <div class="footer-content">
-            <div class="footer-logo">Toy Garage</div>
-            <p class="footer-text">&copy; 2024 RARITY TECH INNOVATIONS. Todos los derechos reservados.</p>
-            <div class="footer-links">
-                <a href="#">Términos</a>
-                <a href="#">Privacidad</a>
-                <a href="#">Soporte</a>
-            </div>
-        </div>
+        <p>&copy; 2024 RARITY TECH INNOVATIONS. Todos los derechos reservados.</p>
     </footer>
 
-    <script type="module" src="js/firebase-config.js"></script>
+    <!-- Scripts -->
+    <script>
+        // Inicializar EmailJS directamente en el HTML
+        (function () {
+            // ID de usuario real de EmailJS
+            emailjs.init('OuYm8E9jmlgqkpH8y');
+            console.log("EmailJS inicializado correctamente");
+        })();
+    </script>
     <script type="module" src="js/boletos.js"></script>
-    <script type="module" src="js/login.js"></script>
+    <script>
+        // Función para probar el envío de correo desde la interfaz
+        function mostrarFormularioPrueba() {
+            const email = prompt("Ingresa tu correo para la prueba:");
+            if (!email) return;
+
+            // Llamar a la función de prueba
+            window.probarEnvioCorreo();
+        }
+
+        // Añadir un botón de prueba (solo visible para administradores)
+        document.addEventListener('DOMContentLoaded', function () {
+            const userRole = document.getElementById('userRole');
+            if (userRole && userRole.textContent === 'Administrador') {
+                const footer = document.querySelector('footer');
+                if (footer) {
+                    const testButton = document.createElement('button');
+                    testButton.textContent = 'Probar Envío de Correo';
+                    testButton.style.position = 'fixed';
+                    testButton.style.bottom = '20px';
+                    testButton.style.right = '20px';
+                    testButton.style.padding = '10px 15px';
+                    testButton.style.backgroundColor = '#4caf50';
+                    testButton.style.color = 'white';
+                    testButton.style.border = 'none';
+                    testButton.style.borderRadius = '4px';
+                    testButton.style.cursor = 'pointer';
+                    testButton.style.zIndex = '1000';
+                    testButton.onclick = mostrarFormularioPrueba;
+
+                    document.body.appendChild(testButton);
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -1,4 +1,5 @@
-// js/cancelaciones.js
+// js/cancelaciones.js - Funcionalidad para la página de cancelaciones con Firebase
+
 // Importar Firebase y Firestore
 import { db } from "./firebase-config.js"
 import {
@@ -13,8 +14,10 @@ import {
     Timestamp,
     where,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
-import { checkAuth } from "./auth-check.js" 
+// Cambiar la importación de checkAdminAccess a checkEmployeeAccess
+import { checkEmployeeAccess } from "./auth-check.js" // Cambiado para usar la función de verificación de empleado
 
+// Reemplazar con esta forma de acceder a XLSX (ya que se carga desde CDN)
 // Al inicio del archivo, después de las importaciones de Firebase
 const XLSX = window.XLSX
 
@@ -31,17 +34,13 @@ let pageSize = 25
 let totalPages = 1
 
 // Función para inicializar la página
+// Modificar la función de inicialización para usar checkEmployeeAccess en lugar de checkAdminAccess
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("Cargando página de cancelaciones...")
 
-    // Verificar si el usuario está autenticado
-    const user = await checkAuth()
-    if (!user) {
-        console.error("Usuario no autenticado, redirigiendo a la página de inicio de sesión...")
-        alert("Debes iniciar sesión para acceder a esta página.")
-        window.location.href = "login.html"
-        return
-    }
+    // Verificar si el usuario está autenticado (ahora usa checkEmployeeAccess)
+    const isEmployee = await checkEmployeeAccess()
+    if (!isEmployee) return // Si no está logueado, la función ya redirigió
 
     // Cargar ventas desde Firebase
     await loadAllSalesFromFirebase()
@@ -472,7 +471,7 @@ function openDeleteModal() {
     modal.style.display = "block"
 }
 
-// Función para renderizar la vista previa del ticket
+// Reemplazar la función renderTicketPreview con esta versión
 function renderTicketPreview(venta) {
     const ticketPreview = document.getElementById("ticketPreview")
 
@@ -536,9 +535,18 @@ function renderTicketPreview(venta) {
     `
     }
 
-    // Calcular totales
-    const impuesto = venta.impuesto || subtotal * 0.16
-    const total = venta.total || subtotal + impuesto
+    // Calcular totales y descuento
+    const descuentoPorcentaje = venta.descuentoPorcentaje || 15 // Default 15% si no hay valor
+    const descuentoMonto = venta.descuento || (subtotal * descuentoPorcentaje) / 100
+    const total = venta.total || subtotal - descuentoMonto
+
+    // Obtener nombre de usuario en lugar de email
+    let nombreUsuario = venta.usuario || "Usuario"
+    // Si el usuario es un email, intentar obtener solo el nombre
+    if (nombreUsuario.includes("@")) {
+        // Intentar obtener el nombre de usuario del email (parte antes del @)
+        nombreUsuario = nombreUsuario.split("@")[0]
+    }
 
     // Generar HTML del ticket
     ticketPreview.innerHTML = `
@@ -546,7 +554,7 @@ function renderTicketPreview(venta) {
       <h1>Toy Garaje</h1>
       <p>Tienda de Coleccionables</p>
       <p>Calle Circuito, Jdn. 14C, Alamos 3ra Secc, 76147</p>
-      <p>Tel: (442) 123-4567</p>
+      <p>Tel: (+52)446-145-1938</p>
       <div class="ticket-divider"></div>
       <p class="ticket-info">
         <span>Ticket #: ${venta.numeroTicket || "00000000"}</span>
@@ -554,7 +562,7 @@ function renderTicketPreview(venta) {
       </p>
       <p class="ticket-info">
         <span>Hora: ${horaFormateada}</span>
-        <span>Cajero: ${venta.usuario || "Usuario"}</span>
+        <span>Cajero: ${nombreUsuario}</span>
       </p>
       <div class="ticket-divider"></div>
     </div>
@@ -583,8 +591,8 @@ function renderTicketPreview(venta) {
           <span class="total-value">$${subtotal.toFixed(2)}</span>
         </div>
         <div class="total-line">
-          <span class="total-label">IVA (16%):</span>
-          <span class="total-value">$${Number.parseFloat(impuesto).toFixed(2)}</span>
+          <span class="total-label">Descuento:</span>
+          <span class="total-value">$${descuentoMonto.toFixed(2)} (${descuentoPorcentaje}%)</span>
         </div>
         <div class="total-line total-final">
           <span class="total-label">TOTAL:</span>
@@ -596,7 +604,7 @@ function renderTicketPreview(venta) {
       
       <div class="payment-info">
         <p><strong>Forma de pago:</strong> ${venta.metodoPago || "Efectivo"}</p>
-        ${venta.metodoPago === "Efectivo"
+        ${venta.metodoPago === "Efectivo" && (venta.efectivoRecibido || venta.cambio)
             ? `
         <p><strong>Recibido:</strong> $${venta.efectivoRecibido || total.toFixed(2)}</p>
         <p><strong>Cambio:</strong> $${venta.cambio || "0.00"}</p>
@@ -616,7 +624,7 @@ function renderTicketPreview(venta) {
         <p>¡Gracias por su compra!</p>
         <p>Vuelva pronto</p>
         <p class="small-text">Este ticket es su comprobante de compra</p>
-        <p class="small-text">www.collectorscorner.com</p>
+        <p class="small-text">www.toygaraje.com</p>
       </div>
     </div>
   `
@@ -748,7 +756,7 @@ async function confirmCancelAction() {
 
         // Restaurar botón
         const confirmBtn = document.getElementById("confirmAction")
-        confirmBtn.textContent = originalText
+        confirmBtn.textContent = "Confirmar Acción"
         confirmBtn.disabled = false
     }
 }
@@ -1042,7 +1050,6 @@ function exportToPDF(data) {
     console.log("Exportación a PDF completada")
 }
 
-// Función para buscar tickets - CORREGIDA
 // Función para buscar tickets - CORREGIDA
 function searchTickets() {
     const searchTerm = document.getElementById("searchInput").value.toLowerCase()
