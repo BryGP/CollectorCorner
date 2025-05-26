@@ -1260,6 +1260,266 @@ main {
     /* Reducido de 10px */
 }
 
+/* ======== ESTILOS ESPECÍFICOS PARA EL PANEL DE APARTADOS EN TIENDA ======== */
+
+/* Contenedor principal del panel de apartado, similar a ventas-panel */
+.apartado-panel {
+    display: grid;
+    grid-template-columns: 60% 40%;
+    /* Divide el panel en dos columnas, similar a ventas */
+    gap: 15px;
+    height: 100%;
+}
+
+/* Panel de búsqueda y adición de productos para apartados */
+.apartado-busqueda-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Estilos para el campo de búsqueda de productos de apartado */
+/* Reutiliza .search-box del panel de ventas, pero con un nombre específico si es necesario */
+.apartado-search-box {
+    position: relative;
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 15px;
+    flex-shrink: 0;
+    margin-bottom: 12px;
+    /* Reducido de 15px */
+}
+
+.apartado-search-box input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+    transition: var(--transition);
+}
+
+.apartado-search-box input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(30, 87, 153, 0.2);
+}
+
+/* Sugerencias de productos para el apartado */
+/* Reutiliza los estilos de .sugerencias-container y .sugerencia-item */
+.apartado-sugerencias-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--white);
+    border: 1px solid #ddd;
+    border-radius: 0 0 6px 6px;
+    box-shadow: var(--shadow);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+    /* Controlado por JS */
+}
+
+/* El .sugerencia-item ya es global y aplicaría, pero se podría añadir un especifico para apartado si difiere */
+/* .apartado-sugerencias-container .sugerencia-item { ... } */
+
+
+/* Panel del carrito de apartado */
+.apartado-carrito-panel {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.apartado-carrito-panel h3 {
+    color: var(--primary-blue);
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    border-bottom: 2px solid var(--accent-yellow);
+    padding-bottom: 6px;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* Lista de productos en el carrito de apartado */
+/* Similar a .carrito-lista */
+.apartado-carrito-lista {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 8px;
+    background-color: #fafafa;
+    min-height: 120px;
+}
+
+/* Mensaje de carrito vacío en apartado */
+/* Similar a .carrito-vacio */
+.apartado-carrito-lista .carrito-vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #aaa;
+    text-align: center;
+    min-height: 120px;
+}
+
+.apartado-carrito-lista .carrito-vacio i {
+    font-size: 2.5em;
+    margin-bottom: 8px;
+}
+
+/* Estilos para cada producto individual en el carrito de apartado */
+/* Ya tienes .producto-apartado definido en el CSS existente, se reutiliza */
+/*
+.producto-apartado {
+    background-color: var(--white);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+.producto-apartado .producto-header { ... }
+.producto-apartado .producto-nombre { ... }
+.producto-apartado .producto-acciones { ... }
+.producto-apartado .btn-eliminar { ... }
+.producto-apartado .producto-detalles { ... }
+.producto-apartado .producto-cantidad { ... }
+.producto-apartado .btn-cantidad { ... }
+.producto-apartado .cantidad-valor { ... }
+.producto-apartado .producto-precio { ... }
+*/
+
+/* Totales del apartado (subtotal, enganche, total) */
+/* Similar a .carrito-totales */
+.apartado-totales-summary {
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.apartado-totales-summary .total-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.apartado-totales-summary .total-final {
+    font-weight: 700;
+    font-size: 1.05em;
+    color: var(--primary-blue);
+    border-top: 1px solid #ddd;
+    padding-top: 6px;
+    margin-top: 6px;
+}
+
+/* Campos de entrada para el monto recibido y el cambio en apartado */
+/* Reutiliza estilos de .form-group y .input-group */
+.apartado-pago-input-group {
+    margin-bottom: 12px;
+}
+
+.apartado-pago-input-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.apartado-pago-input-group input,
+.apartado-pago-input-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+/* Botones de acción para crear y cancelar apartado */
+/* Reutiliza estilos de .btn-primary y .btn-secondary */
+.apartado-acciones-btns {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    margin-top: 10px;
+    /* Espacio superior */
+}
+
+/* El .btn-primary y .btn-secondary ya son globales y aplicarán, pero se podría añadir un especifico para apartado si difiere */
+/*
+.apartado-acciones-btns .btn-primary { ... }
+.apartado-acciones-btns .btn-secondary { ... }
+*/
+
+/* Sección de información del cliente para apartado */
+.apartado-cliente-info {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.apartado-cliente-info h3 {
+    color: var(--primary-blue);
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    border-bottom: 2px solid var(--accent-yellow);
+    padding-bottom: 6px;
+    display: inline-block;
+}
+
+.apartado-cliente-info .form-group {
+    margin-bottom: 15px;
+}
+
+.apartado-cliente-info .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.apartado-cliente-info .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+}
+
+
+/* Adaptaciones responsive para el panel de apartado */
+@media (max-width: 992px) {
+    .apartado-panel {
+        grid-template-columns: 1fr;
+        /* Una columna en pantallas más pequeñas */
+        height: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    .apartado-acciones-btns {
+        flex-direction: column;
+    }
+}
+
 /* ======== MODAL DE PAGO ======== */
 .modal {
     display: none;

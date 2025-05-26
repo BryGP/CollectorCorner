@@ -50,7 +50,6 @@
     <main class="ventas-container">
         <div class="fecha-actual" id="fecha-actual"></div>
 
-        <!-- Sistema de tabs -->
         <div class="tabs-container">
             <div class="tabs">
                 <button class="tab-btn active" data-tab="ventas">Ventas</button>
@@ -59,9 +58,7 @@
             </div>
         </div>
 
-        <!-- Contenido de los tabs -->
         <div class="tab-content">
-            <!-- Tab de Ventas (contenido original) -->
             <div class="tab-pane active" id="ventas">
                 <div class="ventas-panel">
                     <div class="busqueda-panel">
@@ -109,7 +106,6 @@
                         <h3><i class="fas fa-receipt"></i> Vista Previa del Ticket</h3>
                         <div class="ticket-container">
                             <div class="ticket">
-                                <!-- Encabezado del ticket -->
                                 <div class="ticket-header">
                                     <h1>Toy Garaje</h1>
                                     <p>Tienda de Coleccionables</p>
@@ -127,7 +123,6 @@
                                     <div class="ticket-divider"></div>
                                 </div>
 
-                                <!-- Contenido del ticket (productos) -->
                                 <div class="ticket-content">
                                     <table class="ticket-items">
                                         <thead>
@@ -147,7 +142,6 @@
                                     <div class="ticket-divider"></div>
                                 </div>
 
-                                <!-- Pie del ticket (totales) -->
                                 <div class="ticket-footer">
                                     <div class="ticket-totals">
                                         <div class="total-line">
@@ -200,77 +194,100 @@
                 </div>
             </div>
 
-            <!-- Tab de Apartado en Tienda -->
             <div class="tab-pane" id="apartado-tienda">
                 <div class="apartado-container">
-                    <h2><i class="fas fa-store"></i> Apartado en Tienda</h2>
+                    <h2><i class="fas fa-store"></i> Nuevo Apartado en Tienda</h2>
 
-                    <div class="apartado-info-card">
-                        <h3>¿Cómo funciona el apartado en tienda?</h3>
-                        <div class="proceso-apartado">
-                            <div class="paso-apartado">
-                                <div class="paso-numero">1</div>
-                                <div class="paso-contenido">
-                                    <h4>Selecciona tus productos</h4>
-                                    <p>Visita cualquiera de nuestras tiendas físicas y selecciona los productos que
-                                        deseas apartar.</p>
+                    <div class="apartado-form-card">
+                        <h3>Detalles del Cliente</h3>
+                        <div class="form-group">
+                            <label for="apartado-cliente-nombre">Nombre del Cliente:</label>
+                            <input type="text" id="apartado-cliente-nombre" placeholder="Buscar cliente o registrar nuevo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="apartado-cliente-telefono">Teléfono (opcional):</label>
+                            <input type="tel" id="apartado-cliente-telefono" placeholder="Ej: 4421234567">
+                        </div>
+                        <div class="form-group">
+                            <label for="apartado-cliente-email">Email (opcional):</label>
+                            <input type="email" id="apartado-cliente-email" placeholder="cliente@ejemplo.com">
+                        </div>
+                    </div>
+
+                    <div class="apartado-form-card">
+                        <h3>Productos a Apartar</h3>
+                        <div class="search-box">
+                            <input type="text" id="apartado-busqueda-producto"
+                                placeholder="Buscar producto por nombre o código...">
+                            <div id="apartado-sugerencias-container" class="sugerencias-container"></div>
+                        </div>
+
+                        <div class="carrito-panel">
+                            <h3><i class="fas fa-box"></i> Productos en Apartado</h3>
+                            <div class="carrito-lista" id="apartado-carrito-lista">
+                                <div class="carrito-vacio">
+                                    <i class="fas fa-box-open"></i>
+                                    <p>No hay productos agregados para el apartado</p>
                                 </div>
                             </div>
-                            <div class="paso-apartado">
-                                <div class="paso-numero">2</div>
-                                <div class="paso-contenido">
-                                    <h4>Realiza un anticipo</h4>
-                                    <p>Paga un anticipo mínimo del 30% del valor total de tu compra para asegurar tus
-                                        productos.</p>
+                            <div class="carrito-totales">
+                                <div class="total-line">
+                                    <span>Subtotal:</span>
+                                    <span id="apartado-subtotal-productos">$0.00</span>
                                 </div>
-                            </div>
-                            <div class="paso-apartado">
-                                <div class="paso-numero">3</div>
-                                <div class="paso-contenido">
-                                    <h4>Completa tu pago</h4>
-                                    <p>Tienes hasta 15 días para completar el pago y recoger tus productos en la tienda.
-                                    </p>
+                                <div class="total-line">
+                                    <span>Enganche (10%):</span>
+                                    <span id="apartado-enganche">$0.00</span>
+                                </div>
+                                <div class="total-line total-final">
+                                    <span>TOTAL a Apartar:</span>
+                                    <span id="apartado-total-productos">$0.00</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="apartado-info-card">
-                        <h3>Políticas de apartado en tienda</h3>
-                        <ul class="politicas-lista">
-                            <li><i class="fas fa-check-circle"></i> El anticipo mínimo es del 30% del valor total de la
-                                compra.</li>
-                            <li><i class="fas fa-check-circle"></i> El período máximo de apartado es de 15 días
-                                naturales.</li>
-                            <li><i class="fas fa-check-circle"></i> Si no completas tu pago en el período establecido,
-                                perderás tu anticipo.</li>
-                            <li><i class="fas fa-check-circle"></i> Los productos apartados no pueden ser cambiados por
-                                otros artículos.</li>
-                            <li><i class="fas fa-check-circle"></i> Puedes realizar pagos parciales durante el período
-                                de apartado.</li>
-                        </ul>
+                    <div class="apartado-form-card">
+                        <h3>Detalles del Apartado y Pagos</h3>
+                        <div class="apartado-fechas">
+                            <p><strong>Fecha de Apartado:</strong> <span id="apartado-fecha-actual"></span></p>
+                            <p><strong>Fecha Límite 1er Abono (15 días):</strong> <span id="apartado-fecha-15dias"></span></p>
+                            <p><strong>Fecha Límite Liquidación (Fin de mes):</strong> <span id="apartado-fecha-fin-mes"></span></p>
+                        </div>
+                        <div class="input-group">
+                            <label for="apartado-monto-recibido">Monto de Enganche Recibido:</label>
+                            <input type="number" id="apartado-monto-recibido" min="0" step="0.01" value="0.00">
+                        </div>
+                        <div class="input-group">
+                            <label for="apartado-cambio">Cambio:</label>
+                            <input type="text" id="apartado-cambio" value="$0.00" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="apartado-metodo-pago-enganche">Método de Pago (Enganche):</label>
+                            <select id="apartado-metodo-pago-enganche">
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                                <option value="Tarjeta de Débito">Tarjeta de Débito</option>
+                                <option value="Transferencia">Transferencia</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <div class="apartado-info-card">
-                        <h3>Nuestras tiendas</h3>
-                        <div class="tiendas-grid">
-                            <div class="tienda-card">
-                                <h4>Toy Garage - Centro</h4>
-                                <p><i class="fas fa-map-marker-alt"></i> Av. Constituyentes 123, Centro, 76000</p>
-                                <p><i class="fas fa-phone"></i> (442) 123-4567</p>
-                                <p><i class="fas fa-clock"></i> Lun-Sáb: 10:00 - 20:00, Dom: 11:00 - 18:00</p>
-                            </div>
-                        </div>
+                    <div class="apartado-acciones">
+                        <button id="btn-crear-apartado" class="btn-primary">
+                            <i class="fas fa-plus-circle"></i> Crear Nuevo Apartado
+                        </button>
+                        <button id="btn-cancelar-apartado" class="btn-secondary">
+                            <i class="fas fa-times"></i> Cancelar Apartado
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab de Apartado en Línea -->
             <div class="tab-pane" id="apartado-linea">
                 <div class="apartado-container">
                     <h2><i class="fas fa-globe"></i> Apartado en Línea</h2>
 
-                    <!-- Formulario de búsqueda de token -->
                     <div class="apartado-info-card">
                         <h3>Consultar Apartado Existente</h3>
                         <div class="token-search-container">
@@ -289,7 +306,6 @@
                         </div>
                     </div>
 
-                    <!-- Resumen de apartado (inicialmente oculto) -->
                     <div id="resumen-apartado" class="apartado-info-card" style="display: none;">
                         <h3>Resumen de tu Apartado</h3>
                         <div class="apartado-details">
@@ -306,7 +322,7 @@
                                     <p><strong>Cliente:</strong> <span id="cliente-apartado">Nombre del Cliente</span>
                                     </p>
                                     <p><strong>Método de Entrega:</strong> <span id="metodo-entrega-apartado">Recoger en
-                                            tienda</span></p>
+                                                tienda</span></p>
                                     <p><strong>Fecha Límite:</strong> <span id="fecha-limite">15/01/2025</span></p>
                                 </div>
                             </div>
@@ -324,8 +340,7 @@
                                             </tr>
                                         </thead>
                                         <tbody id="productos-apartados">
-                                            <!-- Los productos se cargarán dinámicamente -->
-                                        </tbody>
+                                            </tbody>
                                     </table>
                                 </div>
                             </div>
@@ -360,7 +375,6 @@
                         <h3><i class="fas fa-receipt"></i> Vista Previa del Ticket</h3>
                         <div class="ticket-container">
                             <div class="ticket">
-                                <!-- Encabezado del ticket -->
                                 <div class="ticket-header">
                                     <h1>Toy Garaje</h1>
                                     <p>Tienda de Coleccionables</p>
@@ -378,7 +392,6 @@
                                     <div class="ticket-divider"></div>
                                 </div>
 
-                                <!-- Contenido del ticket (productos) -->
                                 <div class="ticket-content">
                                     <table class="ticket-items">
                                         <thead>
@@ -398,7 +411,6 @@
                                     <div class="ticket-divider"></div>
                                 </div>
 
-                                <!-- Pie del ticket (totales) -->
                                 <div class="ticket-footer">
                                     <div class="ticket-totals">
                                         <div class="total-line">
@@ -447,7 +459,6 @@
         </div>
     </main>
 
-    <!-- Modal de pago -->
     <div id="modal-pago" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -469,7 +480,6 @@
                         <input type="number" id="descuento-input" min="0" max="100" step="1" value="15">
                     </div>
 
-                    <!-- Total con descuento -->
                     <div class="total-con-descuento">
                         <p>Total con descuento: <strong id="total-con-descuento">$0.00</strong></p>
                     </div>
@@ -494,7 +504,6 @@
     </div>
     <div id="modal-overlay"></div>
 
-    <!-- Modal para completar compra de apartado -->
     <div id="modal-completar-compra" class="modal">
         <div class="modal-content">
             <div class="modal-header">

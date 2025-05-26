@@ -47,6 +47,478 @@ const ticketRecibidoContainer = document.getElementById("ticket-recibido-contain
 const ticketCambioContainer = document.getElementById("ticket-cambio-container")
 const ticketBarcodeText = document.getElementById("ticket-barcode-text")
 
+// ==================== FUNCIONES PARA APARTADO EN TIENDA ====================
+
+// Variables globales para apartados
+let productosApartado = [];
+let clienteApartado = null;
+let engancheRecibido = 0;
+
+// Elementos del DOM para apartados
+const apartadoClienteNombre = document.getElementById("apartado-cliente-nombre");
+const apartadoClienteTelefono = document.getElementById("apartado-cliente-telefono");
+const apartadoClienteEmail = document.getElementById("apartado-cliente-email");
+const apartadoBusquedaInput = document.getElementById("apartado-busqueda-producto");
+const apartadoSugerenciasContainer = document.getElementById("apartado-sugerencias-container");
+const apartadoCarritoLista = document.getElementById("apartado-carrito-lista");
+const apartadoSubtotalElement = document.getElementById("apartado-subtotal-productos");
+const apartadoEngancheElement = document.getElementById("apartado-enganche");
+const apartadoTotalElement = document.getElementById("apartado-total-productos");
+const apartadoMontoRecibido = document.getElementById("apartado-monto-recibido");
+const apartadoCambioElement = document.getElementById("apartado-cambio");
+const apartadoMetodoPagoEnganche = document.getElementById("apartado-metodo-pago-enganche");
+const btnCrearApartado = document.getElementById("btn-crear-apartado");
+const btnCancelarApartado = document.getElementById("btn-cancelar-apartado");
+
+// Configurar eventos para apartados en tienda
+function configurarApartadoEnTienda() {
+    // Evento para buscar productos en apartado
+    if (apartadoBusquedaInput) {
+        apartadoBusquedaInput.addEventListener("input", buscarProductosApartadoTienda);
+    }
+
+    // Evento para agregar producto al apartado
+    const btnAgregarProductoApartado = document.getElementById("btn-agregar-producto-apartado");
+    if (btnAgregarProductoApartado) {
+        btnAgregarProductoApartado.addEventListener("click", agregarProductoAlApartado);
+    }
+
+    // Evento para calcular cambio
+    if (apartadoMontoRecibido) {
+        apartadoMontoRecibido.addEventListener("input", calcularCambioApartadoTienda);
+    }
+
+    // Evento para crear apartado
+    if (btnCrearApartado) {
+        btnCrearApartado.addEventListener("click", crearApartadoEnTienda);
+    }
+
+    // Evento para cancelar apartado
+    if (btnCancelarApartado) {
+        btnCancelarApartado.addEventListener("click", cancelarApartadoEnTienda);
+    }
+
+    // Actualizar fechas de apartado
+    actualizarFechasApartado();
+}
+
+// Función para buscar productos en apartado en tienda
+async function buscarProductosApartadoTienda() {
+    const busqueda = apartadoBusquedaInput.value.trim();
+
+    if (!busqueda) {
+        apartadoSugerenciasContainer.innerHTML = "";
+        apartadoSugerenciasContainer.style.display = "none";
+        return;
+    }
+
+    try {
+        const productosRef = collection(db, "Productos");
+        let q = query(productosRef, where("name", ">=", busqueda), where("name", "<=", busqueda + "\uf8ff"));
+        let querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            q = query(productosRef, where("codigo", "==", busqueda));
+            querySnapshot = await getDocs(q);
+        }
+
+        apartadoSugerenciasContainer.innerHTML = "";
+
+        if (querySnapshot.empty) {
+            apartadoSugerenciasContainer.innerHTML = `
+                <div class="sugerencia-item">
+                    <span>No se encontraron productos</span>
+                </div>
+            `;
+            apartadoSugerenciasContainer.style.display = "block";
+            return;
+        }
+
+        querySnapshot.forEach((doc) => {
+            const producto = doc.data();
+            const div = document.createElement("div");
+            div.className = "sugerencia-item";
+
+            const codigoTexto = producto.codigo ? `${producto.codigo} - ` : "";
+
+            div.innerHTML = `
+                <div class="sugerencia-info">
+                    <span class="sugerencia-nombre">${codigoTexto}${producto.name}</span>
+                    <span class="sugerencia-stock">Stock: ${producto.stock || 0}</span>
+                </div>
+                <span class="sugerencia-precio">$${producto.precio ? producto.precio.toFixed(2) : "0.00"}</span>
+            `;
+
+            div.dataset.id = doc.id;
+            div.dataset.nombre = producto.name;
+            div.dataset.precio = producto.precio || 0;
+            div.dataset.stock = producto.stock || 0;
+
+            div.addEventListener("click", () => {
+                agregarProductoAlApartadoDesdeSeleccion(div.dataset);
+                apartadoBusquedaInput.value = "";
+                apartadoSugerenciasContainer.style.display = "none";
+            });
+
+            apartadoSugerenciasContainer.appendChild(div);
+        });
+
+        apartadoSugerenciasContainer.style.display = "block";
+    } catch (error) {
+        console.error("Error al buscar productos para apartado:", error);
+        apartadoSugerenciasContainer.innerHTML = `
+            <div class="sugerencia-item">
+                <span>Error al buscar productos</span>
+            </div>
+        `;
+        apartadoSugerenciasContainer.style.display = "block";
+    }
+}
+
+// Función para agregar producto al apartado
+function agregarProductoAlApartado() {
+    if (!apartadoBusquedaInput || !apartadoBusquedaInput.value.trim()) {
+        mostrarAlerta("Primero busca y selecciona un producto", "error");
+        return;
+    }
+
+    // Similar a la función de ventas, pero adaptada para apartados
+    // Implementar lógica similar a agregarProductoAlBoleto()
+}
+
+// Función para agregar producto al apartado desde selección
+async function agregarProductoAlApartadoDesdeSeleccion(producto) {
+    const { id, nombre, precio, stock } = producto;
+    const precioNum = Number.parseFloat(precio);
+    const stockNum = Number.parseInt(stock);
+
+    if (stockNum <= 0) {
+        mostrarAlerta("Este producto está agotado", "error");
+        return;
+    }
+
+    const cantidad = prompt(`¿Cuántas unidades de ${nombre} deseas apartar? (Disponibles: ${stockNum})`);
+
+    if (!cantidad) return;
+
+    const cantidadNum = Number.parseInt(cantidad);
+
+    if (isNaN(cantidadNum) || cantidadNum <= 0) {
+        mostrarAlerta("Por favor, ingresa una cantidad válida", "error");
+        return;
+    }
+
+    if (cantidadNum > stockNum) {
+        mostrarAlerta("No hay suficiente stock disponible", "error");
+        return;
+    }
+
+    const productoExistente = productosApartado.find(p => p.id === id);
+
+    if (productoExistente) {
+        productoExistente.cantidad += cantidadNum;
+        productoExistente.subtotal = (productoExistente.cantidad * productoExistente.precioUnitario).toFixed(2);
+    } else {
+        productosApartado.push({
+            id,
+            nombre,
+            precioUnitario: precioNum,
+            cantidad: cantidadNum,
+            subtotal: (precioNum * cantidadNum).toFixed(2)
+        });
+    }
+
+    actualizarCarritoApartado();
+    mostrarAlerta(`${nombre} agregado al apartado`, "success");
+}
+
+// Función para actualizar carrito de apartado
+function actualizarCarritoApartado() {
+    apartadoCarritoLista.innerHTML = "";
+
+    if (productosApartado.length === 0) {
+        apartadoCarritoLista.innerHTML = `
+            <div class="carrito-vacio">
+                <i class="fas fa-box-open"></i>
+                <p>No hay productos agregados para el apartado</p>
+            </div>
+        `;
+
+        apartadoSubtotalElement.textContent = "$0.00";
+        apartadoEngancheElement.textContent = "$0.00";
+        apartadoTotalElement.textContent = "$0.00";
+        return;
+    }
+
+    let subtotal = 0;
+
+    productosApartado.forEach((producto, index) => {
+        const div = document.createElement("div");
+        div.className = "producto-carrito";
+
+        const subtotalProducto = Number.parseFloat(producto.subtotal);
+        subtotal += subtotalProducto;
+
+        div.innerHTML = `
+            <div class="producto-header">
+                <span class="producto-nombre">${producto.nombre}</span>
+                <div class="producto-acciones">
+                    <button class="btn-eliminar" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="producto-detalles">
+                <div class="producto-cantidad">
+                    <button class="btn-cantidad btn-restar" data-index="${index}">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <span class="cantidad-valor">${producto.cantidad}</span>
+                    <button class="btn-cantidad btn-sumar" data-index="${index}">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <span class="producto-precio">$${subtotalProducto.toFixed(2)}</span>
+            </div>
+        `;
+
+        apartadoCarritoLista.appendChild(div);
+    });
+
+    // Calcular enganche (10% del subtotal)
+    const enganche = subtotal * 0.1;
+    const total = subtotal;
+
+    apartadoSubtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+    apartadoEngancheElement.textContent = `$${enganche.toFixed(2)}`;
+    apartadoTotalElement.textContent = `$${total.toFixed(2)}`;
+
+    // Configurar eventos para los botones
+    document.querySelectorAll(".btn-eliminar").forEach(btn => {
+        btn.addEventListener("click", function () {
+            eliminarProductoApartadoTienda(Number.parseInt(this.getAttribute("data-index")));
+        });
+    });
+
+    document.querySelectorAll(".btn-restar").forEach(btn => {
+        btn.addEventListener("click", function () {
+            restarCantidadApartadoTienda(Number.parseInt(this.getAttribute("data-index")));
+        });
+    });
+
+    document.querySelectorAll(".btn-sumar").forEach(btn => {
+        btn.addEventListener("click", function () {
+            sumarCantidadApartadoTienda(Number.parseInt(this.getAttribute("data-index")));
+        });
+    });
+}
+
+// Función para eliminar producto del apartado en tienda
+function eliminarProductoApartadoTienda(index) {
+    if (index >= 0 && index < productosApartado.length) {
+        const producto = productosApartado[index];
+        productosApartado.splice(index, 1);
+        actualizarCarritoApartado();
+        mostrarAlerta(`${producto.nombre} eliminado del apartado`, "info");
+    }
+}
+
+// Función para restar cantidad en apartado en tienda
+function restarCantidadApartadoTienda(index) {
+    if (index >= 0 && index < productosApartado.length) {
+        if (productosApartado[index].cantidad > 1) {
+            productosApartado[index].cantidad -= 1;
+            productosApartado[index].subtotal = (productosApartado[index].cantidad * productosApartado[index].precioUnitario).toFixed(2);
+            actualizarCarritoApartado();
+        } else {
+            eliminarProductoApartadoTienda(index);
+        }
+    }
+}
+
+// Función para sumar cantidad en apartado en tienda
+async function sumarCantidadApartadoTienda(index) {
+    if (index >= 0 && index < productosApartado.length) {
+        const productoId = productosApartado[index].id;
+
+        try {
+            const productoDoc = await getDoc(doc(db, "Productos", productoId));
+            if (productoDoc.exists()) {
+                const stockDisponible = productoDoc.data().stock || 0;
+
+                if (productosApartado[index].cantidad < stockDisponible) {
+                    productosApartado[index].cantidad += 1;
+                    productosApartado[index].subtotal = (productosApartado[index].cantidad * productosApartado[index].precioUnitario).toFixed(2);
+                    actualizarCarritoApartado();
+                } else {
+                    mostrarAlerta("No hay suficiente stock disponible", "error");
+                }
+            }
+        } catch (error) {
+            console.error("Error al verificar stock:", error);
+        }
+    }
+}
+
+// Función para calcular cambio en apartado en tienda
+function calcularCambioApartadoTienda() {
+    const montoRecibido = Number.parseFloat(apartadoMontoRecibido.value) || 0;
+    const enganche = Number.parseFloat(apartadoEngancheElement.textContent.replace("$", "")) || 0;
+
+    if (montoRecibido < enganche) {
+        apartadoCambioElement.value = "Monto insuficiente";
+    } else {
+        const cambio = montoRecibido - enganche;
+        apartadoCambioElement.value = `$${cambio.toFixed(2)}`;
+    }
+}
+
+// Función para actualizar fechas de apartado
+function actualizarFechasApartado() {
+    const fechaActual = new Date();
+    const fecha15Dias = new Date();
+    fecha15Dias.setDate(fechaActual.getDate() + 15);
+
+    // Fin de mes
+    const finDeMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
+
+    // Formatear fechas
+    const formatoFecha = (fecha) => {
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        const año = fecha.getFullYear();
+        return `${dia}/${mes}/${año}`;
+    };
+
+    document.getElementById("apartado-fecha-actual").textContent = formatoFecha(fechaActual);
+    document.getElementById("apartado-fecha-15dias").textContent = formatoFecha(fecha15Dias);
+    document.getElementById("apartado-fecha-fin-mes").textContent = formatoFecha(finDeMes);
+}
+
+// Función para crear apartado en tienda
+async function crearApartadoEnTienda() {
+    if (productosApartado.length === 0) {
+        mostrarAlerta("No hay productos en el apartado", "error");
+        return;
+    }
+
+    if (!apartadoClienteNombre.value.trim()) {
+        mostrarAlerta("Por favor, ingresa el nombre del cliente", "error");
+        return;
+    }
+
+    const engancheRequerido = Number.parseFloat(apartadoEngancheElement.textContent.replace("$", "")) || 0;
+    const montoRecibido = Number.parseFloat(apartadoMontoRecibido.value) || 0;
+
+    if (montoRecibido < engancheRequerido) {
+        mostrarAlerta("El monto recibido es menor al enganche requerido", "error");
+        return;
+    }
+
+    try {
+        // Calcular totales
+        const subtotal = productosApartado.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
+        const enganche = subtotal * 0.1;
+        const total = subtotal;
+        const cambio = montoRecibido - enganche;
+
+        // Crear objeto de apartado
+        const apartado = {
+            tipo: "tienda",
+            cliente: {
+                nombre: apartadoClienteNombre.value.trim(),
+                telefono: apartadoClienteTelefono.value.trim(),
+                email: apartadoClienteEmail.value.trim()
+            },
+            productos: productosApartado.map(p => ({
+                productoId: p.id,
+                nombre: p.nombre,
+                cantidad: p.cantidad,
+                precioUnitario: p.precioUnitario,
+                subtotal: Number.parseFloat(p.subtotal)
+            })),
+            subtotal: subtotal,
+            enganche: enganche,
+            total: total,
+            metodoPagoEnganche: apartadoMetodoPagoEnganche.value,
+            montoRecibido: montoRecibido,
+            cambio: cambio,
+            fechaApartado: serverTimestamp(),
+            fechaLimite1erAbono: new Date(new Date().setDate(new Date().getDate() + 15)),
+            fechaLimiteLiquidacion: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+            estado: "pendiente",
+            creadoPor: usuarioActual ? usuarioActual.email : "sistema",
+            numeroApartado: generarNumeroApartado()
+        };
+
+        // Guardar apartado en Firestore
+        const apartadoRef = await addDoc(collection(db, "Apartados"), apartado);
+        console.log("Apartado creado con ID:", apartadoRef.id);
+
+        // Actualizar stock de productos
+        for (const producto of productosApartado) {
+            const productoRef = doc(db, "Productos", producto.id);
+            const productoDoc = await getDoc(productoRef);
+
+            if (productoDoc.exists()) {
+                const stockActual = productoDoc.data().stock || 0;
+                const nuevoStock = Math.max(0, stockActual - producto.cantidad);
+
+                await updateDoc(productoRef, {
+                    stock: nuevoStock,
+                    updatedAt: serverTimestamp()
+                });
+            }
+        }
+
+        // Mostrar mensaje de éxito
+        mostrarAlerta(`Apartado creado con éxito. Número: ${apartado.numeroApartado}`, "success");
+
+        // Limpiar formulario
+        cancelarApartadoEnTienda();
+
+        // TODO: Mostrar ticket de apartado
+    } catch (error) {
+        console.error("Error al crear apartado:", error);
+        mostrarAlerta("Error al crear apartado: " + error.message, "error");
+    }
+}
+
+// Función para cancelar apartado en tienda
+function cancelarApartadoEnTienda() {
+    if (productosApartado.length === 0) {
+        return;
+    }
+
+    if (confirm("¿Está seguro de cancelar este apartado? Se perderán todos los datos.")) {
+        productosApartado = [];
+        clienteApartado = null;
+        engancheRecibido = 0;
+
+        // Limpiar formulario
+        apartadoClienteNombre.value = "";
+        apartadoClienteTelefono.value = "";
+        apartadoClienteEmail.value = "";
+        apartadoMontoRecibido.value = "0.00";
+        apartadoCambioElement.value = "$0.00";
+
+        actualizarCarritoApartado();
+        mostrarAlerta("Apartado cancelado", "info");
+    }
+}
+
+// Función para generar número de apartado
+function generarNumeroApartado() {
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `AP-${timestamp}${random}`;
+}
+
+// Inicializar apartados en tienda al cargar la página
+document.addEventListener("DOMContentLoaded", () => {
+    // ... código existente ...
+    configurarApartadoEnTienda();
+});
 // Inicializar la página
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Inicializando sistema de ventas...")
@@ -2360,6 +2832,423 @@ function actualizarTicketApartado(boleto, nombreCliente, metodoEntrega) {
     <p><strong>Cliente:</strong> <span id="ticket-cliente-apartado">${nombreCliente}</span></p>
     <p><strong>Método de entrega:</strong> <span id="ticket-entrega-apartado">${metodoEntrega}</span></p>
   `
+    // Función para buscar productos en apartado en tienda
+    async function buscarProductosApartadoTienda() {
+        const busqueda = apartadoBusquedaInput.value.trim();
+
+        if (!busqueda) {
+            apartadoSugerenciasContainer.innerHTML = "";
+            apartadoSugerenciasContainer.style.display = "none";
+            return;
+        }
+
+        try {
+            const productosRef = collection(db, "Productos");
+            let q = query(productosRef, where("name", ">=", busqueda), where("name", "<=", busqueda + "\uf8ff"));
+            let querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                q = query(productosRef, where("codigo", "==", busqueda));
+                querySnapshot = await getDocs(q);
+            }
+
+            apartadoSugerenciasContainer.innerHTML = "";
+
+            if (querySnapshot.empty) {
+                apartadoSugerenciasContainer.innerHTML = `
+                <div class="sugerencia-item">
+                    <span>No se encontraron productos</span>
+                </div>
+            `;
+                apartadoSugerenciasContainer.style.display = "block";
+                return;
+            }
+
+            querySnapshot.forEach((doc) => {
+                const producto = doc.data();
+                const div = document.createElement("div");
+                div.className = "sugerencia-item";
+
+                const codigoTexto = producto.codigo ? `${producto.codigo} - ` : "";
+
+                div.innerHTML = `
+                <div class="sugerencia-info">
+                    <span class="sugerencia-nombre">${codigoTexto}${producto.name}</span>
+                    <span class="sugerencia-stock">Stock: ${producto.stock || 0}</span>
+                </div>
+                <span class="sugerencia-precio">$${producto.precio ? producto.precio.toFixed(2) : "0.00"}</span>
+            `;
+
+                div.dataset.id = doc.id;
+                div.dataset.nombre = producto.name;
+                div.dataset.precio = producto.precio || 0;
+                div.dataset.stock = producto.stock || 0;
+
+                div.addEventListener("click", () => {
+                    agregarProductoAlApartadoDesdeSeleccion(div.dataset);
+                    apartadoBusquedaInput.value = "";
+                    apartadoSugerenciasContainer.style.display = "none";
+                });
+
+                apartadoSugerenciasContainer.appendChild(div);
+            });
+
+            apartadoSugerenciasContainer.style.display = "block";
+        } catch (error) {
+            console.error("Error al buscar productos para apartado:", error);
+            apartadoSugerenciasContainer.innerHTML = `
+            <div class="sugerencia-item">
+                <span>Error al buscar productos</span>
+            </div>
+        `;
+            apartadoSugerenciasContainer.style.display = "block";
+        }
+    }
+
+    // Función para agregar producto al apartado
+    function agregarProductoAlApartado() {
+        if (!apartadoBusquedaInput || !apartadoBusquedaInput.value.trim()) {
+            mostrarAlerta("Primero busca y selecciona un producto", "error");
+            return;
+        }
+
+        // Similar a la función de ventas, pero adaptada para apartados
+        // Implementar lógica similar a agregarProductoAlBoleto()
+    }
+
+    // Función para agregar producto al apartado desde selección
+    async function agregarProductoAlApartadoDesdeSeleccion(producto) {
+        const { id, nombre, precio, stock } = producto;
+        const precioNum = Number.parseFloat(precio);
+        const stockNum = Number.parseInt(stock);
+
+        if (stockNum <= 0) {
+            mostrarAlerta("Este producto está agotado", "error");
+            return;
+        }
+
+        const cantidad = prompt(`¿Cuántas unidades de ${nombre} deseas apartar? (Disponibles: ${stockNum})`);
+
+        if (!cantidad) return;
+
+        const cantidadNum = Number.parseInt(cantidad);
+
+        if (isNaN(cantidadNum) || cantidadNum <= 0) {
+            mostrarAlerta("Por favor, ingresa una cantidad válida", "error");
+            return;
+        }
+
+        if (cantidadNum > stockNum) {
+            mostrarAlerta("No hay suficiente stock disponible", "error");
+            return;
+        }
+
+        const productoExistente = productosApartado.find(p => p.id === id);
+
+        if (productoExistente) {
+            productoExistente.cantidad += cantidadNum;
+            productoExistente.subtotal = (productoExistente.cantidad * productoExistente.precioUnitario).toFixed(2);
+        } else {
+            productosApartado.push({
+                id,
+                nombre,
+                precioUnitario: precioNum,
+                cantidad: cantidadNum,
+                subtotal: (precioNum * cantidadNum).toFixed(2)
+            });
+        }
+
+        actualizarCarritoApartado();
+        mostrarAlerta(`${nombre} agregado al apartado`, "success");
+    }
+
+    // Función para actualizar carrito de apartado
+    function actualizarCarritoApartado() {
+        apartadoCarritoLista.innerHTML = "";
+
+        if (productosApartado.length === 0) {
+            apartadoCarritoLista.innerHTML = `
+            <div class="carrito-vacio">
+                <i class="fas fa-box-open"></i>
+                <p>No hay productos agregados para el apartado</p>
+            </div>
+        `;
+
+            apartadoSubtotalElement.textContent = "$0.00";
+            apartadoEngancheElement.textContent = "$0.00";
+            apartadoTotalElement.textContent = "$0.00";
+            return;
+        }
+
+        let subtotal = 0;
+
+        productosApartado.forEach((producto, index) => {
+            const div = document.createElement("div");
+            div.className = "producto-carrito";
+
+            const subtotalProducto = Number.parseFloat(producto.subtotal);
+            subtotal += subtotalProducto;
+
+            div.innerHTML = `
+            <div class="producto-header">
+                <span class="producto-nombre">${producto.nombre}</span>
+                <div class="producto-acciones">
+                    <button class="btn-eliminar" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="producto-detalles">
+                <div class="producto-cantidad">
+                    <button class="btn-cantidad btn-restar" data-index="${index}">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <span class="cantidad-valor">${producto.cantidad}</span>
+                    <button class="btn-cantidad btn-sumar" data-index="${index}">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <span class="producto-precio">$${subtotalProducto.toFixed(2)}</span>
+            </div>
+        `;
+
+            apartadoCarritoLista.appendChild(div);
+        });
+
+        // Calcular enganche (10% del subtotal)
+        const enganche = subtotal * 0.1;
+        const total = subtotal;
+
+        apartadoSubtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+        apartadoEngancheElement.textContent = `$${enganche.toFixed(2)}`;
+        apartadoTotalElement.textContent = `$${total.toFixed(2)}`;
+
+        // Configurar eventos para los botones
+        document.querySelectorAll(".btn-eliminar").forEach(btn => {
+            btn.addEventListener("click", function () {
+                eliminarProductoApartadoTienda(Number.parseInt(this.getAttribute("data-index")));
+            });
+        });
+
+        document.querySelectorAll(".btn-restar").forEach(btn => {
+            btn.addEventListener("click", function () {
+                restarCantidadApartadoTienda(Number.parseInt(this.getAttribute("data-index")));
+            });
+        });
+
+        document.querySelectorAll(".btn-sumar").forEach(btn => {
+            btn.addEventListener("click", function () {
+                sumarCantidadApartadoTienda(Number.parseInt(this.getAttribute("data-index")));
+            });
+        });
+    }
+
+    // Función para eliminar producto del apartado en tienda
+    function eliminarProductoApartadoTienda(index) {
+        if (index >= 0 && index < productosApartado.length) {
+            const producto = productosApartado[index];
+            productosApartado.splice(index, 1);
+            actualizarCarritoApartado();
+            mostrarAlerta(`${producto.nombre} eliminado del apartado`, "info");
+        }
+    }
+
+    // Función para restar cantidad en apartado en tienda
+    function restarCantidadApartadoTienda(index) {
+        if (index >= 0 && index < productosApartado.length) {
+            if (productosApartado[index].cantidad > 1) {
+                productosApartado[index].cantidad -= 1;
+                productosApartado[index].subtotal = (productosApartado[index].cantidad * productosApartado[index].precioUnitario).toFixed(2);
+                actualizarCarritoApartado();
+            } else {
+                eliminarProductoApartadoTienda(index);
+            }
+        }
+    }
+
+    // Función para sumar cantidad en apartado en tienda
+    async function sumarCantidadApartadoTienda(index) {
+        if (index >= 0 && index < productosApartado.length) {
+            const productoId = productosApartado[index].id;
+
+            try {
+                const productoDoc = await getDoc(doc(db, "Productos", productoId));
+                if (productoDoc.exists()) {
+                    const stockDisponible = productoDoc.data().stock || 0;
+
+                    if (productosApartado[index].cantidad < stockDisponible) {
+                        productosApartado[index].cantidad += 1;
+                        productosApartado[index].subtotal = (productosApartado[index].cantidad * productosApartado[index].precioUnitario).toFixed(2);
+                        actualizarCarritoApartado();
+                    } else {
+                        mostrarAlerta("No hay suficiente stock disponible", "error");
+                    }
+                }
+            } catch (error) {
+                console.error("Error al verificar stock:", error);
+            }
+        }
+    }
+
+    // Función para calcular cambio en apartado en tienda
+    function calcularCambioApartadoTienda() {
+        const montoRecibido = Number.parseFloat(apartadoMontoRecibido.value) || 0;
+        const enganche = Number.parseFloat(apartadoEngancheElement.textContent.replace("$", "")) || 0;
+
+        if (montoRecibido < enganche) {
+            apartadoCambioElement.value = "Monto insuficiente";
+        } else {
+            const cambio = montoRecibido - enganche;
+            apartadoCambioElement.value = `$${cambio.toFixed(2)}`;
+        }
+    }
+
+    // Función para actualizar fechas de apartado
+    function actualizarFechasApartado() {
+        const fechaActual = new Date();
+        const fecha15Dias = new Date();
+        fecha15Dias.setDate(fechaActual.getDate() + 15);
+
+        // Fin de mes
+        const finDeMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
+
+        // Formatear fechas
+        const formatoFecha = (fecha) => {
+            const dia = String(fecha.getDate()).padStart(2, '0');
+            const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+            const año = fecha.getFullYear();
+            return `${dia}/${mes}/${año}`;
+        };
+
+        document.getElementById("apartado-fecha-actual").textContent = formatoFecha(fechaActual);
+        document.getElementById("apartado-fecha-15dias").textContent = formatoFecha(fecha15Dias);
+        document.getElementById("apartado-fecha-fin-mes").textContent = formatoFecha(finDeMes);
+    }
+
+    // Función para crear apartado en tienda
+    async function crearApartadoEnTienda() {
+        if (productosApartado.length === 0) {
+            mostrarAlerta("No hay productos en el apartado", "error");
+            return;
+        }
+
+        if (!apartadoClienteNombre.value.trim()) {
+            mostrarAlerta("Por favor, ingresa el nombre del cliente", "error");
+            return;
+        }
+
+        const engancheRequerido = Number.parseFloat(apartadoEngancheElement.textContent.replace("$", "")) || 0;
+        const montoRecibido = Number.parseFloat(apartadoMontoRecibido.value) || 0;
+
+        if (montoRecibido < engancheRequerido) {
+            mostrarAlerta("El monto recibido es menor al enganche requerido", "error");
+            return;
+        }
+
+        try {
+            // Calcular totales
+            const subtotal = productosApartado.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
+            const enganche = subtotal * 0.1;
+            const total = subtotal;
+            const cambio = montoRecibido - enganche;
+
+            // Crear objeto de apartado
+            const apartado = {
+                tipo: "tienda",
+                cliente: {
+                    nombre: apartadoClienteNombre.value.trim(),
+                    telefono: apartadoClienteTelefono.value.trim(),
+                    email: apartadoClienteEmail.value.trim()
+                },
+                productos: productosApartado.map(p => ({
+                    productoId: p.id,
+                    nombre: p.nombre,
+                    cantidad: p.cantidad,
+                    precioUnitario: p.precioUnitario,
+                    subtotal: Number.parseFloat(p.subtotal)
+                })),
+                subtotal: subtotal,
+                enganche: enganche,
+                total: total,
+                metodoPagoEnganche: apartadoMetodoPagoEnganche.value,
+                montoRecibido: montoRecibido,
+                cambio: cambio,
+                fechaApartado: serverTimestamp(),
+                fechaLimite1erAbono: new Date(new Date().setDate(new Date().getDate() + 15)),
+                fechaLimiteLiquidacion: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+                estado: "pendiente",
+                creadoPor: usuarioActual ? usuarioActual.email : "sistema",
+                numeroApartado: generarNumeroApartado()
+            };
+
+            // Guardar apartado en Firestore
+            const apartadoRef = await addDoc(collection(db, "Apartados"), apartado);
+            console.log("Apartado creado con ID:", apartadoRef.id);
+
+            // Actualizar stock de productos
+            for (const producto of productosApartado) {
+                const productoRef = doc(db, "Productos", producto.id);
+                const productoDoc = await getDoc(productoRef);
+
+                if (productoDoc.exists()) {
+                    const stockActual = productoDoc.data().stock || 0;
+                    const nuevoStock = Math.max(0, stockActual - producto.cantidad);
+
+                    await updateDoc(productoRef, {
+                        stock: nuevoStock,
+                        updatedAt: serverTimestamp()
+                    });
+                }
+            }
+
+            // Mostrar mensaje de éxito
+            mostrarAlerta(`Apartado creado con éxito. Número: ${apartado.numeroApartado}`, "success");
+
+            // Limpiar formulario
+            cancelarApartadoEnTienda();
+
+            // TODO: Mostrar ticket de apartado
+        } catch (error) {
+            console.error("Error al crear apartado:", error);
+            mostrarAlerta("Error al crear apartado: " + error.message, "error");
+        }
+    }
+
+    // Función para cancelar apartado en tienda
+    function cancelarApartadoEnTienda() {
+        if (productosApartado.length === 0) {
+            return;
+        }
+
+        if (confirm("¿Está seguro de cancelar este apartado? Se perderán todos los datos.")) {
+            productosApartado = [];
+            clienteApartado = null;
+            engancheRecibido = 0;
+
+            // Limpiar formulario
+            apartadoClienteNombre.value = "";
+            apartadoClienteTelefono.value = "";
+            apartadoClienteEmail.value = "";
+            apartadoMontoRecibido.value = "0.00";
+            apartadoCambioElement.value = "$0.00";
+
+            actualizarCarritoApartado();
+            mostrarAlerta("Apartado cancelado", "info");
+        }
+    }
+
+    // Función para generar número de apartado
+    function generarNumeroApartado() {
+        const timestamp = Date.now().toString().slice(-6);
+        const random = Math.floor(1000 + Math.random() * 9000);
+        return `AP-${timestamp}${random}`;
+    }
+
+    // Inicializar apartados en tienda al cargar la página
+    document.addEventListener("DOMContentLoaded", () => {
+        // ... código existente ...
+        configurarApartadoEnTienda();
+    });
 }
 
 // Exportar funciones para uso en HTML
