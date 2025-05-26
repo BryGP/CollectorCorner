@@ -9,7 +9,7 @@ import {
     updateDoc,
     getDoc,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"
-import { uploadImage, optimizeImage } from "./firebase-storage.js"
+import { processImageForStorage, createPlaceholderImage } from "./firebase-storage.js"
 
 // Variables para paginación
 let currentProductPage = 1
