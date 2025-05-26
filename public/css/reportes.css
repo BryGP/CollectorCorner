@@ -1,6 +1,83 @@
 /* ======== ESTILOS ESPECÍFICOS PARA REPORTES ======== */
 
 /* Estructura de secciones */
+:root {
+    --primary-blue: #1e5799;
+    --primary-red: #dc3545;
+    --accent-yellow: #ffc107;
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --dark-gray: #343a40;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.2);
+    --transition: all 0.3s ease;
+}
+
+/* Base styles */
+body {
+    font-family: 'Montserrat', sans-serif;
+    /* Asumiendo Montserrat, si usas otra, ajústala */
+    margin: 0;
+    padding: 0;
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Montserrat', sans-serif;
+    /* O la fuente que uses para títulos */
+    color: var(--dark-gray);
+}
+
+a {
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Main Layout */
+main {
+    flex-grow: 1;
+    padding: 20px;
+    max-width: 1300px;
+    margin: 20px auto;
+    box-sizing: border-box;
+}
+
+.page-title {
+    font-size: 2.2em;
+    color: var(--primary-blue);
+    margin-bottom: 30px;
+    text-align: center;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.page-title::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    width: 60px;
+    height: 3px;
+    background-color: var(--primary-blue);
+    border-radius: 2px;
+}
+
+/* Estructura de secciones */
 .report-section {
     background-color: var(--white);
     border-radius: 10px;
@@ -159,7 +236,7 @@
     display: none;
     position: absolute;
     top: 100%;
-    right: 0;
+    left: 0;
     background-color: var(--white);
     border-radius: 5px;
     box-shadow: var(--shadow);
@@ -187,27 +264,42 @@
     color: var(--primary-blue);
 }
 
+/* Dashboard grid */
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 50px;
+}
+
 /* Tarjetas de gráficos */
+.dashboard-card {
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 0;
+}
+
 .chart-card {
     height: auto;
     margin-bottom: 0;
 }
 
 .chart-card .card-header {
-    background-color: var(--primary-blue);
     padding: 15px;
 }
 
+/* Colores originales para los encabezados de los gráficos */
 .chart-card:nth-child(1) .card-header {
     background-color: var(--primary-red);
 }
 
-.chart-card:nth-child(3) .card-header {
-    background-color: var(--accent-yellow);
+.chart-card:nth-child(2) .card-header {
+    background-color: var(--primary-blue);
 }
 
-.chart-card:nth-child(3) .card-header .card-title {
-    color: var(--dark-gray);
+.chart-card:nth-child(3) .card-header {
+    background-color: var(--accent-yellow);
 }
 
 .chart-card .card-title {
@@ -216,13 +308,211 @@
     text-align: center;
 }
 
+.chart-card:nth-child(3) .card-header .card-title {
+    color: var(--dark-gray);
+}
+
+
 .chart-container {
     position: relative;
     height: 250px;
     width: 100%;
 }
 
-/* Tarjetas de resumen */
+/* Estilos mejorados para la comparativa */
+.comparativa-final {
+    grid-column: 1 / -1;
+    /* Ocupa desde la primera columna hasta la última */
+    margin-bottom: 30px;
+    width: 100%;
+    min-height: 500px;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.comparativa-header {
+    padding: 18px 25px;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, #2a7de1 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.comparativa-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.layout-final {
+    display: flex;
+    gap: 25px;
+    padding: 25px;
+    min-height: 700px;
+    flex-grow: 1;
+    flex-wrap: wrap;
+    align-items: stretch;
+    /* Cambiado a stretch para igualar alturas */
+}
+
+.grafico-principal {
+    flex: 2;
+    /* Más espacio para el gráfico */
+    min-width: 300px;
+    min-height: 150px;
+    position: relative;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eaeef2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.panel-derecho {
+    flex: 1;
+    /* Menos espacio para los controles */
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* Más espacio entre elementos */
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eaeef2;
+}
+
+.controles-meses {
+    background: #f9fbfd;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #e1e6eb;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    /* Alinea los controles en la parte inferior */
+    justify-content: space-between;
+    /* Distribuye el espacio */
+    gap: 20px;
+}
+
+.controles-meses-container {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    flex-grow: 1;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+    min-width: 120px;
+    margin-bottom: 0;
+}
+
+.control-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+}
+
+.control-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d6dde4;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: #fff;
+    transition: all 0.25s ease;
+}
+
+.control-group select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(42, 125, 225, 0.15);
+    outline: none;
+}
+
+.stats-horizontales {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 15px;
+    background: #f9fbfd;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #e1e6eb;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.stat-box {
+    flex: 1;
+    min-width: 120px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    border: 1px solid #eaeef2;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+#btn-comparar {
+    width: auto;
+    /* Cambiado de 100% a auto */
+    min-width: 120px;
+    padding: 10px 15px;
+    margin-top: 0;
+    background: linear-gradient(135deg, var(--accent-yellow) 0%, #ffab00 100%);
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    align-self: flex-end;
+    /* Alinea el botón al final */
+}
+
+#btn-comparar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.25);
+}
+
+/* Tarjetas de resumen (las de abajo de todo) */
 .stats-summary {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -466,6 +756,27 @@
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+    .layout-final {
+        flex-direction: column;
+        min-height: auto;
+        /* Dejar que la altura se ajuste automáticamente */
+    }
+
+    .grafico-principal {
+        min-height: 400px;
+        /* Mantener una altura decente en pantallas medianas */
+    }
+
+    .panel-derecho {
+        min-width: unset;
+    }
+
+    .stats-horizontales {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 992px) {
     .filtros-form {
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -501,6 +812,10 @@
         width: 95%;
         margin: 20px auto;
     }
+
+    .stats-horizontales {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 576px) {
@@ -523,5 +838,21 @@
 
     .detalle-info {
         grid-template-columns: 1fr;
+    }
+
+    .stats-horizontales {
+        grid-template-columns: 1fr;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
