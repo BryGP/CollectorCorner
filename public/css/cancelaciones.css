@@ -3,6 +3,13 @@
   ========================== */
 
 /* ======== VARIABLES DE COLOR ======== */
+/* Ajustar modales para padding dentro del borde. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 :root {
     --primary-red: #e61e25;
     --primary-blue: #1e5799;
