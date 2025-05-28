@@ -987,7 +987,7 @@ function imprimirTicket() {
     const ventana = window.open("", "Imprimir Ticket", "height=600,width=300");
     ventana.document.write(`
         <html>
-            <head><title>Ticket</title>${styles}</head>
+            <head><title>TicketOrd : </title>${styles}</head>
             <body>${ticketClone.outerHTML}</body>
             <script>
                 window.onload = () => {

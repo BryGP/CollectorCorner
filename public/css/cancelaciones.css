@@ -1,5 +1,5 @@
 /* ==========================
-  CSS PARA CANCELACIONES - Toy Garage
+  CSS PARA CANCELACIONES - Toy Garage (MEJORADO)
   ========================== */
 
 /* ======== VARIABLES DE COLOR ======== */
@@ -7,7 +7,7 @@
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 :root {
@@ -363,7 +363,7 @@ main {
     background-color: #154360;
 }
 
-/* ======== MODAL ======== */
+/* ======== MODAL MEJORADO ======== */
 .modal {
     display: none;
     position: fixed;
@@ -373,22 +373,36 @@ main {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    overflow: auto;
+    overflow: hidden;
+    /* Eliminamos scroll del modal principal */
 }
 
 .modal-content {
     background-color: white;
-    margin: 10% auto;
+    margin: 5% auto;
     padding: 20px;
     border-radius: 8px;
     width: 90%;
     max-width: 500px;
-    position: relative;
+    position: fixed;
+    /* Modal fijo */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    /* Centrado perfecto */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    max-height: 90vh;
+    /* Altura máxima del modal */
+    overflow: hidden;
+    /* Sin scroll en el contenido principal */
+    display: flex;
+    flex-direction: column;
 }
 
 .ticket-preview-modal {
-    max-width: 400px;
+    max-width: 380px;
+    /* Ancho aproximado a 80mm (1mm ≈ 3.78px) */
+    width: 100%;
 }
 
 .close {
@@ -399,6 +413,7 @@ main {
     font-weight: bold;
     color: #aaa;
     cursor: pointer;
+    z-index: 1001;
 }
 
 .close:hover {
@@ -409,8 +424,10 @@ main {
     margin-top: 0;
     color: var(--dark-blue);
     font-size: 1.5em;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     text-align: center;
+    flex-shrink: 0;
+    /* No se comprime */
 }
 
 .form-group {
@@ -493,27 +510,57 @@ main {
     background-color: #27ae60;
 }
 
-/* ======== TICKET PREVIEW ======== */
+/* ======== TICKET PREVIEW MEJORADO ======== */
 .ticket-container {
     background-color: #f9f9f9;
     border-radius: 6px;
     padding: 15px;
     margin-bottom: 15px;
-    max-height: 500px;
-    overflow-y: auto;
     display: flex;
     justify-content: center;
+    flex: 1;
+    /* Toma el espacio disponible */
+    overflow-y: auto;
+    /* Solo scroll vertical cuando sea necesario */
+    overflow-x: hidden;
+    /* Sin scroll horizontal */
+    min-height: 0;
+    /* Permite que flexbox funcione correctamente */
+}
+
+/* Scrollbar personalizado para WebKit browsers */
+.ticket-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ticket-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.ticket-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.ticket-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }
 
 .ticket {
     background-color: white;
     width: 100%;
-    max-width: 300px;
-    padding: 10px;
+    max-width: 320px;
+    /* Ajustado para 80mm aproximadamente */
+    padding: 15px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     font-family: "Courier New", Courier, monospace;
-    font-size: 11px;
-    line-height: 1.3;
+    font-size: 12px;
+    line-height: 1.4;
+    position: relative;
+    letter-spacing: 0.3px;
+    margin: 0 auto;
+    flex-shrink: 0;
 }
 
 .loading-ticket {
@@ -532,54 +579,65 @@ main {
 
 .ticket-header {
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
 }
 
 .ticket-header h1 {
-    font-size: 14px;
-    margin: 0 0 3px 0;
+    font-size: 16px;
+    margin: 0 0 5px 0;
     font-weight: bold;
+    color: var(--dark-blue);
 }
 
 .ticket-header p {
-    margin: 1px 0;
+    margin: 2px 0;
     font-size: 10px;
+    color: #666;
 }
 
 .ticket-divider {
     border-top: 1px dashed #ccc;
-    margin: 8px 0;
+    margin: 10px 0;
 }
 
 .ticket-info {
     display: flex;
     justify-content: space-between;
     font-size: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
 }
 
 .ticket-items {
     width: 100%;
     border-collapse: collapse;
     font-size: 10px;
+    margin-bottom: 10px;
 }
 
 .ticket-items th {
     text-align: left;
-    padding: 2px 0;
-    border-bottom: 1px solid #eee;
+    padding: 5px 2px;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+    background-color: #f8f9fa;
 }
 
 .ticket-items td {
-    padding: 2px 0;
+    padding: 4px 2px;
+    border-bottom: 1px solid #eee;
 }
 
 .item-qty {
-    width: 10%;
+    width: 15%;
     text-align: center;
 }
 
 .item-name {
-    width: 50%;
+    width: 45%;
 }
 
 .item-price,
@@ -589,59 +647,88 @@ main {
 }
 
 .ticket-totals {
-    margin: 10px 0;
+    margin: 15px 0;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
 }
 
 .total-line {
     display: flex;
     justify-content: space-between;
-    margin: 3px 0;
+    margin: 5px 0;
+    font-size: 11px;
+}
+
+.total-line.final {
+    font-weight: bold;
+    font-size: 12px;
+    padding-top: 5px;
+    border-top: 1px solid #333;
+    margin-top: 8px;
 }
 
 .payment-info {
-    margin: 10px 0;
+    margin: 15px 0;
+    padding: 10px 0;
+    border-top: 1px dashed #ccc;
+    text-align: center;
 }
 
 .payment-info p {
     margin: 3px 0;
+    font-size: 10px;
 }
 
 .ticket-barcode {
     text-align: center;
-    margin: 10px 0;
+    margin: 15px 0;
+}
+
+.ticket-barcode img {
+    width: 100%;
+    max-width: 220px;
+    height: 40px;
+    /* fuerza altura uniforme */
+    object-fit: contain;
 }
 
 .barcode-placeholder {
-    height: 30px;
+    height: 40px;
     background: repeating-linear-gradient(90deg, #000, #000 2px, #fff 2px, #fff 4px);
-    margin: 0 auto 3px;
-    max-width: 180px;
+    margin: 10px auto;
+    max-width: 200px;
 }
 
 .barcode-text {
-    font-size: 11px;
+    font-size: 12px;
     letter-spacing: 2px;
+    font-weight: bold;
+    margin-top: 5px;
 }
 
 .ticket-footer-msg {
     text-align: center;
-    margin-top: 10px;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed #ccc;
 }
 
 .small-text {
     font-size: 9px;
     color: #666;
-    margin: 1px 0;
+    margin: 2px 0;
 }
 
 .ticket-actions {
     display: flex;
     justify-content: center;
+    flex-shrink: 0;
+    /* No se comprime */
     margin-top: 15px;
 }
 
 .action-btn {
-    padding: 10px 15px;
+    padding: 12px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -655,15 +742,16 @@ main {
 .print-btn {
     background-color: var(--primary-blue);
     color: white;
+    font-size: 14px;
 }
 
 .print-btn:hover {
     background-color: #154360;
     transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* ======== RESPONSIVE ======== */
+/* ======== RESPONSIVE MEJORADO ======== */
 @media (max-width: 768px) {
     header {
         flex-direction: column;
@@ -688,7 +776,28 @@ main {
 
     .modal-content {
         width: 95%;
-        margin: 20% auto;
+        max-width: 350px;
+        margin: 2% auto;
+        max-height: 95vh;
+    }
+
+    .ticket-preview-modal {
+        max-width: 300px;
+        width: 300px;
+    }
+
+    .ticket {
+        max-width: 260px;
+        padding: 12px;
+    }
+
+    .ticket-header h1 {
+        font-size: 14px;
+    }
+
+    .action-btn {
+        padding: 10px 15px;
+        font-size: 12px;
     }
 
     .search-bar {
@@ -724,7 +833,25 @@ main {
     }
 }
 
-/* Estilos para impresión */
+@media (max-width: 480px) {
+    .modal-content {
+        width: 98%;
+        max-width: 280px;
+    }
+
+    .ticket-preview-modal {
+        max-width: 400px;
+        width: 350px;
+    }
+
+    .ticket {
+        max-width: 220px;
+        padding: 10px;
+        font-size: 12px;
+    }
+}
+
+/* ======== ESTILOS PARA IMPRESIÓN MEJORADOS ======== */
 @media print {
     body * {
         visibility: hidden;
@@ -739,13 +866,57 @@ main {
         position: absolute;
         left: 0;
         top: 0;
-        width: 80mm;
-        /* Ancho estándar para tickets térmicos */
+        width: 80mm !important;
+        /* Ancho exacto para tickets térmicos */
+        max-width: 80mm !important;
         box-shadow: none;
-        padding: 0;
+        padding: 5mm;
+        margin: 0;
+        font-size: 12px;
+        background: white;
     }
 
     .ticket-actions {
-        display: none;
+        display: none !important;
+    }
+
+    .modal,
+    .modal-content,
+    .ticket-container {
+        max-height: 75vh;
+        overflow-y: auto;
+        display: flex;
+        justify-content: center;
+    }
+}
+
+/* ======== ANIMACIONES SUAVES ======== */
+.modal.show {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translate(-50%, -60%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, -50%);
+        opacity: 1;
     }
 }
