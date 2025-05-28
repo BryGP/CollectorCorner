@@ -49,6 +49,8 @@ const ticketBarcodeText = document.getElementById("ticket-barcode-text")
 
 // ==================== FUNCIONES PARA APARTADO EN TIENDA ====================
 
+// ==================== FUNCIONES PARA APARTADO EN TIENDA ====================
+
 // Variables globales para apartados
 let productosApartado = [];
 let clienteApartado = null;
@@ -173,17 +175,6 @@ async function buscarProductosApartadoTienda() {
         `;
         apartadoSugerenciasContainer.style.display = "block";
     }
-}
-
-// Función para agregar producto al apartado
-function agregarProductoAlApartado() {
-    if (!apartadoBusquedaInput || !apartadoBusquedaInput.value.trim()) {
-        mostrarAlerta("Primero busca y selecciona un producto", "error");
-        return;
-    }
-
-    // Similar a la función de ventas, pero adaptada para apartados
-    // Implementar lógica similar a agregarProductoAlBoleto()
 }
 
 // Función para agregar producto al apartado desde selección
@@ -373,14 +364,26 @@ function calcularCambioApartadoTienda() {
     }
 }
 
+// Función helper para calcular fecha de liquidación (1 mes desde fecha dada)
+function calcularFechaLiquidacion(fechaBase = new Date()) {
+    const fechaLiquidacion = new Date(fechaBase);
+    fechaLiquidacion.setMonth(fechaBase.getMonth() + 1);
+    fechaLiquidacion.setDate(fechaBase.getDate());
+    return fechaLiquidacion;
+}
+
+// Función helper para calcular fecha de segundo pago (15 días desde fecha dada)
+function calcularFechaSegundoPago(fechaBase = new Date()) {
+    const fechaSegundoPago = new Date(fechaBase);
+    fechaSegundoPago.setDate(fechaBase.getDate() + 15);
+    return fechaSegundoPago;
+}
+
 // Función para actualizar fechas de apartado
 function actualizarFechasApartado() {
     const fechaActual = new Date();
-    const fecha15Dias = new Date();
-    fecha15Dias.setDate(fechaActual.getDate() + 15);
-
-    // Fin de mes
-    const finDeMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
+    const fecha15Dias = calcularFechaSegundoPago(fechaActual);
+    const fechaLiquidacion = calcularFechaLiquidacion(fechaActual);
 
     // Formatear fechas
     const formatoFecha = (fecha) => {
@@ -392,122 +395,99 @@ function actualizarFechasApartado() {
 
     document.getElementById("apartado-fecha-actual").textContent = formatoFecha(fechaActual);
     document.getElementById("apartado-fecha-15dias").textContent = formatoFecha(fecha15Dias);
-    document.getElementById("apartado-fecha-fin-mes").textContent = formatoFecha(finDeMes);
+    document.getElementById("apartado-fecha-fin-mes").textContent = formatoFecha(fechaLiquidacion);
 }
 
 // Función para crear apartado en tienda
 async function crearApartadoEnTienda() {
+    // Validaciones iniciales
     if (productosApartado.length === 0) {
         mostrarAlerta("No hay productos en el apartado", "error");
         return;
     }
 
-    if (!apartadoClienteNombre.value.trim()) {
+    const nombreCliente = apartadoClienteNombre.value.trim();
+    const telefonoCliente = apartadoClienteTelefono.value.trim();
+    const emailCliente = apartadoClienteEmail.value.trim();
+
+    if (!nombreCliente) {
         mostrarAlerta("Por favor, ingresa el nombre del cliente", "error");
         return;
     }
-    
-    // Validar que al menos se ingrese teléfono o correo electrónico
-    if (!apartadoClienteTelefono.value.trim() && !apartadoClienteEmail.value.trim()) {
+
+    if (!telefonoCliente && !emailCliente) {
         mostrarAlerta("Por favor, ingresa el teléfono o el correo electrónico del cliente", "error");
+        return;
+    }
+
+    if (!apartadoMetodoPagoEnganche.value) {
+        mostrarAlerta("Por favor, selecciona un método de pago para el enganche", "error");
         return;
     }
 
     const engancheRequerido = Number.parseFloat(apartadoEngancheElement.textContent.replace("$", "")) || 0;
     const montoRecibido = Number.parseFloat(apartadoMontoRecibido.value) || 0;
 
-    if (montoRecibido < engancheRequerido) {
-        mostrarAlerta("El monto recibido es menor al enganche requerido", "error");
-        return;
-    }
-    
-    // Asegurar que el monto recibido sea mayor a cero
     if (montoRecibido <= 0) {
         mostrarAlerta("Por favor, ingresa el monto recibido del enganche", "error");
         return;
     }
 
+    if (montoRecibido < engancheRequerido) {
+        mostrarAlerta("El monto recibido es menor al enganche requerido", "error");
+        return;
+    }
+
+    // Confirmación antes de crear el apartado
+    if (!confirm(`¿Confirmas crear el apartado por $${engancheRequerido.toFixed(2)}?`)) {
+        return;
+    }
+
     try {
+        // Mostrar indicador de carga
+        btnCrearApartado.disabled = true;
+        btnCrearApartado.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando apartado...';
+
         // Calcular totales
         const subtotal = productosApartado.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
-        const total = subtotal; // El total del apartado es el subtotal de los productos
+        const total = subtotal;
+        const cambio = montoRecibido - engancheRequerido;
 
-        // Crear objeto de apartado adaptado a la estructura de la colección 'Boleto'
-        // Esto es lo que se envía a Firestore
+        // Crear objeto de apartado para Boleto
         const apartadoParaBoleto = {
-            // Campos de tu esquema 'Boleto'
-            CORREO_ELECTRONICO: apartadoClienteEmail.value.trim() || "", // Usa el valor o cadena vacía
-            EXPIRACION: new Date(new Date().setDate(new Date().getDate() + 15)), // Calcula 15 días a partir de hoy
-            Fecha_de_Emision: serverTimestamp(), // Fecha y hora del servidor
-            ID_BOLETO: generarNumeroApartado(), // Usa tu función existente para generar el ID
-            Nombre: apartadoClienteNombre.value.trim(),
+            CORREO_ELECTRONICO: emailCliente || "",
+            EXPIRACION: calcularFechaSegundoPago(),
+            Fecha_de_Emision: serverTimestamp(),
+            ID_BOLETO: generarNumeroApartado(),
+            Nombre: nombreCliente,
             Productos: productosApartado.map(p => ({
                 cantidad: p.cantidad,
                 id: p.id,
                 nombre: p.nombre,
-                precio: p.precioUnitario // Asegura que el precio sea el unitario
+                precio: p.precioUnitario
             })),
-            TELEFONO: apartadoClienteTelefono.value.trim() || "", // Usa el valor o cadena vacía
-            Total: total, // El total del apartado (subtotal de productos)
-            estado: "apartado", // Nuevo campo para identificar que es un apartado
-
-            // Campos adicionales que no estaban en tu esquema 'Boleto' pero son relevantes para el apartado
+            TELEFONO: telefonoCliente || "",
+            Total: total,
+            estado: "apartado",
             enganchePagado: engancheRequerido,
             montoRecibidoEnganche: montoRecibido,
-            cambioEnganche: montoRecibido - engancheRequerido,
+            cambioEnganche: cambio,
             metodoPagoEnganche: apartadoMetodoPagoEnganche.value,
-            creadoPor: typeof usuarioActual !== 'undefined' && usuarioActual && usuarioActual.email ? usuarioActual.email : "sistema",
-            fechaLimiteLiquidacion: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0) // Último día del mes actual
+            creadoPor: usuarioActual ? usuarioActual.email : "sistema",
+            fechaLimiteLiquidacion: calcularFechaLiquidacion()
         };
 
         // Guardar el apartado en la colección "Boleto"
         const boletoRef = await addDoc(collection(db, "Boleto"), apartadoParaBoleto);
         console.log("Apartado creado en Boleto con ID:", boletoRef.id);
 
-        // Actualizar stock de productos
-        for (const producto of productosApartado) {
-            const productoRef = doc(db, "Productos", producto.id);
-            const productoDoc = await getDoc(productoRef);
-
-            if (productoDoc.exists()) {
-                const stockActual = productoDoc.data().stock || 0;
-                const nuevoStock = Math.max(0, stockActual - producto.cantidad);
-
-                await updateDoc(productoRef, {
-                    stock: nuevoStock,
-                    updatedAt: serverTimestamp()
-                });
-            } else {
-                console.warn(`Producto con ID ${producto.id} no encontrado para actualizar stock.`);
-            }
-        }
-
-        // Mostrar mensaje de éxito
-        mostrarAlerta(`Apartado creado con éxito. Número de Boleto: ${apartadoParaBoleto.ID_BOLETO}`, "success");
-
-        // Limpiar formulario
-        cancelarApartadoEnTienda();
-
-        // TODO: Mostrar ticket de apartado
-    } catch (error) {
-        console.error("Error al crear apartado:", error);
-        mostrarAlerta("Error al crear apartado: " + error.message, "error");
-    }
-
-    try {
-        // Calcular totales
-        const subtotal = productosApartado.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
-        const enganche = subtotal * 0.1;
-        const total = subtotal;
-        const cambio = montoRecibido - enganche;
-
-        // Crear objeto de apartado
-        const apartado = {
+        // Crear objeto de apartado para Apartados (si es necesario)
+        const apartadoParaColeccion = {
             tipo: "tienda",
             cliente: {
-                nombre: apartadoClienteNombre.value.trim(),
-                telefono: apartadoClienteTelefono.value.trim(),
-                email: apartadoClienteEmail.value.trim()
+                nombre: nombreCliente,
+                telefono: telefonoCliente,
+                email: emailCliente
             },
             productos: productosApartado.map(p => ({
                 productoId: p.id,
@@ -517,50 +497,75 @@ async function crearApartadoEnTienda() {
                 subtotal: Number.parseFloat(p.subtotal)
             })),
             subtotal: subtotal,
-            enganche: enganche,
+            enganche: engancheRequerido,
             total: total,
             metodoPagoEnganche: apartadoMetodoPagoEnganche.value,
             montoRecibido: montoRecibido,
             cambio: cambio,
             fechaApartado: serverTimestamp(),
-            fechaLimite1erAbono: new Date(new Date().setDate(new Date().getDate() + 15)),
-            fechaLimiteLiquidacion: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+            fechaLimite1erAbono: calcularFechaSegundoPago(),
+            fechaLimiteLiquidacion: calcularFechaLiquidacion(),
             estado: "pendiente",
             creadoPor: usuarioActual ? usuarioActual.email : "sistema",
             numeroApartado: generarNumeroApartado()
         };
 
-        // Guardar apartado en Firestore
-        const apartadoRef = await addDoc(collection(db, "Apartados"), apartado);
-        console.log("Apartado creado con ID:", apartadoRef.id);
+        // Guardar apartado en colección "Apartados" (si es necesario)
+        const apartadoRef = await addDoc(collection(db, "Apartados"), apartadoParaColeccion);
+        console.log("Apartado creado en Apartados con ID:", apartadoRef.id);
 
         // Actualizar stock de productos
         for (const producto of productosApartado) {
-            const productoRef = doc(db, "Productos", producto.id);
-            const productoDoc = await getDoc(productoRef);
+            try {
+                const productoRef = doc(db, "Productos", producto.id);
+                const productoDoc = await getDoc(productoRef);
 
-            if (productoDoc.exists()) {
-                const stockActual = productoDoc.data().stock || 0;
-                const nuevoStock = Math.max(0, stockActual - producto.cantidad);
+                if (productoDoc.exists()) {
+                    const stockActual = productoDoc.data().stock || 0;
+                    const nuevoStock = Math.max(0, stockActual - producto.cantidad);
 
-                await updateDoc(productoRef, {
-                    stock: nuevoStock,
-                    updatedAt: serverTimestamp()
-                });
+                    await updateDoc(productoRef, {
+                        stock: nuevoStock,
+                        updatedAt: serverTimestamp()
+                    });
+                }
+            } catch (error) {
+                console.error(`Error al actualizar stock del producto ${producto.nombre}:`, error);
             }
         }
 
         // Mostrar mensaje de éxito
-        mostrarAlerta(`Apartado creado con éxito. Número: ${apartado.numeroApartado}`, "success");
+        mostrarAlerta(`Apartado creado con éxito. Número: ${apartadoParaBoleto.ID_BOLETO}`, "success");
 
         // Limpiar formulario
-        cancelarApartadoEnTienda();
+        limpiarFormularioApartado();
 
-        // TODO: Mostrar ticket de apartado
     } catch (error) {
         console.error("Error al crear apartado:", error);
         mostrarAlerta("Error al crear apartado: " + error.message, "error");
+    } finally {
+        // Restaurar estado del botón
+        if (btnCrearApartado) {
+            btnCrearApartado.disabled = false;
+            btnCrearApartado.innerHTML = '<i class="fas fa-save"></i> Registrar Apartado';
+        }
     }
+}
+// Función para limpiar formulario de apartado (sin confirmación)
+function limpiarFormularioApartado() {
+    productosApartado = [];
+    clienteApartado = null;
+    engancheRecibido = 0;
+
+    // Limpiar campos del formulario
+    if (apartadoClienteNombre) apartadoClienteNombre.value = "";
+    if (apartadoClienteTelefono) apartadoClienteTelefono.value = "";
+    if (apartadoClienteEmail) apartadoClienteEmail.value = "";
+    if (apartadoMontoRecibido) apartadoMontoRecibido.value = "0.00";
+    if (apartadoCambioElement) apartadoCambioElement.value = "$0.00";
+    if (apartadoMetodoPagoEnganche) apartadoMetodoPagoEnganche.value = "";
+
+    actualizarCarritoApartado();
 }
 
 // Función para cancelar apartado en tienda
@@ -575,14 +580,8 @@ function cancelarApartadoEnTienda() {
         engancheRecibido = 0;
 
         // Limpiar formulario
-        apartadoClienteNombre.value = "";
-        apartadoClienteTelefono.value = "";
-        apartadoClienteEmail.value = "";
-        apartadoMontoRecibido.value = "0.00";
-        apartadoCambioElement.value = "$0.00";
+        limpiarFormularioApartado();
 
-        actualizarCarritoApartado();
-        mostrarAlerta("Apartado cancelado", "info");
     }
 }
 
