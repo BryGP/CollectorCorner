@@ -105,11 +105,11 @@
                         </div>
                     </div>
 
+                    <!-- Preview del ticket -->
                     <div class="ticket-preview-panel">
                         <h3><i class="fas fa-receipt"></i> Vista Previa del Ticket</h3>
-                        <div class="ticket-container">
+                        <div class="ticket-container" id="ticket-preview">
                             <div class="ticket">
-                                <!-- Encabezado del ticket -->
                                 <div class="ticket-header">
                                     <h1>Toy Garaje</h1>
                                     <p>Tienda de Coleccionables</p>
@@ -127,7 +127,6 @@
                                     <div class="ticket-divider"></div>
                                 </div>
 
-                                <!-- Contenido del ticket (productos) -->
                                 <div class="ticket-content">
                                     <table class="ticket-items">
                                         <thead>
@@ -147,7 +146,6 @@
                                     <div class="ticket-divider"></div>
                                 </div>
 
-                                <!-- Pie del ticket (totales) -->
                                 <div class="ticket-footer">
                                     <div class="ticket-totals">
                                         <div class="total-line">
@@ -176,9 +174,16 @@
                                     </div>
 
                                     <div class="ticket-divider"></div>
-                                    <div class="ticket-barcode">
-                                        <div class="barcode-placeholder"></div>
-                                        <p class="barcode-text" id="ticket-barcode-text">*00000000*</p>
+
+                                    <!-- CÓDIGO DE BARRAS DINÁMICO -->
+                                    <div class="ticket-barcode" id="ticket-barcode">
+                                        <!-- Esta imagen se actualiza en el script -->
+                                        <img id="ticket-barcode-img" src="https://barcodeapi.org/api/code128/00000000"
+                                            alt="Código de barras"
+                                            style="width: 100%; max-width: 180px; height: 40px; display: block; margin: auto;" />
+                                        <p class="barcode-text" style="font-family: 'Courier New', monospace; letter-spacing: 2px;"
+                                            id="ticket-barcode-text">*00000000*
+                                        </p>
                                     </div>
 
                                     <div class="ticket-footer-msg">
@@ -189,12 +194,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="ticket-actions">
-                            <button id="btn-imprimir" class="btn-primary">
-                                <i class="fas fa-print"></i> Imprimir Ticket
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -435,12 +434,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="ticket-actions">
-                            <button id="btn-imprimir-apartado" class="btn-primary">
-                                <i class="fas fa-print"></i> Imprimir Ticket
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -459,8 +452,7 @@
                     <h4>Forma de pago</h4>
                     <select id="metodo-pago">
                         <option value="Efectivo">Efectivo</option>
-                        <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
-                        <option value="Tarjeta de Débito">Tarjeta de Débito</option>
+                        <option value="Tarjeta">Tarjeta</option>
                         <option value="Transferencia">Transferencia</option>
                     </select>
 
@@ -479,8 +471,8 @@
                             <label for="efectivo-recibido">Efectivo recibido:</label>
                             <input type="number" id="efectivo-recibido" min="0" step="0.01">
                         </div>
-                        <div class="input-group">
-                            <label for="cambio">Cambio:</label>
+                        <div class="input-group cambio-container">
+                            <label for="cambio">Cambio a entregar:</label>
                             <input type="text" id="cambio" readonly>
                         </div>
                     </div>
@@ -492,6 +484,7 @@
             </div>
         </div>
     </div>
+
     <div id="modal-overlay"></div>
 
     <!-- Modal para completar compra de apartado -->

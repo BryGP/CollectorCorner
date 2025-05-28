@@ -212,13 +212,6 @@ function configurarEventos() {
     } else {
         console.error("Elemento btn-cancelar no encontrado")
     }
-
-    if (btnImprimir) {
-        btnImprimir.addEventListener("click", imprimirTicket)
-    } else {
-        console.error("Elemento btn-imprimir no encontrado")
-    }
-
     // Configurar modal de pago
     configurarModalPago()
 
@@ -764,6 +757,14 @@ function actualizarTicket() {
         if (ticketRecibidoContainer) ticketRecibidoContainer.style.display = "none"
         if (ticketCambioContainer) ticketCambioContainer.style.display = "none"
     }
+
+    // Actualizar código de barras
+    if (ticketNumero) {
+        const barcodeImg = document.getElementById("ticket-barcode-img");
+        const barcodeText = document.getElementById("ticket-barcode-text");
+        if (barcodeImg) barcodeImg.src = `https://barcodeapi.org/api/code128/${ticketNumero}`;
+        if (barcodeText) barcodeText.textContent = `*${ticketNumero}*`;
+    }
 }
 
 // Función para eliminar producto
@@ -845,12 +846,158 @@ function cancelarVenta() {
 
 // Función para imprimir ticket
 function imprimirTicket() {
-    if (productosVenta.length === 0) {
-        mostrarAlerta("No hay productos para imprimir", "error")
-        return
+    const ticketElement = document.querySelector(".ticket");
+    if (!ticketElement) {
+        console.error("No se encontró el contenido del ticket");
+        return;
     }
 
-    window.print()
+    // Clonar el contenido para evitar manipular el original
+    const ticketClone = ticketElement.cloneNode(true);
+
+    // Estilos mejorados
+    const styles = `
+        <style>
+            * {
+                font-family: 'Courier New', monospace;
+                font-size: 10px;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                background: white;
+                padding: 5px;
+            }
+            
+            .ticket {
+                width: 100%;
+                max-width: 260px;
+                margin: 0 auto;
+                padding: 10px;
+                text-align: center;
+                line-height: 1.4;
+            }
+            
+            .ticket * {
+                font-size: inherit;
+                font-family: inherit;
+            }
+            
+            .ticket-header h1 {
+                font-size: 15px;
+                margin-bottom: 3px;
+            }
+            
+            .ticket-header p {
+                font-size: 9px;
+                margin: 1px 0;
+            }
+
+            .ticket-info {
+                font-size: 9px;
+                margin: 6px 0;
+                text-align: left;
+            }
+            .ticket-divider {
+                border-top: 1px dashed #000;
+                margin: 5px 0;
+            }
+
+            .productos-header,
+            .item-row {
+                display: grid;
+                grid-template-columns: 1fr 2.5fr 2fr 2fr;
+                gap: 4px;
+                text-align: left;
+                font-size: 9px;
+                margin: 2px 0;
+                padding-bottom: 2px;
+            }
+            .productos-header {
+                font-weight: bold;
+                margin-top: 6px;
+                margin-bottom: 4px;
+            }
+            .ticket-summary,
+            .payment-info {
+                font-size: 9px;
+                text-align: left;
+                margin-top: 6px;
+            }
+
+            .summary-row,
+            .payment-row {
+                display: flex;
+                justify-content: space-between;
+                margin: 2px 0;
+            }
+            .summary-row.total {
+                font-weight: bold;
+                border-top: 1px solid #000;
+                padding-top: 3px;
+                margin-top: 5px;
+            }
+            .barcode {
+                text-align: center;
+                margin-top: 10px;
+            }
+
+            .barcode-lines {
+                font-family: 'Libre Barcode 128', monospace;
+                font-size: 28px;
+                line-height: 1;
+            }
+
+            .barcode img {
+                width: 100%;
+                max-width: 200px;
+                height: 50px;
+                object-fit: contain;
+            }
+
+            .barcode-text {
+                font-size: 10px;
+                margin-top: 2px;
+                letter-spacing: 1px;
+            }
+            .ticket-footer {
+                font-size: 9px;
+                text-align: center;
+                margin-top: 10px;
+            }
+            .ticket-footer p {
+                margin: 2px 0;
+            }
+            @media print {
+                body {
+                    padding: 0;
+                }
+                .ticket {
+                    width: 80mm;
+                    max-width: none;
+                    padding: 5mm;
+                }
+            }
+        </style>
+    `;
+
+    // Ventana emergente para imprimir
+    const ventana = window.open("", "Imprimir Ticket", "height=600,width=300");
+    ventana.document.write(`
+        <html>
+            <head><title>Ticket</title>${styles}</head>
+            <body>${ticketClone.outerHTML}</body>
+            <script>
+                window.onload = () => {
+                    window.print();
+                    setTimeout(() => window.close(), 300);
+                };
+            </script>
+        </html>
+    `);
+    ventana.document.close();
 }
 
 // ==================== FUNCIONES PARA MODAL DE PAGO ====================
@@ -926,7 +1073,13 @@ function configurarModalPago() {
                 // Establecer descuento predeterminado para efectivo (15%)
                 if (descuentoInput) descuentoInput.value = "15"
                 descuentoAplicado = 15
-            } else if (metodoPago.value === "Tarjeta de Crédito" || metodoPago.value === "Tarjeta de Débito") {
+                // Enfocar en el campo de efectivo recibido
+                if (efectivoRecibido) {
+                    setTimeout(() => {
+                        efectivoRecibido.focus()
+                    }, 100)
+                }
+            } else if (metodoPago.value === "Tarjeta") {
                 efectivoContainer.style.display = "none"
                 // Establecer descuento predeterminado para tarjeta (10%)
                 if (descuentoInput) descuentoInput.value = "10"
@@ -1049,7 +1202,10 @@ function mostrarModalPago() {
 
     // Resetear campos de efectivo
     if (efectivoRecibido) efectivoRecibido.value = ""
-    if (cambio) cambio.value = ""
+    if (cambio) {
+        cambio.value = ""
+        cambio.classList.remove("error")
+    }
     efectivoRecibidoValor = 0
 
     // Establecer descuento predeterminado según método de pago
@@ -1058,11 +1214,12 @@ function mostrarModalPago() {
             descuentoInput.value = "15"
             descuentoAplicado = 15
             if (efectivoContainer) efectivoContainer.style.display = "block"
-        } else if (metodoPago.value === "Tarjeta de Crédito" || metodoPago.value === "Tarjeta de Débito") {
-            descuentoInput.value = "10"
 
+        } else if (metodoPago.value === "Tarjeta") {
+            descuentoInput.value = "10"
             descuentoAplicado = 10
             if (efectivoContainer) efectivoContainer.style.display = "none"
+
         } else {
             descuentoInput.value = "0"
             descuentoAplicado = 0
@@ -1082,7 +1239,9 @@ function mostrarModalPago() {
 
     // Enfocar en el campo de efectivo recibido si es efectivo
     if (metodoPago && metodoPago.value === "Efectivo" && efectivoRecibido) {
-        efectivoRecibido.focus()
+        setTimeout(() => {
+            efectivoRecibido.focus()
+        }, 300)
     }
 
     console.log("Modal de pago mostrado")
@@ -1099,7 +1258,7 @@ function cerrarModalPago() {
     if (overlay) overlay.style.display = "none"
 }
 
-// Calcular cambio
+// Calcular cambio con mejor visualización
 function calcularCambio() {
     const efectivoRecibido = document.getElementById("efectivo-recibido")
     const cambioInput = document.getElementById("cambio")
@@ -1110,18 +1269,20 @@ function calcularCambio() {
         return
     }
 
-    const efectivoRecibidoValor = Number.parseFloat(efectivoRecibido.value) || 0
-    this.efectivoRecibidoValor = efectivoRecibidoValor
+    // Limpiar cambio
+    efectivoRecibidoValor = Number.parseFloat(efectivoRecibido.value) || 0
 
     const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0)
     const totalConDescuento = calcularTotalConDescuento(subtotal)
 
     if (efectivoRecibidoValor < totalConDescuento) {
-        cambioInput.value = "Monto insuficiente"
+        cambioInput.value = "MONTO INSUFICIENTE"
+        cambioInput.classList.add("error")
         if (confirmarBtn) confirmarBtn.disabled = true
     } else {
         const cambio = efectivoRecibidoValor - totalConDescuento
         cambioInput.value = `$${cambio.toFixed(2)}`
+        cambioInput.classList.remove("error")
         if (confirmarBtn) confirmarBtn.disabled = false
     }
 
@@ -1129,37 +1290,40 @@ function calcularCambio() {
     actualizarTicket()
 }
 
-// Procesar pago
+// Procesar pago con validación
 async function procesarPago() {
-    const metodoPago = document.getElementById("metodo-pago")
-    const efectivoRecibido = document.getElementById("efectivo-recibido")
+    const metodoPago = document.getElementById("metodo-pago");
+    const efectivoRecibido = document.getElementById("efectivo-recibido");
 
     if (!metodoPago) {
-        console.error("Elemento metodo-pago no encontrado")
-        return
+        console.error("Elemento metodo-pago no encontrado");
+        return;
     }
 
     // Validar pago en efectivo
     if (metodoPago.value === "Efectivo" && efectivoRecibido) {
-        const efectivoRecibidoValor = Number.parseFloat(efectivoRecibido.value) || 0
-        const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0)
-        const totalConDescuento = calcularTotalConDescuento(subtotal)
+        const efectivoRecibidoValor = Number.parseFloat(efectivoRecibido.value) || 0;
+        const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
+        const totalConDescuento = calcularTotalConDescuento(subtotal);
 
         if (efectivoRecibidoValor < totalConDescuento) {
-            mostrarAlerta("El monto recibido es insuficiente", "error")
-            return
+            mostrarAlerta("El monto recibido es insuficiente", "error", "Error de pago");
+            efectivoRecibido.focus();
+            return;
         }
     }
 
     try {
         // Calcular totales
-        const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0)
-        const totalConDescuento = calcularTotalConDescuento(subtotal)
+        const subtotal = productosVenta.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
+        const totalConDescuento = calcularTotalConDescuento(subtotal);
 
         // Generar ticket único aleatorio
-        ticketNumero = generarNumeroTicket()
+        ticketNumero = generarNumeroTicket();
 
-        // Crear objeto de venta
+        const cambioInput = document.getElementById("cambio");
+        const cambioValor = parseFloat(cambioInput?.value) || 0;
+
         const venta = {
             fecha: serverTimestamp(),
             usuario: usuarioActual ? usuarioActual.email : "Usuario de prueba",
@@ -1175,50 +1339,52 @@ async function procesarPago() {
             descuentoPorcentaje: descuentoAplicado,
             total: totalConDescuento,
             metodoPago: metodoPago.value,
+            efectivoRecibido: parseFloat(efectivoRecibido?.value || 0),
+            cambio: cambioValor,
             estado: "Completada",
             numeroTicket: ticketNumero,
-        }
+        };
 
-        // Guardar venta
-        const ventaRef = await addDoc(collection(db, "Ventas"), venta)
-        console.log("Venta registrada con ID:", ventaRef.id)
+        const ventaRef = await addDoc(collection(db, "Ventas"), venta);
+        console.log("Venta registrada con ID:", ventaRef.id);
 
-        // Actualizar stock
         for (const producto of productosVenta) {
-            const productoRef = doc(db, "Productos", producto.id)
-            const productoDoc = await getDoc(productoRef)
+            const productoRef = doc(db, "Productos", producto.id);
+            const productoDoc = await getDoc(productoRef);
 
             if (productoDoc.exists()) {
-                const stockActual = productoDoc.data().stock || 0
-                const nuevoStock = Math.max(0, stockActual - producto.cantidad)
+                const stockActual = productoDoc.data().stock || 0;
+                const nuevoStock = Math.max(0, stockActual - producto.cantidad);
 
                 await updateDoc(productoRef, {
                     stock: nuevoStock,
                     updatedAt: serverTimestamp(),
-                })
+                });
             }
         }
 
-        // Mostrar en ticket
-        if (ticketNumeroElement) ticketNumeroElement.textContent = `Ticket #: ${ticketNumero}`
-        if (ticketBarcodeText) ticketBarcodeText.textContent = `*${ticketNumero}*`
+        if (ticketNumeroElement) ticketNumeroElement.textContent = `Ticket #: ${ticketNumero}`;
+        if (ticketBarcodeText) ticketBarcodeText.textContent = `*${ticketNumero}*`;
 
-        cerrarModalPago()
-        mostrarAlerta(`Venta realizada con éxito. Ticket: ${ticketNumero}`, "success")
+        cerrarModalPago();
+        mostrarAlerta(`Venta realizada con éxito`, "success", `Ticket: ${ticketNumero}`);
 
-        if (confirm("¿Desea imprimir el ticket ahora?")) {
-            imprimirTicket()
-        }
+        // Primero actualiza el DOM del ticket, luego imprime
+        actualizarTicket();
 
-        // Limpiar
-        productosVenta = []
-        descuentoAplicado = 0
-        descuentoMonto = 0
-        actualizarCarrito()
-        actualizarTicket()
+        // Espera 300ms para asegurar que el ticket esté visible
+        setTimeout(() => {
+            imprimirTicket();
+        }, 300);
+
+        // Limpiar variables
+        productosVenta = [];
+        descuentoAplicado = 0;
+        descuentoMonto = 0;
+        actualizarCarrito();
     } catch (error) {
-        console.error("Error al procesar venta:", error)
-        mostrarAlerta("Error al procesar venta: " + error.message, "error")
+        console.error("Error al procesar venta:", error);
+        mostrarAlerta("Error al procesar venta: " + error.message, "error");
     }
 }
 
@@ -2228,30 +2394,103 @@ async function agregarProductoAlBoletoDesdeSeleccion(producto) {
     }
 }
 
-// Función para mostrar alertas
-function mostrarAlerta(mensaje, tipo) {
-    // Eliminar alertas anteriores
-    const alertasAnteriores = document.querySelectorAll(".alerta")
-    alertasAnteriores.forEach((alerta) => alerta.remove())
+// Función para mostrar notificaciones mejoradas
+function mostrarAlerta(mensaje, tipo = "info", titulo = null) {
+    // Crear contenedor de notificaciones si no existe
+    let container = document.querySelector(".notification-container")
+    if (!container) {
+        container = document.createElement("div")
+        container.className = "notification-container"
+        document.body.appendChild(container)
+    }
 
-    // Crear alerta
-    const alerta = document.createElement("div")
-    alerta.className = `alerta alerta-${tipo}`
-    alerta.innerHTML = `
-        <i class="fas ${tipo === "success" ? "fa-check-circle" : tipo === "error" ? "fa-exclamation-circle" : "fa-info-circle"}"></i>
-        <span>${mensaje}</span>
+    // Definir títulos y iconos por tipo
+    const config = {
+        success: {
+            titulo: titulo || "¡Éxito!",
+            icono: "fas fa-check",
+        },
+        error: {
+            titulo: titulo || "Error",
+            icono: "fas fa-exclamation-triangle",
+        },
+        info: {
+            titulo: titulo || "Información",
+            icono: "fas fa-info",
+        },
+        warning: {
+            titulo: titulo || "Advertencia",
+            icono: "fas fa-exclamation",
+        },
+    }
+
+    const currentConfig = config[tipo] || config.info
+
+    // Crear notificación
+    const notification = document.createElement("div")
+    notification.className = `notification ${tipo}`
+
+    notification.innerHTML = `
+        <div class="notification-icon">
+            <i class="${currentConfig.icono}"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-title">${currentConfig.titulo}</div>
+            <div class="notification-message">${mensaje}</div>
+        </div>
+        <button class="notification-close">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="notification-progress"></div>
     `
 
-    // Agregar alerta al body
-    document.body.appendChild(alerta)
+    // Agregar evento de cierre
+    const closeBtn = notification.querySelector(".notification-close")
+    closeBtn.addEventListener("click", () => {
+        cerrarNotificacion(notification)
+    })
 
-    // Eliminar alerta después de 3 segundos
+    // Agregar al contenedor
+    container.appendChild(notification)
+
+    // Auto-cerrar después de 4 segundos
     setTimeout(() => {
-        alerta.style.animation = "fadeOut 0.3s ease forwards"
-        setTimeout(() => {
-            alerta.remove()
-        }, 300)
-    }, 3000)
+        if (notification.parentNode) {
+            cerrarNotificacion(notification)
+        }
+    }, 4000)
+
+    // Limitar número de notificaciones (máximo 5)
+    const notifications = container.querySelectorAll(".notification")
+    if (notifications.length > 5) {
+        cerrarNotificacion(notifications[0])
+    }
+}
+
+// Función para cerrar notificación con animación
+function cerrarNotificacion(notification) {
+    notification.style.animation = "slideOutNotification 0.3s ease-in forwards"
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification)
+        }
+    }, 300)
+}
+
+// Función para mostrar notificación de éxito con sonido (opcional)
+function mostrarExito(mensaje, titulo = null) {
+    mostrarAlerta(mensaje, "success", titulo)
+    // Opcional: agregar sonido de éxito
+    // new Audio('/sounds/success.mp3').play().catch(() => {});
+}
+
+// Función para mostrar notificación de error con vibración (opcional)
+function mostrarError(mensaje, titulo = null) {
+    mostrarAlerta(mensaje, "error", titulo)
+    // Opcional: vibración en dispositivos móviles
+    if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100])
+    }
 }
 
 // Función para cerrar el modal de completar compra
