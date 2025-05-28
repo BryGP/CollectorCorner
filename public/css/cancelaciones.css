@@ -835,7 +835,7 @@ main {
 
 @media (max-width: 480px) {
     .modal-content {
-        width: 98%;
+        width: 100%;
         max-width: 280px;
     }
 
