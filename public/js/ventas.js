@@ -46,7 +46,932 @@ const ticketCambioElement = document.getElementById("ticket-cambio")
 const ticketRecibidoContainer = document.getElementById("ticket-recibido-container")
 const ticketCambioContainer = document.getElementById("ticket-cambio-container")
 const ticketBarcodeText = document.getElementById("ticket-barcode-text")
+// ==================== FUNCIONES PARA APARTADO EN TIENDA ====================
 
+// Variables globales para apartados
+let productosApartado = [];
+let clienteApartado = null;
+let engancheRecibido = 0;
+
+// Elementos del DOM para apartados
+const apartadoClienteNombre = document.getElementById("apartado-cliente-nombre");
+const apartadoClienteTelefono = document.getElementById("apartado-cliente-telefono");
+const apartadoClienteEmail = document.getElementById("apartado-cliente-email");
+const apartadoBusquedaInput = document.getElementById("apartado-busqueda-producto");
+const apartadoSugerenciasContainer = document.getElementById("apartado-sugerencias-container");
+const apartadoCarritoLista = document.getElementById("apartado-carrito-lista");
+const apartadoSubtotalElement = document.getElementById("apartado-subtotal-productos");
+const apartadoEngancheElement = document.getElementById("apartado-enganche");
+const apartadoTotalElement = document.getElementById("apartado-total-productos");
+const apartadoMontoRecibido = document.getElementById("apartado-monto-recibido");
+const apartadoCambioElement = document.getElementById("apartado-cambio");
+const apartadoMetodoPagoEnganche = document.getElementById("apartado-metodo-pago-enganche");
+const btnCrearApartado = document.getElementById("btn-crear-apartado");
+const btnCancelarApartado = document.getElementById("btn-cancelar-apartado");
+
+
+// Configurar eventos para apartados en tienda
+function configurarApartadoEnTienda() {
+    // Evento para buscar productos en apartado
+    if (apartadoBusquedaInput) {
+        apartadoBusquedaInput.addEventListener("input", buscarProductosApartadoTienda);
+    }
+    // Evento para agregar producto al apartado
+    const btnAgregarProductoApartado = document.getElementById("btn-agregar-producto-apartado");
+    if (btnAgregarProductoApartado) {
+        btnAgregarProductoApartado.addEventListener("click", agregarProductoAlApartado);
+    }
+
+    // Evento para calcular cambio
+    if (apartadoMontoRecibido) {
+        apartadoMontoRecibido.addEventListener("input", calcularCambioApartadoTienda);
+    }
+
+    // Evento para crear apartado
+    if (btnCrearApartado) {
+        btnCrearApartado.addEventListener("click", crearApartadoEnTienda);
+    }
+
+    // Evento para cancelar apartado
+    if (btnCancelarApartado) {
+        btnCancelarApartado.addEventListener("click", cancelarApartadoEnTienda);
+    }
+
+    // Actualizar fechas de apartado
+    actualizarFechasApartado();
+}
+
+// Función para buscar productos en apartado en tienda
+async function buscarProductosApartadoTienda() {
+    const busqueda = apartadoBusquedaInput.value.trim();
+
+    if (!busqueda) {
+        apartadoSugerenciasContainer.innerHTML = "";
+        apartadoSugerenciasContainer.style.display = "none";
+        return;
+    }
+
+    try {
+        const productosRef = collection(db, "Productos");
+        let q = query(productosRef, where("name", ">=", busqueda), where("name", "<=", busqueda + "\uf8ff"));
+        let querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            q = query(productosRef, where("codigo", "==", busqueda));
+            querySnapshot = await getDocs(q);
+        }
+
+        apartadoSugerenciasContainer.innerHTML = "";
+
+        if (querySnapshot.empty) {
+            apartadoSugerenciasContainer.innerHTML = `
+                <div class="sugerencia-item">
+                    <span>No se encontraron productos</span>
+                </div>
+            `;
+            apartadoSugerenciasContainer.style.display = "block";
+            return;
+        }
+
+        querySnapshot.forEach((doc) => {
+            const producto = doc.data();
+            const div = document.createElement("div");
+            div.className = "sugerencia-item";
+
+            const codigoTexto = producto.codigo ? `${producto.codigo} - ` : "";
+
+            div.innerHTML = `
+                <div class="sugerencia-info">
+                    <span class="sugerencia-nombre">${codigoTexto}${producto.name}</span>
+                    <span class="sugerencia-stock">Stock: ${producto.stock || 0}</span>
+                </div>
+                <span class="sugerencia-precio">$${producto.precio ? producto.precio.toFixed(2) : "0.00"}</span>
+            `;
+
+            div.dataset.id = doc.id;
+            div.dataset.nombre = producto.name;
+            div.dataset.precio = producto.precio || 0;
+            div.dataset.stock = producto.stock || 0;
+
+            div.addEventListener("click", () => {
+                agregarProductoAlApartadoDesdeSeleccion(div.dataset);
+                apartadoBusquedaInput.value = "";
+                apartadoSugerenciasContainer.style.display = "none";
+            });
+
+            apartadoSugerenciasContainer.appendChild(div);
+        });
+
+        apartadoSugerenciasContainer.style.display = "block";
+    } catch (error) {
+        console.error("Error al buscar productos para apartado:", error);
+        apartadoSugerenciasContainer.innerHTML = `
+            <div class="sugerencia-item">
+                <span>Error al buscar productos</span>
+            </div>
+        `;
+        apartadoSugerenciasContainer.style.display = "block";
+    }
+}
+
+// Función para agregar producto al apartado desde selección
+async function agregarProductoAlApartadoDesdeSeleccion(producto) {
+    const { id, nombre, precio, stock } = producto;
+    const precioNum = Number.parseFloat(precio);
+    const stockNum = Number.parseInt(stock);
+
+    if (stockNum <= 0) {
+        mostrarAlerta("Este producto está agotado", "error");
+        return;
+    }
+
+    const cantidad = prompt(`¿Cuántas unidades de ${nombre} deseas apartar? (Disponibles: ${stockNum})`);
+
+    if (!cantidad) return;
+
+    const cantidadNum = Number.parseInt(cantidad);
+
+    if (isNaN(cantidadNum) || cantidadNum <= 0) {
+        mostrarAlerta("Por favor, ingresa una cantidad válida", "error");
+        return;
+    }
+
+    if (cantidadNum > stockNum) {
+        mostrarAlerta("No hay suficiente stock disponible", "error");
+        return;
+    }
+
+    const productoExistente = productosApartado.find(p => p.id === id);
+
+    if (productoExistente) {
+        productoExistente.cantidad += cantidadNum;
+        productoExistente.subtotal = (productoExistente.cantidad * productoExistente.precioUnitario).toFixed(2);
+    } else {
+        productosApartado.push({
+            id,
+            nombre,
+            precioUnitario: precioNum,
+            cantidad: cantidadNum,
+            subtotal: (precioNum * cantidadNum).toFixed(2)
+        });
+    }
+
+    actualizarCarritoApartado();
+    mostrarAlerta(`${nombre} agregado al apartado`, "success");
+}
+
+// Función para actualizar carrito de apartado
+function actualizarCarritoApartado() {
+    apartadoCarritoLista.innerHTML = "";
+
+    if (productosApartado.length === 0) {
+        apartadoCarritoLista.innerHTML = `
+            <div class="carrito-vacio">
+                <i class="fas fa-box-open"></i>
+                <p>No hay productos agregados para el apartado</p>
+            </div>
+        `;
+
+        apartadoSubtotalElement.textContent = "$0.00";
+        apartadoEngancheElement.textContent = "$0.00";
+        apartadoTotalElement.textContent = "$0.00";
+        return;
+    }
+
+    let subtotal = 0;
+
+    productosApartado.forEach((producto, index) => {
+        const div = document.createElement("div");
+        div.className = "producto-carrito";
+
+        const subtotalProducto = Number.parseFloat(producto.subtotal);
+        subtotal += subtotalProducto;
+
+        div.innerHTML = `
+            <div class="producto-header">
+                <span class="producto-nombre">${producto.nombre}</span>
+                <div class="producto-acciones">
+                    <button class="btn-eliminar" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="producto-detalles">
+                <div class="producto-cantidad">
+                    <button class="btn-cantidad btn-restar" data-index="${index}">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <span class="cantidad-valor">${producto.cantidad}</span>
+                    <button class="btn-cantidad btn-sumar" data-index="${index}">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <span class="producto-precio">$${subtotalProducto.toFixed(2)}</span>
+            </div>
+        `;
+
+        apartadoCarritoLista.appendChild(div);
+    });
+
+    // Calcular enganche (10% del subtotal)
+    const enganche = subtotal * 0.1;
+    const total = subtotal;
+
+    apartadoSubtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+    apartadoEngancheElement.textContent = `$${enganche.toFixed(2)}`;
+    apartadoTotalElement.textContent = `$${total.toFixed(2)}`;
+
+    // Configurar eventos para los botones
+    document.querySelectorAll(".btn-eliminar").forEach(btn => {
+        btn.addEventListener("click", function () {
+            eliminarProductoApartadoTienda(Number.parseInt(this.getAttribute("data-index")));
+        });
+    });
+
+    document.querySelectorAll(".btn-restar").forEach(btn => {
+        btn.addEventListener("click", function () {
+            restarCantidadApartadoTienda(Number.parseInt(this.getAttribute("data-index")));
+        });
+    });
+
+    document.querySelectorAll(".btn-sumar").forEach(btn => {
+        btn.addEventListener("click", function () {
+            sumarCantidadApartadoTienda(Number.parseInt(this.getAttribute("data-index")));
+        });
+    });
+}
+
+// Función para eliminar producto del apartado en tienda
+function eliminarProductoApartadoTienda(index) {
+    if (index >= 0 && index < productosApartado.length) {
+        const producto = productosApartado[index];
+        productosApartado.splice(index, 1);
+        actualizarCarritoApartado();
+        mostrarAlerta(`${producto.nombre} eliminado del apartado`, "info");
+    }
+}
+
+// Función para restar cantidad en apartado en tienda
+function restarCantidadApartadoTienda(index) {
+    if (index >= 0 && index < productosApartado.length) {
+        if (productosApartado[index].cantidad > 1) {
+            productosApartado[index].cantidad -= 1;
+            productosApartado[index].subtotal = (productosApartado[index].cantidad * productosApartado[index].precioUnitario).toFixed(2);
+            actualizarCarritoApartado();
+        } else {
+            eliminarProductoApartadoTienda(index);
+        }
+    }
+}
+
+// Función para sumar cantidad en apartado en tienda
+async function sumarCantidadApartadoTienda(index) {
+    if (index >= 0 && index < productosApartado.length) {
+        const productoId = productosApartado[index].id;
+
+        try {
+            const productoDoc = await getDoc(doc(db, "Productos", productoId));
+            if (productoDoc.exists()) {
+                const stockDisponible = productoDoc.data().stock || 0;
+
+                if (productosApartado[index].cantidad < stockDisponible) {
+                    productosApartado[index].cantidad += 1;
+                    productosApartado[index].subtotal = (productosApartado[index].cantidad * productosApartado[index].precioUnitario).toFixed(2);
+                    actualizarCarritoApartado();
+                } else {
+                    mostrarAlerta("No hay suficiente stock disponible", "error");
+                }
+            }
+        } catch (error) {
+            console.error("Error al verificar stock:", error);
+        }
+    }
+}
+
+// Función para calcular cambio en apartado en tienda
+function calcularCambioApartadoTienda() {
+    const montoRecibido = Number.parseFloat(apartadoMontoRecibido.value) || 0;
+    const enganche = Number.parseFloat(apartadoEngancheElement.textContent.replace("$", "")) || 0;
+
+    if (montoRecibido < enganche) {
+        apartadoCambioElement.value = "Monto insuficiente";
+    } else {
+        const cambio = montoRecibido - enganche;
+        apartadoCambioElement.value = `$${cambio.toFixed(2)}`;
+    }
+}
+
+// Función helper para calcular fecha de liquidación (1 mes desde fecha dada)
+function calcularFechaLiquidacion(fechaBase = new Date()) {
+    const fechaLiquidacion = new Date(fechaBase);
+    fechaLiquidacion.setMonth(fechaBase.getMonth() + 1);
+    fechaLiquidacion.setDate(fechaBase.getDate());
+    return fechaLiquidacion;
+}
+
+// Función helper para calcular fecha de segundo pago (15 días desde fecha dada)
+function calcularFechaSegundoPago(fechaBase = new Date()) {
+    const fechaSegundoPago = new Date(fechaBase);
+    fechaSegundoPago.setDate(fechaBase.getDate() + 15);
+    return fechaSegundoPago;
+}
+
+// Función para actualizar fechas de apartado
+function actualizarFechasApartado() {
+    const fechaActual = new Date();
+    const fecha15Dias = calcularFechaSegundoPago(fechaActual);
+    const fechaLiquidacion = calcularFechaLiquidacion(fechaActual);
+
+    // Formatear fechas
+    const formatoFecha = (fecha) => {
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        const año = fecha.getFullYear();
+        return `${dia}/${mes}/${año}`;
+    };
+
+    document.getElementById("apartado-fecha-actual").textContent = formatoFecha(fechaActual);
+    document.getElementById("apartado-fecha-15dias").textContent = formatoFecha(fecha15Dias);
+    document.getElementById("apartado-fecha-fin-mes").textContent = formatoFecha(fechaLiquidacion);
+}
+
+// Función para crear apartado en tienda
+async function crearApartadoEnTienda() {
+    // Validaciones iniciales
+    if (productosApartado.length === 0) {
+        mostrarAlerta("No hay productos en el apartado", "error");
+        return;
+    }
+
+    const nombreCliente = apartadoClienteNombre.value.trim();
+    const telefonoCliente = apartadoClienteTelefono.value.trim();
+    const emailCliente = apartadoClienteEmail.value.trim();
+
+    if (!nombreCliente) {
+        mostrarAlerta("Por favor, ingresa el nombre del cliente", "error");
+        return;
+    }
+
+    if (!telefonoCliente && !emailCliente) {
+        mostrarAlerta("Por favor, ingresa el teléfono o el correo electrónico del cliente", "error");
+        return;
+    }
+
+    if (!apartadoMetodoPagoEnganche.value) {
+        mostrarAlerta("Por favor, selecciona un método de pago para el enganche", "error");
+        return;
+    }
+
+    const engancheRequerido = Number.parseFloat(apartadoEngancheElement.textContent.replace("$", "")) || 0;
+    const montoRecibido = Number.parseFloat(apartadoMontoRecibido.value) || 0;
+
+    if (montoRecibido <= 0) {
+        mostrarAlerta("Por favor, ingresa el monto recibido del enganche", "error");
+        return;
+    }
+
+    if (montoRecibido < engancheRequerido) {
+        mostrarAlerta("El monto recibido es menor al enganche requerido", "error");
+        return;
+    }
+
+    // Confirmación antes de crear el apartado
+    if (!confirm(`¿Confirmas crear el apartado por $${engancheRequerido.toFixed(2)}?`)) {
+        return;
+    }
+
+    try {
+        // Mostrar indicador de carga
+        btnCrearApartado.disabled = true;
+        btnCrearApartado.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando apartado...';
+
+        // Calcular totales
+        const subtotal = productosApartado.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
+        const total = subtotal;
+        const cambio = montoRecibido - engancheRequerido;
+
+        // Crear objeto de apartado para Boleto
+        const apartadoParaBoleto = {
+            CORREO_ELECTRONICO: emailCliente || "",
+            EXPIRACION: calcularFechaSegundoPago(),
+            Fecha_de_Emision: serverTimestamp(),
+            ID_BOLETO: generarNumeroApartado(),
+            Nombre: nombreCliente,
+            Productos: productosApartado.map(p => ({
+                cantidad: p.cantidad,
+                id: p.id,
+                nombre: p.nombre,
+                precio: p.precioUnitario
+            })),
+            TELEFONO: telefonoCliente || "",
+            Total: total,
+            estado: "apartado",
+            enganchePagado: engancheRequerido,
+            montoRecibidoEnganche: montoRecibido,
+            cambioEnganche: cambio,
+            metodoPagoEnganche: apartadoMetodoPagoEnganche.value,
+            creadoPor: usuarioActual ? usuarioActual.email : "sistema",
+            fechaLimiteLiquidacion: calcularFechaLiquidacion()
+        };
+
+        // Guardar el apartado en la colección "Boleto"
+        const boletoRef = await addDoc(collection(db, "Boleto"), apartadoParaBoleto);
+        console.log("Apartado creado en Boleto con ID:", boletoRef.id);
+
+        // Crear objeto de apartado para Apartados (si es necesario)
+        const apartadoParaColeccion = {
+            tipo: "tienda",
+            cliente: {
+                nombre: nombreCliente,
+                telefono: telefonoCliente,
+                email: emailCliente
+            },
+            productos: productosApartado.map(p => ({
+                productoId: p.id,
+                nombre: p.nombre,
+                cantidad: p.cantidad,
+                precioUnitario: p.precioUnitario,
+                subtotal: Number.parseFloat(p.subtotal)
+            })),
+            subtotal: subtotal,
+            enganche: engancheRequerido,
+            total: total,
+            metodoPagoEnganche: apartadoMetodoPagoEnganche.value,
+            montoRecibido: montoRecibido,
+            cambio: cambio,
+            fechaApartado: serverTimestamp(),
+            fechaLimite1erAbono: calcularFechaSegundoPago(),
+            fechaLimiteLiquidacion: calcularFechaLiquidacion(),
+            estado: "pendiente",
+            creadoPor: usuarioActual ? usuarioActual.email : "sistema",
+            numeroApartado: generarNumeroApartado()
+        };
+
+        // Guardar apartado en colección "Apartados" (si es necesario)
+        const apartadoRef = await addDoc(collection(db, "Apartados"), apartadoParaColeccion);
+        console.log("Apartado creado en Apartados con ID:", apartadoRef.id);
+
+        // Actualizar stock de productos
+        for (const producto of productosApartado) {
+            try {
+                const productoRef = doc(db, "Productos", producto.id);
+                const productoDoc = await getDoc(productoRef);
+
+                if (productoDoc.exists()) {
+                    const stockActual = productoDoc.data().stock || 0;
+                    const nuevoStock = Math.max(0, stockActual - producto.cantidad);
+
+                    await updateDoc(productoRef, {
+                        stock: nuevoStock,
+                        updatedAt: serverTimestamp()
+                    });
+                }
+            } catch (error) {
+                console.error(`Error al actualizar stock del producto ${producto.nombre}:`, error);
+            }
+        }
+
+        // Mostrar mensaje de éxito
+        mostrarAlerta(`Apartado creado con éxito. Número: ${apartadoParaBoleto.ID_BOLETO}`, "success");
+
+        // Limpiar formulario
+        limpiarFormularioApartado();
+
+    } catch (error) {
+        console.error("Error al crear apartado:", error);
+        mostrarAlerta("Error al crear apartado: " + error.message, "error");
+    } finally {
+        // Restaurar estado del botón
+        if (btnCrearApartado) {
+            btnCrearApartado.disabled = false;
+            btnCrearApartado.innerHTML = '<i class="fas fa-save"></i> Registrar Apartado';
+        }
+    }
+}
+// Función para limpiar formulario de apartado (sin confirmación)
+function limpiarFormularioApartado() {
+    productosApartado = [];
+    clienteApartado = null;
+    engancheRecibido = 0;
+
+    // Limpiar campos del formulario
+    if (apartadoClienteNombre) apartadoClienteNombre.value = "";
+    if (apartadoClienteTelefono) apartadoClienteTelefono.value = "";
+    if (apartadoClienteEmail) apartadoClienteEmail.value = "";
+    if (apartadoMontoRecibido) apartadoMontoRecibido.value = "0.00";
+    if (apartadoCambioElement) apartadoCambioElement.value = "$0.00";
+    if (apartadoMetodoPagoEnganche) apartadoMetodoPagoEnganche.value = "";
+
+    actualizarCarritoApartado();
+}
+
+// Función para cancelar apartado en tienda
+function cancelarApartadoEnTienda() {
+    if (productosApartado.length === 0) {
+        return;
+    }
+
+    if (confirm("¿Está seguro de cancelar este apartado? Se perderán todos los datos.")) {
+        productosApartado = [];
+        clienteApartado = null;
+        engancheRecibido = 0;
+
+        // Limpiar formulario
+        limpiarFormularioApartado();
+
+    }
+}
+
+// Función para generar número de apartado
+function generarNumeroApartado() {
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `AP-${timestamp}${random}`;
+}
+
+// ==================== FUNCIÓN PARA ELIMINAR APARTADO Y RESTAURAR STOCK ====================
+
+// Función para eliminar apartado y restaurar stock
+async function eliminarApartadoYRestaurarStock(apartadoId, tipoColeccion = "Boleto") {
+    try {
+        // Mostrar confirmación
+        if (!confirm("¿Estás seguro de eliminar este apartado? El stock de los productos será restaurado.")) {
+            console.log("Eliminación de apartado cancelada por el usuario."); // DEBUG
+            return false;
+        }
+
+        console.log(`[DEBUG] Iniciando eliminación y restauración de stock para apartadoId: ${apartadoId}, colección: ${tipoColeccion}`); // DEBUG
+
+        // Obtener el apartado desde la base de datos
+        const apartadoRef = doc(db, tipoColeccion, apartadoId);
+        const apartadoDoc = await getDoc(apartadoRef);
+
+        if (!apartadoDoc.exists()) {
+            mostrarAlerta("El apartado no existe", "error");
+            console.error(`[DEBUG] Error: El apartado con ID ${apartadoId} no existe en la colección ${tipoColeccion}.`); // DEBUG
+            return false;
+        }
+
+        const apartadoData = apartadoDoc.data();
+        console.log("[DEBUG] Datos del apartado obtenidos:", apartadoData); // DEBUG
+
+        // Verificar que tenga productos
+        // Se espera que 'apartadoData.Productos' sea un array como se ve en las imágenes
+        if (!apartadoData.Productos || !Array.isArray(apartadoData.Productos) || apartadoData.Productos.length === 0) {
+            mostrarAlerta("El apartado no tiene productos para restaurar", "warning");
+            console.warn("[DEBUG] Advertencia: El apartado no tiene el array 'Productos' o está vacío/mal formado. No se restaurará stock."); // DEBUG
+        } else {
+            console.log(`[DEBUG] Se encontraron ${apartadoData.Productos.length} productos para restaurar stock.`); // DEBUG
+            // Restaurar stock de cada producto
+            for (const producto of apartadoData.Productos) {
+                // Se espera que cada 'producto' tenga un 'id' y una 'cantidad' como se ve en las imágenes
+                console.log(`[DEBUG] Procesando producto: ${producto.nombre || 'N/A'}, ID: ${producto.id}, Cantidad a restaurar: ${producto.cantidad}`); // DEBUG
+                try {
+                    const productoRef = doc(db, "Productos", producto.id);
+                    const productoDoc = await getDoc(productoRef);
+
+                    if (productoDoc.exists()) {
+                        const stockActual = productoDoc.data().stock || 0;
+                        const nuevoStock = stockActual + producto.cantidad;
+
+                        console.log(`[DEBUG] Stock actual de "${producto.nombre}": ${stockActual}. Cantidad a añadir: ${producto.cantidad}. Nuevo stock esperado: ${nuevoStock}.`); // DEBUG
+
+                        await updateDoc(productoRef, {
+                            stock: nuevoStock,
+                            updatedAt: serverTimestamp()
+                        });
+
+                        console.log(`[DEBUG] Stock restaurado exitosamente para "${producto.nombre}" (ID: ${producto.id}). Nuevo stock: ${nuevoStock}`); // DEBUG
+                    } else {
+                        console.warn(`[DEBUG] Producto "${producto.nombre}" (ID: ${producto.id}) NO encontrado en la colección "Productos". No se pudo restaurar el stock.`); // DEBUG
+                        mostrarAlerta(`Producto ${producto.nombre} no encontrado para restaurar stock.`, "warning");
+                    }
+                } catch (error) {
+                    console.error(`[DEBUG] Error al restaurar stock del producto "${producto.nombre}" (ID: ${producto.id}):`, error); // DEBUG
+                    mostrarAlerta(`Error al restaurar stock de ${producto.nombre}.`, "error");
+                }
+            }
+        }
+
+        // Eliminar el apartado de la base de datos principal
+        await deleteDoc(apartadoRef);
+        console.log(`[DEBUG] Apartado principal (ID: ${apartadoId}) eliminado de la colección "${tipoColeccion}".`); // DEBUG
+
+        // Si también existe en la colección "Apartados", eliminarlo también
+        if (tipoColeccion === "Boleto") {
+            try {
+                // Es crucial que 'apartadoData.ID_BOLETO' contenga el valor correcto
+                // que se usa como 'numeroApartado' en la colección "Apartados".
+                const numeroApartadoABuscar = apartadoData.ID_BOLETO; // El ID_BOLETO que se ve en las capturas de pantalla
+                console.log(`[DEBUG] Buscando apartado relacionado en colección "Apartados" con numeroApartado: ${numeroApartadoABuscar}`); // DEBUG
+
+                const apartadosQuery = query(
+                    collection(db, "Apartados"),
+                    where("numeroApartado", "==", numeroApartadoABuscar)
+                );
+                const apartadosSnapshot = await getDocs(apartadosQuery);
+
+                if (!apartadosSnapshot.empty) {
+                    console.log(`[DEBUG] Se encontraron ${apartadosSnapshot.docs.length} apartados relacionados en "Apartados".`); // DEBUG
+                    apartadosSnapshot.forEach(async (doc) => {
+                        await deleteDoc(doc.ref);
+                        console.log(`[DEBUG] Apartado relacionado eliminado de "Apartados" con ID: ${doc.id}`); // DEBUG
+                    });
+                } else {
+                    console.log("[DEBUG] No se encontraron apartados relacionados en la colección 'Apartados' con el numeroApartado especificado."); // DEBUG
+                }
+            } catch (error) {
+                console.error("[DEBUG] Error al intentar eliminar de la colección 'Apartados':", error); // DEBUG
+            }
+        }
+
+        mostrarAlerta("Apartado eliminado y stock restaurado correctamente", "success");
+        console.log("[DEBUG] Operación de eliminación y restauración de stock finalizada con éxito."); // DEBUG
+
+        // Actualizar la interfaz si es necesario (recargar lista de apartados)
+        if (typeof cargarApartados === 'function') {
+            console.log("[DEBUG] Llamando a cargarApartados() para actualizar la interfaz."); // DEBUG
+            cargarApartados();
+        }
+
+        return true;
+
+    } catch (error) {
+        console.error("[DEBUG] Error CRÍTICO en eliminarApartadoYRestaurarStock:", error); // DEBUG
+        mostrarAlerta("Error al eliminar apartado: " + error.message, "error");
+        return false;
+    }
+}
+
+// Función para cancelar apartado específico (similar pero con diferentes validaciones)
+async function cancelarApartadoEspecifico(apartadoId, motivoCancelacion = "") {
+    try {
+        if (!confirm("¿Estás seguro de cancelar este apartado? Esta acción no se puede deshacer.")) {
+            console.log("Cancelación de apartado cancelada por el usuario."); // DEBUG
+            return false;
+        }
+
+        console.log(`[DEBUG] Iniciando cancelación de apartado con ID: ${apartadoId}`); // DEBUG
+
+        const apartadoRef = doc(db, "Boleto", apartadoId);
+        const apartadoDoc = await getDoc(apartadoRef);
+
+        if (!apartadoDoc.exists()) {
+            mostrarAlerta("El apartado no existe", "error");
+            console.error(`[DEBUG] Error: El apartado con ID ${apartadoId} no existe para cancelación.`); // DEBUG
+            return false;
+        }
+
+        const apartadoData = apartadoDoc.data();
+        console.log("[DEBUG] Datos del apartado para cancelación:", apartadoData); // DEBUG
+
+        // Restaurar stock si tiene productos
+        // Se espera que 'apartadoData.Productos' sea un array
+        if (apartadoData.Productos && Array.isArray(apartadoData.Productos) && apartadoData.Productos.length > 0) {
+            console.log(`[DEBUG] Se encontraron ${apartadoData.Productos.length} productos para restaurar stock durante la cancelación.`); // DEBUG
+            for (const producto of apartadoData.Productos) {
+                // Se espera que cada 'producto' tenga un 'id' y una 'cantidad'
+                console.log(`[DEBUG] Procesando producto para cancelación: ${producto.nombre || 'N/A'}, ID: ${producto.id}, Cantidad a restaurar: ${producto.cantidad}`); // DEBUG
+                try {
+                    const productoRef = doc(db, "Productos", producto.id);
+                    const productoDoc = await getDoc(productoRef);
+
+                    if (productoDoc.exists()) {
+                        const stockActual = productoDoc.data().stock || 0;
+                        const nuevoStock = stockActual + producto.cantidad;
+
+                        console.log(`[DEBUG] Stock actual de "${producto.nombre}": ${stockActual}. Cantidad a añadir: ${producto.cantidad}. Nuevo stock esperado: ${nuevoStock}.`); // DEBUG
+
+                        await updateDoc(productoRef, {
+                            stock: nuevoStock,
+                            updatedAt: serverTimestamp()
+                        });
+                        console.log(`[DEBUG] Stock restaurado exitosamente para "${producto.nombre}" (ID: ${producto.id}) durante la cancelación. Nuevo stock: ${nuevoStock}`); // DEBUG
+                    } else {
+                        console.warn(`[DEBUG] Producto "${producto.nombre}" (ID: ${producto.id}) NO encontrado en la colección "Productos" durante la cancelación. No se pudo restaurar el stock.`); // DEBUG
+                        mostrarAlerta(`Producto ${producto.nombre} no encontrado para restaurar stock al cancelar.`, "warning");
+                    }
+                } catch (error) {
+                    console.error(`[DEBUG] Error al restaurar stock del producto "${producto.nombre}" (ID: ${producto.id}) durante la cancelación:`, error); // DEBUG
+                    mostrarAlerta(`Error al restaurar stock de ${producto.nombre} al cancelar.`, "error");
+                }
+            }
+        } else {
+             console.warn("[DEBUG] Advertencia: El apartado no tiene el array 'Productos' o está vacío/mal formado para cancelación. No se restaurará stock."); // DEBUG
+        }
+
+        // Actualizar el estado del apartado a "cancelado" en lugar de eliminarlo
+        await updateDoc(apartadoRef, {
+            estado: "cancelado",
+            fechaCancelacion: serverTimestamp(),
+            motivoCancelacion: motivoCancelacion,
+            canceladoPor: usuarioActual ? usuarioActual.email : "sistema"
+        });
+        console.log(`[DEBUG] Apartado (ID: ${apartadoId}) actualizado a estado "cancelado".`); // DEBUG
+
+
+        mostrarAlerta("Apartado cancelado y stock restaurado correctamente", "success");
+        console.log("[DEBUG] Operación de cancelación de apartado finalizada con éxito."); // DEBUG
+
+        // Actualizar interfaz
+        if (typeof cargarApartados === 'function') {
+            console.log("[DEBUG] Llamando a cargarApartados() para actualizar la interfaz después de cancelar."); // DEBUG
+            cargarApartados();
+        }
+
+        return true;
+
+    } catch (error) {
+        console.error("[DEBUG] Error CRÍTICO en cancelarApartadoEspecifico:", error); // DEBUG
+        mostrarAlerta("Error al cancelar apartado: " + error.message, "error");
+        return false;
+    }
+}
+// Función para liquidar apartado (cuando el cliente paga el resto)
+async function liquidarApartado(apartadoId, montoPagado, metodoPago) {
+    try {
+        const apartadoRef = doc(db, "Boleto", apartadoId);
+        const apartadoDoc = await getDoc(apartadoRef);
+
+        if (!apartadoDoc.exists()) {
+            mostrarAlerta("El apartado no existe", "error");
+            return false;
+        }
+
+        const apartadoData = apartadoDoc.data();
+        const montoRestante = apartadoData.Total - apartadoData.enganchePagado;
+
+        if (montoPagado < montoRestante) {
+            mostrarAlerta(`El monto pagado ($${montoPagado}) es menor al restante ($${montoRestante.toFixed(2)})`, "error");
+            return false;
+        }
+
+        const cambio = montoPagado - montoRestante;
+
+        // Actualizar el apartado a estado "liquidado"
+        await updateDoc(apartadoRef, {
+            estado: "liquidado",
+            fechaLiquidacion: serverTimestamp(),
+            montoRestantePagado: montoRestante,
+            montoPagadoLiquidacion: montoPagado,
+            cambioLiquidacion: cambio,
+            metodoPagoLiquidacion: metodoPago,
+            liquidadoPor: usuarioActual ? usuarioActual.email : "sistema"
+        });
+
+        mostrarAlerta(`Apartado liquidado correctamente. Cambio: $${cambio.toFixed(2)}`, "success");
+
+        // Actualizar interfaz
+        if (typeof cargarApartados === 'function') {
+            cargarApartados();
+        }
+
+        return true;
+
+    } catch (error) {
+        console.error("Error al liquidar apartado:", error);
+        mostrarAlerta("Error al liquidar apartado: " + error.message, "error");
+        return false;
+    }
+}
+
+// Función helper para obtener apartado por ID
+async function obtenerApartadoPorId(apartadoId, coleccion = "Boleto") {
+    try {
+        const apartadoRef = doc(db, coleccion, apartadoId);
+        const apartadoDoc = await getDoc(apartadoRef);
+
+        if (apartadoDoc.exists()) {
+            return { id: apartadoDoc.id, ...apartadoDoc.data() };
+        }
+        return null;
+    } catch (error) {
+        console.error("Error al obtener apartado:", error);
+        return null;
+    }
+}
+
+// Función para verificar apartados vencidos y manejarlos
+async function verificarApartadosVencidos() {
+    try {
+        const ahora = new Date();
+        const apartadosRef = collection(db, "Boleto");
+        const q = query(apartadosRef, where("estado", "==", "apartado"));
+        const querySnapshot = await getDocs(q);
+
+        const apartadosVencidos = [];
+
+        querySnapshot.forEach((doc) => {
+            const apartado = doc.data();
+            const fechaLimite = apartado.fechaLimiteLiquidacion?.toDate();
+
+            if (fechaLimite && fechaLimite < ahora) {
+                apartadosVencidos.push({ id: doc.id, ...apartado });
+            }
+        });
+
+        if (apartadosVencidos.length > 0) {
+            console.log(`Se encontraron ${apartadosVencidos.length} apartados vencidos`);
+
+            // Opcional: manejar automáticamente los apartados vencidos
+            for (const apartado of apartadosVencidos) {
+                await cancelarApartadoEspecifico(apartado.id, "Apartado vencido automáticamente");
+            }
+        }
+
+        return apartadosVencidos;
+
+    } catch (error) {
+        console.error("Error al verificar apartados vencidos:", error);
+        return [];
+    }
+}
+
+// ==================== EVENTOS PARA BOTONES DE APARTADOS ====================
+
+// Función para configurar eventos de botones en la lista de apartados
+function configurarEventosApartados() {
+    // Delegar eventos para botones dinámicos
+    document.addEventListener('click', function (e) {
+        // Botón eliminar apartado
+        if (e.target.matches('.btn-eliminar-apartado') || e.target.closest('.btn-eliminar-apartado')) {
+            const btn = e.target.matches('.btn-eliminar-apartado') ? e.target : e.target.closest('.btn-eliminar-apartado');
+            const apartadoId = btn.getAttribute('data-apartado-id');
+
+            if (apartadoId) {
+                eliminarApartadoYRestaurarStock(apartadoId);
+            }
+        }
+
+        // Botón cancelar apartado
+        if (e.target.matches('.btn-cancelar-apartado') || e.target.closest('.btn-cancelar-apartado')) {
+            const btn = e.target.matches('.btn-cancelar-apartado') ? e.target : e.target.closest('.btn-cancelar-apartado');
+            const apartadoId = btn.getAttribute('data-apartado-id');
+
+            if (apartadoId) {
+                const motivo = prompt("Motivo de cancelación (opcional):");
+                cancelarApartadoEspecifico(apartadoId, motivo || "");
+            }
+        }
+
+        // Botón liquidar apartado
+        if (e.target.matches('.btn-liquidar-apartado') || e.target.closest('.btn-liquidar-apartado')) {
+            const btn = e.target.matches('.btn-liquidar-apartado') ? e.target : e.target.closest('.btn-liquidar-apartado');
+            const apartadoId = btn.getAttribute('data-apartado-id');
+
+            if (apartadoId) {
+                mostrarModalLiquidacion(apartadoId);
+            }
+        }
+    });
+}
+
+// Función para mostrar modal de liquidación
+function mostrarModalLiquidacion(apartadoId) {
+    // Obtener datos del apartado para calcular monto restante
+    obtenerApartadoPorId(apartadoId).then(apartado => {
+        if (!apartado) {
+            mostrarAlerta("No se pudo obtener la información del apartado", "error");
+            return;
+        }
+
+        const montoRestante = apartado.Total - apartado.enganchePagado;
+
+        const montoPagado = prompt(`Monto restante: ${montoRestante.toFixed(2)}\n¿Cuánto pagó el cliente?`);
+
+        if (montoPagado === null) return; // Usuario canceló
+
+        const montoPagadoNum = parseFloat(montoPagado);
+
+        if (isNaN(montoPagadoNum) || montoPagadoNum <= 0) {
+            mostrarAlerta("Por favor ingrese un monto válido", "error");
+            return;
+        }
+
+        const metodoPago = prompt("Método de pago (efectivo/tarjeta/transferencia):");
+
+        if (!metodoPago) {
+            mostrarAlerta("Por favor ingrese el método de pago", "error");
+            return;
+        }
+
+        liquidarApartado(apartadoId, montoPagadoNum, metodoPago);
+    });
+}
+
+// Inicializar eventos cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function () {
+    configurarEventosApartados();
+
+    // Verificar apartados vencidos al cargar la página
+    verificarApartadosVencidos();
+});
+
+// Inicializar apartados en tienda al cargar la página
+document.addEventListener("DOMContentLoaded", () => {
+    // ... código existente ...
+    configurarApartadoEnTienda();
+});
 // Inicializar la página
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Inicializando sistema de ventas...")
@@ -2599,6 +3524,423 @@ function actualizarTicketApartado(boleto, nombreCliente, metodoEntrega) {
     <p><strong>Cliente:</strong> <span id="ticket-cliente-apartado">${nombreCliente}</span></p>
     <p><strong>Método de entrega:</strong> <span id="ticket-entrega-apartado">${metodoEntrega}</span></p>
   `
+    // Función para buscar productos en apartado en tienda
+    async function buscarProductosApartadoTienda() {
+        const busqueda = apartadoBusquedaInput.value.trim();
+
+        if (!busqueda) {
+            apartadoSugerenciasContainer.innerHTML = "";
+            apartadoSugerenciasContainer.style.display = "none";
+            return;
+        }
+
+        try {
+            const productosRef = collection(db, "Productos");
+            let q = query(productosRef, where("name", ">=", busqueda), where("name", "<=", busqueda + "\uf8ff"));
+            let querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                q = query(productosRef, where("codigo", "==", busqueda));
+                querySnapshot = await getDocs(q);
+            }
+
+            apartadoSugerenciasContainer.innerHTML = "";
+
+            if (querySnapshot.empty) {
+                apartadoSugerenciasContainer.innerHTML = `
+                <div class="sugerencia-item">
+                    <span>No se encontraron productos</span>
+                </div>
+            `;
+                apartadoSugerenciasContainer.style.display = "block";
+                return;
+            }
+
+            querySnapshot.forEach((doc) => {
+                const producto = doc.data();
+                const div = document.createElement("div");
+                div.className = "sugerencia-item";
+
+                const codigoTexto = producto.codigo ? `${producto.codigo} - ` : "";
+
+                div.innerHTML = `
+                <div class="sugerencia-info">
+                    <span class="sugerencia-nombre">${codigoTexto}${producto.name}</span>
+                    <span class="sugerencia-stock">Stock: ${producto.stock || 0}</span>
+                </div>
+                <span class="sugerencia-precio">$${producto.precio ? producto.precio.toFixed(2) : "0.00"}</span>
+            `;
+
+                div.dataset.id = doc.id;
+                div.dataset.nombre = producto.name;
+                div.dataset.precio = producto.precio || 0;
+                div.dataset.stock = producto.stock || 0;
+
+                div.addEventListener("click", () => {
+                    agregarProductoAlApartadoDesdeSeleccion(div.dataset);
+                    apartadoBusquedaInput.value = "";
+                    apartadoSugerenciasContainer.style.display = "none";
+                });
+
+                apartadoSugerenciasContainer.appendChild(div);
+            });
+
+            apartadoSugerenciasContainer.style.display = "block";
+        } catch (error) {
+            console.error("Error al buscar productos para apartado:", error);
+            apartadoSugerenciasContainer.innerHTML = `
+            <div class="sugerencia-item">
+                <span>Error al buscar productos</span>
+            </div>
+        `;
+            apartadoSugerenciasContainer.style.display = "block";
+        }
+    }
+
+    // Función para agregar producto al apartado
+    function agregarProductoAlApartado() {
+        if (!apartadoBusquedaInput || !apartadoBusquedaInput.value.trim()) {
+            mostrarAlerta("Primero busca y selecciona un producto", "error");
+            return;
+        }
+
+        // Similar a la función de ventas, pero adaptada para apartados
+        // Implementar lógica similar a agregarProductoAlBoleto()
+    }
+
+    // Función para agregar producto al apartado desde selección
+    async function agregarProductoAlApartadoDesdeSeleccion(producto) {
+        const { id, nombre, precio, stock } = producto;
+        const precioNum = Number.parseFloat(precio);
+        const stockNum = Number.parseInt(stock);
+
+        if (stockNum <= 0) {
+            mostrarAlerta("Este producto está agotado", "error");
+            return;
+        }
+
+        const cantidad = prompt(`¿Cuántas unidades de ${nombre} deseas apartar? (Disponibles: ${stockNum})`);
+
+        if (!cantidad) return;
+
+        const cantidadNum = Number.parseInt(cantidad);
+
+        if (isNaN(cantidadNum) || cantidadNum <= 0) {
+            mostrarAlerta("Por favor, ingresa una cantidad válida", "error");
+            return;
+        }
+
+        if (cantidadNum > stockNum) {
+            mostrarAlerta("No hay suficiente stock disponible", "error");
+            return;
+        }
+
+        const productoExistente = productosApartado.find(p => p.id === id);
+
+        if (productoExistente) {
+            productoExistente.cantidad += cantidadNum;
+            productoExistente.subtotal = (productoExistente.cantidad * productoExistente.precioUnitario).toFixed(2);
+        } else {
+            productosApartado.push({
+                id,
+                nombre,
+                precioUnitario: precioNum,
+                cantidad: cantidadNum,
+                subtotal: (precioNum * cantidadNum).toFixed(2)
+            });
+        }
+
+        actualizarCarritoApartado();
+        mostrarAlerta(`${nombre} agregado al apartado`, "success");
+    }
+
+    // Función para actualizar carrito de apartado
+    function actualizarCarritoApartado() {
+        apartadoCarritoLista.innerHTML = "";
+
+        if (productosApartado.length === 0) {
+            apartadoCarritoLista.innerHTML = `
+            <div class="carrito-vacio">
+                <i class="fas fa-box-open"></i>
+                <p>No hay productos agregados para el apartado</p>
+            </div>
+        `;
+
+            apartadoSubtotalElement.textContent = "$0.00";
+            apartadoEngancheElement.textContent = "$0.00";
+            apartadoTotalElement.textContent = "$0.00";
+            return;
+        }
+
+        let subtotal = 0;
+
+        productosApartado.forEach((producto, index) => {
+            const div = document.createElement("div");
+            div.className = "producto-carrito";
+
+            const subtotalProducto = Number.parseFloat(producto.subtotal);
+            subtotal += subtotalProducto;
+
+            div.innerHTML = `
+            <div class="producto-header">
+                <span class="producto-nombre">${producto.nombre}</span>
+                <div class="producto-acciones">
+                    <button class="btn-eliminar" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="producto-detalles">
+                <div class="producto-cantidad">
+                    <button class="btn-cantidad btn-restar" data-index="${index}">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <span class="cantidad-valor">${producto.cantidad}</span>
+                    <button class="btn-cantidad btn-sumar" data-index="${index}">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <span class="producto-precio">$${subtotalProducto.toFixed(2)}</span>
+            </div>
+        `;
+
+            apartadoCarritoLista.appendChild(div);
+        });
+
+        // Calcular enganche (10% del subtotal)
+        const enganche = subtotal * 0.1;
+        const total = subtotal;
+
+        apartadoSubtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+        apartadoEngancheElement.textContent = `$${enganche.toFixed(2)}`;
+        apartadoTotalElement.textContent = `$${total.toFixed(2)}`;
+
+        // Configurar eventos para los botones
+        document.querySelectorAll(".btn-eliminar").forEach(btn => {
+            btn.addEventListener("click", function () {
+                eliminarProductoApartadoTienda(Number.parseInt(this.getAttribute("data-index")));
+            });
+        });
+
+        document.querySelectorAll(".btn-restar").forEach(btn => {
+            btn.addEventListener("click", function () {
+                restarCantidadApartadoTienda(Number.parseInt(this.getAttribute("data-index")));
+            });
+        });
+
+        document.querySelectorAll(".btn-sumar").forEach(btn => {
+            btn.addEventListener("click", function () {
+                sumarCantidadApartadoTienda(Number.parseInt(this.getAttribute("data-index")));
+            });
+        });
+    }
+
+    // Función para eliminar producto del apartado en tienda
+    function eliminarProductoApartadoTienda(index) {
+        if (index >= 0 && index < productosApartado.length) {
+            const producto = productosApartado[index];
+            productosApartado.splice(index, 1);
+            actualizarCarritoApartado();
+            mostrarAlerta(`${producto.nombre} eliminado del apartado`, "info");
+        }
+    }
+
+    // Función para restar cantidad en apartado en tienda
+    function restarCantidadApartadoTienda(index) {
+        if (index >= 0 && index < productosApartado.length) {
+            if (productosApartado[index].cantidad > 1) {
+                productosApartado[index].cantidad -= 1;
+                productosApartado[index].subtotal = (productosApartado[index].cantidad * productosApartado[index].precioUnitario).toFixed(2);
+                actualizarCarritoApartado();
+            } else {
+                eliminarProductoApartadoTienda(index);
+            }
+        }
+    }
+
+    // Función para sumar cantidad en apartado en tienda
+    async function sumarCantidadApartadoTienda(index) {
+        if (index >= 0 && index < productosApartado.length) {
+            const productoId = productosApartado[index].id;
+
+            try {
+                const productoDoc = await getDoc(doc(db, "Productos", productoId));
+                if (productoDoc.exists()) {
+                    const stockDisponible = productoDoc.data().stock || 0;
+
+                    if (productosApartado[index].cantidad < stockDisponible) {
+                        productosApartado[index].cantidad += 1;
+                        productosApartado[index].subtotal = (productosApartado[index].cantidad * productosApartado[index].precioUnitario).toFixed(2);
+                        actualizarCarritoApartado();
+                    } else {
+                        mostrarAlerta("No hay suficiente stock disponible", "error");
+                    }
+                }
+            } catch (error) {
+                console.error("Error al verificar stock:", error);
+            }
+        }
+    }
+
+    // Función para calcular cambio en apartado en tienda
+    function calcularCambioApartadoTienda() {
+        const montoRecibido = Number.parseFloat(apartadoMontoRecibido.value) || 0;
+        const enganche = Number.parseFloat(apartadoEngancheElement.textContent.replace("$", "")) || 0;
+
+        if (montoRecibido < enganche) {
+            apartadoCambioElement.value = "Monto insuficiente";
+        } else {
+            const cambio = montoRecibido - enganche;
+            apartadoCambioElement.value = `$${cambio.toFixed(2)}`;
+        }
+    }
+
+    // Función para actualizar fechas de apartado
+    function actualizarFechasApartado() {
+        const fechaActual = new Date();
+        const fecha15Dias = new Date();
+        fecha15Dias.setDate(fechaActual.getDate() + 15);
+
+        // Fin de mes
+        const finDeMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
+
+        // Formatear fechas
+        const formatoFecha = (fecha) => {
+            const dia = String(fecha.getDate()).padStart(2, '0');
+            const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+            const año = fecha.getFullYear();
+            return `${dia}/${mes}/${año}`;
+        };
+
+        document.getElementById("apartado-fecha-actual").textContent = formatoFecha(fechaActual);
+        document.getElementById("apartado-fecha-15dias").textContent = formatoFecha(fecha15Dias);
+        document.getElementById("apartado-fecha-fin-mes").textContent = formatoFecha(finDeMes);
+    }
+
+    // Función para crear apartado en tienda
+    async function crearApartadoEnTienda() {
+        if (productosApartado.length === 0) {
+            mostrarAlerta("No hay productos en el apartado", "error");
+            return;
+        }
+
+        if (!apartadoClienteNombre.value.trim()) {
+            mostrarAlerta("Por favor, ingresa el nombre del cliente", "error");
+            return;
+        }
+
+        const engancheRequerido = Number.parseFloat(apartadoEngancheElement.textContent.replace("$", "")) || 0;
+        const montoRecibido = Number.parseFloat(apartadoMontoRecibido.value) || 0;
+
+        if (montoRecibido < engancheRequerido) {
+            mostrarAlerta("El monto recibido es menor al enganche requerido", "error");
+            return;
+        }
+
+        try {
+            // Calcular totales
+            const subtotal = productosApartado.reduce((sum, producto) => sum + Number.parseFloat(producto.subtotal), 0);
+            const enganche = subtotal * 0.1;
+            const total = subtotal;
+            const cambio = montoRecibido - enganche;
+
+            // Crear objeto de apartado
+            const apartado = {
+                tipo: "tienda",
+                cliente: {
+                    nombre: apartadoClienteNombre.value.trim(),
+                    telefono: apartadoClienteTelefono.value.trim(),
+                    email: apartadoClienteEmail.value.trim()
+                },
+                productos: productosApartado.map(p => ({
+                    productoId: p.id,
+                    nombre: p.nombre,
+                    cantidad: p.cantidad,
+                    precioUnitario: p.precioUnitario,
+                    subtotal: Number.parseFloat(p.subtotal)
+                })),
+                subtotal: subtotal,
+                enganche: enganche,
+                total: total,
+                metodoPagoEnganche: apartadoMetodoPagoEnganche.value,
+                montoRecibido: montoRecibido,
+                cambio: cambio,
+                fechaApartado: serverTimestamp(),
+                fechaLimite1erAbono: new Date(new Date().setDate(new Date().getDate() + 15)),
+                fechaLimiteLiquidacion: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+                estado: "pendiente",
+                creadoPor: usuarioActual ? usuarioActual.email : "sistema",
+                numeroApartado: generarNumeroApartado()
+            };
+
+            // Guardar apartado en Firestore
+            const apartadoRef = await addDoc(collection(db, "Apartados"), apartado);
+            console.log("Apartado creado con ID:", apartadoRef.id);
+
+            // Actualizar stock de productos
+            for (const producto of productosApartado) {
+                const productoRef = doc(db, "Productos", producto.id);
+                const productoDoc = await getDoc(productoRef);
+
+                if (productoDoc.exists()) {
+                    const stockActual = productoDoc.data().stock || 0;
+                    const nuevoStock = Math.max(0, stockActual - producto.cantidad);
+
+                    await updateDoc(productoRef, {
+                        stock: nuevoStock,
+                        updatedAt: serverTimestamp()
+                    });
+                }
+            }
+
+            // Mostrar mensaje de éxito
+            mostrarAlerta(`Apartado creado con éxito. Número: ${apartado.numeroApartado}`, "success");
+
+            // Limpiar formulario
+            cancelarApartadoEnTienda();
+
+            // TODO: Mostrar ticket de apartado
+        } catch (error) {
+            console.error("Error al crear apartado:", error);
+            mostrarAlerta("Error al crear apartado: " + error.message, "error");
+        }
+    }
+
+    // Función para cancelar apartado en tienda
+    function cancelarApartadoEnTienda() {
+        if (productosApartado.length === 0) {
+            return;
+        }
+
+        if (confirm("¿Está seguro de cancelar este apartado? Se perderán todos los datos.")) {
+            productosApartado = [];
+            clienteApartado = null;
+            engancheRecibido = 0;
+
+            // Limpiar formulario
+            apartadoClienteNombre.value = "";
+            apartadoClienteTelefono.value = "";
+            apartadoClienteEmail.value = "";
+            apartadoMontoRecibido.value = "0.00";
+            apartadoCambioElement.value = "$0.00";
+
+            actualizarCarritoApartado();
+            mostrarAlerta("Apartado cancelado", "info");
+        }
+    }
+
+    // Función para generar número de apartado
+    function generarNumeroApartado() {
+        const timestamp = Date.now().toString().slice(-6);
+        const random = Math.floor(1000 + Math.random() * 9000);
+        return `AP-${timestamp}${random}`;
+    }
+
+    // Inicializar apartados en tienda al cargar la página
+    document.addEventListener("DOMContentLoaded", () => {
+        // ... código existente ...
+        configurarApartadoEnTienda();
+    });
 }
 
 // Exportar funciones para uso en HTML

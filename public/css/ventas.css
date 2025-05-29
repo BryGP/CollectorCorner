@@ -685,10 +685,12 @@ main {
     padding: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     font-family: "Courier New", Courier, monospace;
-    font-size: 10px; /* más uniforme */
+    font-size: 10px;
+    /* más uniforme */
     line-height: 1.4;
     position: relative;
-    letter-spacing: 0.3px; /* mejora legibilidad */
+    letter-spacing: 0.3px;
+    /* mejora legibilidad */
 }
 
 .ticket-header {
@@ -999,6 +1001,7 @@ main {
     box-shadow: 0 0 0 3px rgba(30, 87, 153, 0.1);
 }
 
+
 /* Estilos para la búsqueda de token y resumen de apartado */
 .token-search-container {
     max-width: 600px;
@@ -1233,236 +1236,530 @@ main {
     font-size: 0.9em;
 }
 
+
+
+/* Estilos para el modal de completar compra */
+.resumen-final {
+    background-color: #f9f9f9;
+    padding: 12px;
+    /* Reducido de 15px */
+    border-radius: 6px;
+    margin-bottom: 15px;
+    /* Reducido de 20px */
+}
+
+/* Agregar estilos para la caja de búsqueda en apartado */
+.apartado-search-box {
+    margin-bottom: 12px;
+    /* Reducido de 15px */
+    width: 100%;
+}
+
+.apartado-acciones {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    /* Reducido de 15px */
+}
+
+.apartado-acciones .btn-primary {
+    margin-top: 8px;
+    /* Reducido de 10px */
+}
+
+/* ======== ESTILOS ESPECÍFICOS PARA EL PANEL DE APARTADOS EN TIENDA ======== */
+
+/* Contenedor principal del panel de apartado, similar a ventas-panel */
+.apartado-panel {
+    display: grid;
+    grid-template-columns: 60% 40%;
+    /* Divide el panel en dos columnas, similar a ventas */
+    gap: 15px;
+    height: 100%;
+}
+
+/* Panel de búsqueda y adición de productos para apartados */
+.apartado-busqueda-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Estilos para el campo de búsqueda de productos de apartado */
+/* Reutiliza .search-box del panel de ventas, pero con un nombre específico si es necesario */
+.apartado-search-box {
+    position: relative;
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 15px;
+    flex-shrink: 0;
+    margin-bottom: 12px;
+    /* Reducido de 15px */
+}
+
+.apartado-search-box input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+    transition: var(--transition);
+}
+
+.apartado-search-box input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(30, 87, 153, 0.2);
+}
+
+/* Sugerencias de productos para el apartado */
+/* Reutiliza los estilos de .sugerencias-container y .sugerencia-item */
+.apartado-sugerencias-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--white);
+    border: 1px solid #ddd;
+    border-radius: 0 0 6px 6px;
+    box-shadow: var(--shadow);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+    /* Controlado por JS */
+}
+
+/* El .sugerencia-item ya es global y aplicaría, pero se podría añadir un especifico para apartado si difiere */
+/* .apartado-sugerencias-container .sugerencia-item { ... } */
+
+
+/* Panel del carrito de apartado */
+.apartado-carrito-panel {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.apartado-carrito-panel h3 {
+    color: var(--primary-blue);
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    border-bottom: 2px solid var(--accent-yellow);
+    padding-bottom: 6px;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* Lista de productos en el carrito de apartado */
+/* Similar a .carrito-lista */
+.apartado-carrito-lista {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 8px;
+    background-color: #fafafa;
+    min-height: 120px;
+}
+
+/* Mensaje de carrito vacío en apartado */
+/* Similar a .carrito-vacio */
+.apartado-carrito-lista .carrito-vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #aaa;
+    text-align: center;
+    min-height: 120px;
+}
+
+.apartado-carrito-lista .carrito-vacio i {
+    font-size: 2.5em;
+    margin-bottom: 8px;
+}
+
+/* Estilos para cada producto individual en el carrito de apartado */
+/* Ya tienes .producto-apartado definido en el CSS existente, se reutiliza */
+/*
+.producto-apartado {
+    background-color: var(--white);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+.producto-apartado .producto-header { ... }
+.producto-apartado .producto-nombre { ... }
+.producto-apartado .producto-acciones { ... }
+.producto-apartado .btn-eliminar { ... }
+.producto-apartado .producto-detalles { ... }
+.producto-apartado .producto-cantidad { ... }
+.producto-apartado .btn-cantidad { ... }
+.producto-apartado .cantidad-valor { ... }
+.producto-apartado .producto-precio { ... }
+*/
+
+/* Totales del apartado (subtotal, enganche, total) */
+/* Similar a .carrito-totales */
+.apartado-totales-summary {
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.apartado-totales-summary .total-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.apartado-totales-summary .total-final {
+    font-weight: 700;
+    font-size: 1.05em;
+    color: var(--primary-blue);
+    border-top: 1px solid #ddd;
+    padding-top: 6px;
+    margin-top: 6px;
+}
+
+/* Campos de entrada para el monto recibido y el cambio en apartado */
+/* Reutiliza estilos de .form-group y .input-group */
+.apartado-pago-input-group {
+    margin-bottom: 12px;
+}
+
+.apartado-pago-input-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.apartado-pago-input-group input,
+.apartado-pago-input-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+/* Botones de acción para crear y cancelar apartado */
+/* Reutiliza estilos de .btn-primary y .btn-secondary */
+.apartado-acciones-btns {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    margin-top: 10px;
+    /* Espacio superior */
+}
+
+/* El .btn-primary y .btn-secondary ya son globales y aplicarán, pero se podría añadir un especifico para apartado si difiere */
+/*
+.apartado-acciones-btns .btn-primary { ... }
+.apartado-acciones-btns .btn-secondary { ... }
+*/
+
+/* Sección de información del cliente para apartado */
+.apartado-cliente-info {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.apartado-cliente-info h3 {
+    color: var(--primary-blue);
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    border-bottom: 2px solid var(--accent-yellow);
+    padding-bottom: 6px;
+    display: inline-block;
+}
+
+.apartado-cliente-info .form-group {
+    margin-bottom: 15px;
+}
+
+.apartado-cliente-info .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.apartado-cliente-info .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+}
+
+
+/* Adaptaciones responsive para el panel de apartado */
+@media (max-width: 992px) {
+    .apartado-panel {
+        grid-template-columns: 1fr;
+        /* Una columna en pantallas más pequeñas */
+        height: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    .apartado-acciones-btns {
+        flex-direction: column;
+    }
+}
+
+/* ======== MODAL DE PAGO ======== */
 /* ======== MODAL DE PAGO MEJORADO ======== */
 .modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 500px;
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  animation: modalFadeIn 0.3s ease;
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: modalFadeIn 0.3s ease;
 }
 
 @keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -60%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
 }
 
 .modal-header {
-  background: linear-gradient(135deg, var(--primary-blue) 0%, #1a4a80 100%);
-  color: white;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, var(--primary-blue) 0%, #1a4a80 100%);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-header h3 {
-  margin: 0;
-  font-size: 1.2em;
-  font-weight: 600;
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
 }
 
 .modal-header .close {
-  color: white;
-  font-size: 1.5em;
-  cursor: pointer;
-  transition: var(--transition);
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
 }
 
 .modal-header .close:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  transform: scale(1.1);
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
 }
 
 .modal-body {
-  padding: 20px;
+    padding: 20px;
 }
 
 .modal-footer {
-  padding: 15px 20px;
-  background-color: #f8f9fa;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  border-top: 1px solid #eee;
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #eee;
 }
 
 .forma-pago h4 {
-  color: var(--primary-blue);
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 1.1em;
+    color: var(--primary-blue);
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1em;
 }
 
 .forma-pago select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  background-color: white;
-  font-size: 1em;
-  transition: all 0.2s ease;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background-color: white;
+    font-size: 1em;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
 }
 
 .forma-pago select:focus {
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(30, 87, 153, 0.1);
-  outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(30, 87, 153, 0.1);
+    outline: none;
 }
 
 .input-group {
-  margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 
 .input-group label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 600;
-  font-size: 0.95em;
-  color: #444;
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 0.95em;
+    color: #444;
 }
 
 .input-group input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1em;
-  transition: all 0.2s ease;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: all 0.2s ease;
 }
 
 .input-group input:focus {
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(30, 87, 153, 0.1);
-  outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(30, 87, 153, 0.1);
+    outline: none;
 }
 
 .input-group input[readonly] {
-  background-color: #f8f9fa;
-  cursor: not-allowed;
+    background-color: #f8f9fa;
+    cursor: not-allowed;
 }
 
 /* Sección de descuento */
 .total-con-descuento {
-  margin: 15px 0;
-  padding: 12px 15px;
-  background-color: #f0f7ff;
-  border-radius: 8px;
-  text-align: center;
-  border: 1px solid #d0e3ff;
+    margin: 15px 0;
+    padding: 12px 15px;
+    background-color: #f0f7ff;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #d0e3ff;
 }
 
 .total-con-descuento p {
-  margin: 0;
-  font-size: 1.05em;
+    margin: 0;
+    font-size: 1.05em;
 }
 
 .total-con-descuento strong {
-  color: var(--primary-blue);
-  font-size: 1.1em;
+    color: var(--primary-blue);
+    font-size: 1.1em;
 }
 
 /* Cambio container */
 .cambio-container {
-  position: relative;
+    position: relative;
 }
 
 .cambio-container input {
-  font-weight: 700;
-  font-size: 1.1em;
-  color: var(--primary-blue);
-  text-align: right;
-  padding-right: 15px;
+    font-weight: 700;
+    font-size: 1.1em;
+    color: var(--primary-blue);
+    text-align: right;
+    padding-right: 15px;
 }
 
 .cambio-container input.error {
-  color: var(--error);
-  background-color: #fff5f5;
-  border-color: #feb2b2;
+    color: var(--error);
+    background-color: #fff5f5;
+    border-color: #feb2b2;
 }
 
 /* Botones del modal */
 .modal-footer .btn-primary,
 .modal-footer .btn-secondary {
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.95em;
-  transition: all 0.2s ease;
-  min-width: 120px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95em;
+    transition: all 0.2s ease;
+    min-width: 120px;
 }
 
 .modal-footer .btn-primary {
-  background: linear-gradient(135deg, var(--primary-blue) 0%, #1a4a80 100%);
-  border: none;
-  color: white;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, #1a4a80 100%);
+    border: none;
+    color: white;
 }
 
 .modal-footer .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .modal-footer .btn-primary:active {
-  transform: translateY(0);
+    transform: translateY(0);
 }
 
 .modal-footer .btn-secondary {
-  background-color: #f1f1f1;
-  border: 1px solid #ddd;
-  color: #555;
+    background-color: #f1f1f1;
+    border: 1px solid #ddd;
+    color: #555;
 }
 
 .modal-footer .btn-secondary:hover {
-  background-color: #e9e9e9;
+    background-color: #e9e9e9;
 }
 
 #modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  animation: overlayFadeIn 0.3s ease;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    animation: overlayFadeIn 0.3s ease;
 }
 
 @keyframes overlayFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* ======== NOTIFICACIONES MEJORADAS ======== */
@@ -1632,6 +1929,617 @@ main {
     background: var(--accent-color);
     border-radius: 0 0 12px 12px;
     animation: progressBar 4s linear forwards;
+}
+
+/* ======== APARTADO EN TIENDA ======== */
+
+/* Contenedor principal */
+.apartado-container {
+    flex-grow: 1;
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--light-gray);
+    min-height: 100vh;
+}
+
+.apartado-container h2 {
+    font-family: "Racing Sans One", cursive;
+    font-size: 2.5em;
+    color: var(--primary-red);
+    margin-bottom: 30px;
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}
+
+.apartado-container h2::after {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 4px;
+    background-color: var(--accent-yellow);
+}
+
+.apartado-container h2 i {
+    color: var(--primary-red);
+    font-size: 1em;
+    margin-right: 15px;
+}
+
+/* Tarjetas del formulario - Estilo dashboard */
+.apartado-form-card {
+    background-color: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    margin-bottom: 30px;
+    animation: fadeIn 0.6s ease-out backwards;
+}
+
+.apartado-form-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.apartado-form-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.apartado-form-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.apartado-form-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.apartado-form-card h3 {
+    padding: 20px;
+    background-color: var(--primary-red);
+    color: var(--white);
+    margin: 0;
+    font-weight: 800;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.apartado-form-card:nth-child(2n) h3 {
+    background-color: var(--primary-blue);
+}
+
+.apartado-form-card:nth-child(3n) h3 {
+    background-color: var(--accent-yellow);
+    color: var(--dark-gray);
+}
+
+.apartado-form-card h3 i {
+    font-size: 1.5em;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.apartado-form-card:hover h3 i {
+    transform: rotate(15deg);
+}
+
+.card-body {
+    padding: 25px;
+}
+
+/* Grupos de formulario */
+.apartado-container .form-group {
+    margin-bottom: 25px;
+}
+
+.apartado-container .form-group label {
+    display: block;
+    color: var(--dark-gray);
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+.apartado-container .form-group input,
+.apartado-container .form-group select {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 1.1em;
+    transition: var(--transition);
+    background: var(--white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    font-family: "Montserrat", sans-serif;
+    box-sizing: border-box;
+}
+
+.apartado-container .form-group input:focus,
+.apartado-container .form-group select:focus {
+    outline: 2px solid var(--accent-yellow);
+    outline-offset: 2px;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(30, 87, 153, 0.1);
+    transform: translateY(-1px);
+}
+
+.apartado-container .form-group input::placeholder {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.apartado-container .form-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 20px;
+    padding-right: 50px;
+}
+
+/* Información de fechas del apartado - Estilo dashboard card */
+.apartado-container .apartado-fechas {
+    background-color: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    margin-bottom: 30px;
+    animation: fadeIn 0.6s ease-out backwards;
+    animation-delay: 0.2s;
+}
+
+.apartado-container .apartado-fechas:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.apartado-fechas-header {
+    padding: 20px;
+    background-color: var(--primary-blue);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.apartado-fechas-header h3 {
+    margin: 0;
+    font-weight: 800;
+    font-size: 1.2em;
+}
+
+.apartado-fechas-header i {
+    font-size: 1.5em;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.apartado-container .apartado-fechas:hover .apartado-fechas-header i {
+    transform: rotate(15deg);
+}
+
+.apartado-fechas-body {
+    padding: 25px;
+}
+
+.apartado-container .apartado-fechas p {
+    margin: 12px 0;
+    color: var(--dark-gray);
+    font-weight: 500;
+    font-size: 1.05em;
+    line-height: 1.4;
+}
+
+.apartado-container .apartado-fechas strong {
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+
+.apartado-container .apartado-fechas span {
+    color: var(--primary-red);
+    font-weight: 700;
+    background: rgba(230, 30, 37, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Grupos de input para montos */
+.apartado-container .input-group {
+    margin-bottom: 25px;
+}
+
+.apartado-container .input-group label {
+    display: block;
+    color: var(--dark-gray);
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 1em;
+}
+
+.apartado-container .input-group input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 1.2em;
+    font-weight: 600;
+    background: var(--white);
+    transition: var(--transition);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    font-family: "Montserrat", sans-serif;
+    box-sizing: border-box;
+}
+
+.apartado-container .input-group input[readonly] {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+    font-weight: 700;
+    cursor: not-allowed;
+    border-color: var(--primary-blue);
+    box-shadow: 0 2px 8px rgba(30, 87, 153, 0.2);
+}
+
+.apartado-container .input-group input:focus:not([readonly]) {
+    outline: 2px solid var(--accent-yellow);
+    outline-offset: 2px;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(30, 87, 153, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Panel del carrito para apartados - Estilo dashboard card */
+.apartado-container .carrito-panel {
+    background-color: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    margin-top: 30px;
+    animation: fadeIn 0.6s ease-out backwards;
+    animation-delay: 0.4s;
+}
+
+.apartado-container .carrito-panel:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.carrito-panel-header {
+    padding: 20px;
+    background-color: var(--accent-yellow);
+    color: var(--dark-gray);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.carrito-panel-header h3 {
+    margin: 0;
+    font-weight: 800;
+    font-size: 1.2em;
+}
+
+.carrito-panel-header i {
+    font-size: 1.5em;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.apartado-container .carrito-panel:hover .carrito-panel-header i {
+    transform: rotate(15deg);
+}
+
+.carrito-panel-body {
+    padding: 20px;
+}
+
+/* Lista del carrito en apartados */
+.apartado-container .carrito-lista {
+    min-height: 150px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    padding: 15px;
+    background: #fafafa;
+}
+
+.apartado-container .carrito-vacio {
+    text-align: center;
+    color: #777;
+    padding: 40px 0;
+}
+
+.apartado-container .carrito-vacio i {
+    font-size: 3em;
+    color: #bdc3c7;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.apartado-container .carrito-vacio p {
+    font-style: italic;
+    font-size: 1.1em;
+    margin: 0;
+}
+
+/* Totales del apartado - Estilo dashboard card */
+.apartado-container .carrito-totales {
+    background-color: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    margin-bottom: 20px;
+}
+
+.apartado-container .carrito-totales:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.totales-header {
+    padding: 20px;
+    background-color: var(--primary-red);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.totales-header h4 {
+    margin: 0;
+    font-weight: 800;
+    font-size: 1.2em;
+}
+
+.totales-header i {
+    font-size: 1.5em;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.apartado-container .carrito-totales:hover .totales-header i {
+    transform: rotate(15deg);
+}
+
+.totales-body {
+    padding: 20px;
+}
+
+.apartado-container .total-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: var(--dark-gray);
+}
+
+.apartado-container .total-line.total-final {
+    border-top: 2px solid var(--light-gray);
+    padding-top: 15px;
+    margin-top: 15px;
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--primary-red);
+}
+
+.apartado-container .total-line span:last-child {
+    font-weight: 600;
+    font-size: 1.2em;
+}
+
+/* Acciones del apartado - Estilo botones dashboard */
+.apartado-acciones {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.apartado-acciones .btn-primary,
+.apartado-acciones .btn-secondary {
+    background-color: transparent;
+    border: 2px solid var(--primary-red);
+    color: var(--primary-red);
+    padding: 15px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    font-size: 1.1em;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 200px;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.apartado-acciones .btn-primary:hover {
+    background-color: var(--primary-red);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.apartado-acciones .btn-primary:focus {
+    outline: 2px solid var(--accent-yellow);
+    outline-offset: 2px;
+}
+
+.apartado-acciones .btn-secondary {
+    border-color: var(--dark-gray);
+    color: var(--dark-gray);
+}
+
+.apartado-acciones .btn-secondary:hover {
+    background-color: var(--dark-gray);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.apartado-acciones .btn-secondary:focus {
+    outline: 2px solid var(--accent-yellow);
+    outline-offset: 2px;
+}
+
+.apartado-acciones .btn-primary i,
+.apartado-acciones .btn-secondary i {
+    font-size: 1.2em;
+    transition: var(--transition);
+}
+
+.apartado-acciones .btn-primary:hover i,
+.apartado-acciones .btn-secondary:hover i {
+    transform: translateX(3px);
+}
+
+/* Caja de búsqueda en apartado */
+.apartado-container .search-box {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.apartado-container .search-box input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #bdc3c7;
+    border-radius: 25px;
+    font-size: 1.1em;
+    background: var(--white);
+    transition: var(--transition);
+    font-family: "Montserrat", sans-serif;
+    box-shadow: var(--shadow);
+    box-sizing: border-box;
+}
+
+.apartado-container .search-box input:focus {
+    outline: 2px solid var(--accent-yellow);
+    outline-offset: 2px;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(30, 87, 153, 0.1);
+}
+
+.apartado-container .sugerencias-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: var(--shadow);
+    display: none;
+}
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 992px) {
+    .apartado-container {
+        padding: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .apartado-container {
+        padding: 30px 20px;
+    }
+
+    .apartado-form-card .card-body,
+    .apartado-fechas-body,
+    .carrito-panel-body,
+    .totales-body {
+        padding: 20px;
+    }
+
+    .apartado-container h2 {
+        font-size: 2em;
+    }
+
+    .apartado-acciones {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .apartado-acciones .btn-primary,
+    .apartado-acciones .btn-secondary {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .apartado-fechas p {
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 576px) {
+    .apartado-container .total-line {
+        font-size: 1em;
+    }
+
+    .apartado-container .total-line.total-final {
+        font-size: 1.1em;
+    }
+
+    .form-group input,
+    .form-group select,
+    .input-group input {
+        padding: 10px 12px;
+    }
+
+    .apartado-container h2 {
+        font-size: 1.8em;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
 }
 
 /* Animaciones para notificaciones */
