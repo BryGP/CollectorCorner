@@ -38,6 +38,12 @@ let totalPages = 1
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("Cargando página de cancelaciones...")
 
+    // Verificar si el botón de reimprimir ticket existe y agregar evento
+    const reimprimirBtn = document.getElementById("btnReimprimirTicket");
+    if (reimprimirBtn) {
+        reimprimirBtn.addEventListener("click", reimprimirTicket);
+    }
+
     // Verificar si el usuario está autenticado (ahora usa checkEmployeeAccess)
     const isEmployee = await checkEmployeeAccess()
     if (!isEmployee) return // Si no está logueado, la función ya redirigió
@@ -449,6 +455,7 @@ async function openTicketPreviewModal(ticketId) {
         // Generar HTML del ticket
         renderTicketPreview(currentTicketData)
         console.log("Vista previa del ticket renderizada correctamente")
+
     } catch (error) {
         console.error("Error al cargar ticket:", error)
         ticketPreview.innerHTML = `
@@ -458,6 +465,9 @@ async function openTicketPreviewModal(ticketId) {
       </div>
     `
     }
+
+    // Agregar evento para imprimir ticket
+    document.getElementById("btnReimprimirTicket")?.addEventListener("click", reimprimirTicket);
 }
 
 // Función para abrir el modal de borrado
@@ -550,84 +560,85 @@ function renderTicketPreview(venta) {
 
     // Generar HTML del ticket
     ticketPreview.innerHTML = `
-    <div class="ticket-header">
-      <h1>Toy Garaje</h1>
-      <p>Tienda de Coleccionables</p>
-      <p>Calle Circuito, Jdn. 14C, Alamos 3ra Secc, 76147</p>
-      <p>Tel: (+52)446-145-1938</p>
-      <div class="ticket-divider"></div>
-      <p class="ticket-info">
-        <span>Ticket #: ${venta.numeroTicket || "00000000"}</span>
-        <span>Fecha: ${fechaFormateada}</span>
-      </p>
-      <p class="ticket-info">
-        <span>Hora: ${horaFormateada}</span>
-        <span>Cajero: ${nombreUsuario}</span>
-      </p>
-      <div class="ticket-divider"></div>
-    </div>
-    
-    <div class="ticket-content">
-      <table class="ticket-items">
-        <thead>
-          <tr>
-            <th class="item-qty">Cant</th>
-            <th class="item-name">Descripción</th>
-            <th class="item-price">Precio</th>
-            <th class="item-total">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${productosHTML}
-        </tbody>
-      </table>
-      <div class="ticket-divider"></div>
-    </div>
-    
-    <div class="ticket-footer">
-      <div class="ticket-totals">
-        <div class="total-line">
-          <span class="total-label">Subtotal:</span>
-          <span class="total-value">$${subtotal.toFixed(2)}</span>
+        <div class="ticket">
+            <div class="ticket-header">
+                <h1>Toy Garaje</h1>
+                <p>Tienda de Coleccionables</p>
+                <p>Calle Circuito, Jdn. 14C, Alamos 3ra Secc, 76147</p>
+                <p>Tel: (+52)446-145-1938</p>
+                <div class="ticket-divider"></div>
+                <div class="ticket-info">
+                    <span>Ticket #: ${venta.numeroTicket || "00000000"}</span>
+                    <span>Fecha: ${fechaFormateada}</span>
+                </div>
+                <div class="ticket-info">
+                    <span>Hora: ${horaFormateada}</span>
+                    <span>Cajero: ${nombreUsuario}</span>
+                </div>
+                <div class="ticket-divider"></div>
+            </div>
+            <div class="ticket-content">
+                <table class="ticket-items">
+                    <thead>
+                        <tr>
+                            <th class="item-qty">Cant</th>
+                            <th class="item-name">Descripción</th>
+                            <th class="item-price">Precio</th>
+                            <th class="item-total">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${productosHTML}
+                    </tbody>
+                </table>
+                <div class="ticket-divider"></div>
+            </div>
+            <div class="ticket-footer">
+                <div class="ticket-totals">
+                    <div class="total-line">
+                        <span class="total-label">Subtotal:</span>
+                        <span class="total-value">$${subtotal.toFixed(2)}</span>
+                    </div>
+                    <div class="total-line">
+                        <span class="total-label">Descuento:</span>
+                        <span class="total-value">$${descuentoMonto.toFixed(2)} (${descuentoPorcentaje}%)</span>
+                    </div>
+                    <div class="total-line total-final">
+                        <span class="total-label">TOTAL:</span>
+                        <span class="total-value">$${Number.parseFloat(total).toFixed(2)}</span>
+                    </div>
+                </div>
+                <div class="ticket-divider"></div>
+                <div class="payment-info">
+                    <p><strong>Forma de pago:</strong> ${venta.metodoPago || "Efectivo"}</p>
+                    ${
+                        venta.metodoPago === "Efectivo" && (venta.efectivoRecibido || venta.cambio)
+                            ? `
+                        <p><strong>Recibido:</strong> $${venta.efectivoRecibido || total.toFixed(2)}</p>
+                        <p><strong>Cambio:</strong> $${venta.cambio || "0.00"}</p>
+                        `
+                            : ""
+                    }
+                </div>
+                <div class="ticket-divider"></div>
+                <div class="ticket-barcode">
+                    <img
+                        id="ticket-barcode-img"
+                        src="https://barcodeapi.org/api/code128/${venta.numeroTicket || "00000000"}"
+                        alt="Código de barras"
+                        style="width: 100%; max-width: 150px; margin: 5px 0;"
+                    />
+                    <p id="ticket-barcode-text" class="barcode-text">*${venta.numeroTicket || "00000000"}*</p>
+                </div>
+                <div class="ticket-footer-msg">
+                    <p>¡Gracias por su compra!</p>
+                    <p>Vuelva pronto</p>
+                    <p class="small-text">Este ticket es su comprobante de compra</p>
+                    <p class="small-text">www.toygaraje.com</p>
+                </div>
+            </div>
         </div>
-        <div class="total-line">
-          <span class="total-label">Descuento:</span>
-          <span class="total-value">$${descuentoMonto.toFixed(2)} (${descuentoPorcentaje}%)</span>
-        </div>
-        <div class="total-line total-final">
-          <span class="total-label">TOTAL:</span>
-          <span class="total-value">$${Number.parseFloat(total).toFixed(2)}</span>
-        </div>
-      </div>
-      
-      <div class="ticket-divider"></div>
-      
-      <div class="payment-info">
-        <p><strong>Forma de pago:</strong> ${venta.metodoPago || "Efectivo"}</p>
-        ${venta.metodoPago === "Efectivo" && (venta.efectivoRecibido || venta.cambio)
-            ? `
-        <p><strong>Recibido:</strong> $${venta.efectivoRecibido || total.toFixed(2)}</p>
-        <p><strong>Cambio:</strong> $${venta.cambio || "0.00"}</p>
-        `
-            : ""
-        }
-      </div>
-      
-      <div class="ticket-divider"></div>
-      
-      <div class="ticket-barcode">
-        <div class="barcode-placeholder"></div>
-        <p class="barcode-text">*${venta.numeroTicket || "00000000"}*</p>
-      </div>
-      
-      <div class="ticket-footer-msg">
-        <p>¡Gracias por su compra!</p>
-        <p>Vuelva pronto</p>
-        <p class="small-text">Este ticket es su comprobante de compra</p>
-        <p class="small-text">www.toygaraje.com</p>
-      </div>
-    </div>
-  `
+    `
 }
 
 // Función para imprimir ticket
@@ -1182,6 +1193,163 @@ function searchTickets() {
     }
 }
 
+// Funcion para reimprimir un ticket
+function reimprimirTicket() {
+    const ticketElement = document.querySelector(".ticket");
+    if (!ticketElement) {
+        console.error("No se encontró el contenido del ticket para imprimir");
+        return;
+    }
+
+    const ticketClone = ticketElement.cloneNode(true);
+
+    // Estilos mejorados
+    const styles = `
+        <style>
+            * {
+                font-family: 'Courier New', monospace;
+                font-size: 10px;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                background: white;
+                padding: 5px;
+            }
+            
+            .ticket {
+                width: 100%;
+                max-width: 260px;
+                margin: 0 auto;
+                padding: 10px;
+                text-align: center;
+                line-height: 1.4;
+            }
+            
+            .ticket * {
+                font-size: inherit;
+                font-family: inherit;
+            }
+            
+            .ticket-header h1 {
+                font-size: 15px;
+                margin-bottom: 3px;
+            }
+            
+            .ticket-header p {
+                font-size: 9px;
+                margin: 1px 0;
+            }
+
+            .ticket-info {
+                font-size: 9px;
+                margin: 6px 0;
+                text-align: left;
+            }
+            .ticket-divider {
+                border-top: 1px dashed #000;
+                margin: 5px 0;
+            }
+
+            .productos-header,
+            .item-row {
+                display: grid;
+                grid-template-columns: 1fr 2.5fr 2fr 2fr;
+                gap: 4px;
+                text-align: left;
+                font-size: 9px;
+                margin: 2px 0;
+                padding-bottom: 2px;
+            }
+            .productos-header {
+                font-weight: bold;
+                margin-top: 6px;
+                margin-bottom: 4px;
+            }
+            .ticket-summary,
+            .payment-info {
+                font-size: 9px;
+                text-align: left;
+                margin-top: 6px;
+            }
+
+            .summary-row,
+            .payment-row {
+                display: flex;
+                justify-content: space-between;
+                margin: 2px 0;
+            }
+            .summary-row.total {
+                font-weight: bold;
+                border-top: 1px solid #000;
+                padding-top: 3px;
+                margin-top: 5px;
+            }
+            .barcode {
+                text-align: center;
+                margin-top: 10px;
+            }
+
+            .barcode-lines {
+                font-family: 'Libre Barcode 128', monospace;
+                font-size: 28px;
+                line-height: 1;
+            }
+
+            .barcode img {
+                width: 100%;
+                max-width: 200px;
+                height: 50px;
+                object-fit: contain;
+            }
+
+            .barcode-text {
+                font-size: 10px;
+                margin-top: 2px;
+                letter-spacing: 1px;
+            }
+            .ticket-footer {
+                font-size: 9px;
+                text-align: center;
+                margin-top: 10px;
+            }
+            .ticket-footer p {
+                margin: 2px 0;
+            }
+            @media print {
+                body {
+                    padding: 0;
+                }
+                .ticket {
+                    width: 80mm;
+                    max-width: none;
+                    padding: 5mm;
+                }
+            }
+        </style>
+    `;
+
+    // Ventana emergente para imprimir
+    const ventana = window.open("", "Reimprimir Ticket", "height=600,width=300");
+    ventana.document.write(`
+        <html>
+            <head><title>TicketReimp : </title>${styles}</head>
+            <body>${ticketClone.outerHTML}</body>
+            <script>
+                window.onload = () => {
+                    window.print();
+                    setTimeout(() => window.close(), 300);
+                };
+            </script>
+        </html>
+    `);
+    ventana.document.close();
+}
+
+window.reimprimirTicket = reimprimirTicket;
+
 // Exportar funciones para uso en otros archivos
 export {
     loadAllSalesFromFirebase,
@@ -1191,4 +1359,5 @@ export {
     searchTickets,
     exportSales,
     confirmDeleteSales,
+    reimprimirTicket
 }

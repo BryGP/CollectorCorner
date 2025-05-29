@@ -2,6 +2,10 @@
 
 import { appConfig } from "./config.js"
 
+function hardReload() {
+    window.location.href = window.location.href.split("?")[0] + "?cache_bust=" + new Date().getTime()
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     // Solo mostrar en entorno de desarrollo
     if (!appConfig.isDevelopment) {
@@ -110,9 +114,10 @@ document.addEventListener("DOMContentLoaded", () => {
         clearButton.style.borderRadius = "4px"
         clearButton.style.cursor = "pointer"
         clearButton.addEventListener("click", () => {
-            sessionStorage.removeItem("currentUser")
+            sessionStorage.clear()
+            localStorage.clear()
             alert("Sesión limpiada. La página se recargará.")
-            location.reload()
+            hardReload()
         })
 
         // Botón para forzar rol admin
@@ -132,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     parsedData.rol = "admin"
                     sessionStorage.setItem("currentUser", JSON.stringify(parsedData))
                     alert("Rol cambiado a admin. La página se recargará.")
-                    location.reload()
+                    hardReload()
                 } catch (e) {
                     alert("Error al modificar datos: " + e.message)
                 }
@@ -140,6 +145,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("No hay datos de usuario para modificar")
             }
         })
+
+        // Boton para borrar todo y limpiar cache
+        const hardClearButton = document.createElement("button")
+        hardClearButton.textContent = "Borrar Todo + Cache"
+        hardClearButton.style.padding = "8px 16px"
+        hardClearButton.style.backgroundColor = "#9c27b0"
+        hardClearButton.style.color = "white"
+        hardClearButton.style.border = "none"
+        hardClearButton.style.borderRadius = "4px"
+        hardClearButton.style.cursor = "pointer"
+        hardClearButton.addEventListener("click", () => {
+            sessionStorage.clear()
+            localStorage.clear()
+            alert("Todo limpiado. Recargando sin cache.")
+            hardReload()
+        })
+
+        buttonContainer.appendChild(hardClearButton)
+
 
         buttonContainer.appendChild(closeButton)
         buttonContainer.appendChild(adminButton)

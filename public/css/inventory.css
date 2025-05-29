@@ -1,5 +1,5 @@
 /* ==========================
- * CSS Inventory (General Format) - VERSIÓN CORREGIDA PARA IMÁGENES
+ * CSS Inventory (General Format) - VERSIÓN CORREGIDA PARA CENTRADO
  ========================== */
 
 /* ======== VARIABLES DE COLOR ======== */
@@ -20,6 +20,7 @@ body {
     background-color: var(--secondary-color);
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 /* ======== ANIMACIÓN DE ENTRADA ======== */
@@ -47,19 +48,24 @@ body {
     z-index: 999;
 }
 
-/* ======== CONTENEDOR PRINCIPAL ======== */
+/* ======== CONTENEDOR PRINCIPAL - CORREGIDO ======== */
 .inventory-container {
     background-color: white;
     border-radius: 10px;
     box-shadow: var(--shadow);
     padding: 20px;
     margin: 20px auto;
+    max-width: 95vw;
+    /* Límite de ancho */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* ======== PESTAÑAS (TABS) ======== */
 .tabs {
     display: flex;
     margin-bottom: 20px;
+    width: 100%;
 }
 
 .tab {
@@ -83,20 +89,26 @@ body {
 /* ======== CONTENIDO DE LAS TABS ======== */
 .tab-content {
     display: none;
-    padding: 15px;
+    padding: 15px 0;
+    /* Removido padding lateral */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .tab-content.active {
     display: block;
 }
 
-/* ======== BARRA DE BÚSQUEDA ======== */
+/* ======== BARRA DE BÚSQUEDA - CENTRADA ======== */
 .search-bar {
     display: flex;
     gap: 10px;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
+    margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .search-bar input,
@@ -107,6 +119,7 @@ body {
     transition: all 0.3s ease-in-out;
     font-size: 16px;
     width: 250px;
+    box-sizing: border-box;
 }
 
 .search-bar input:focus,
@@ -141,21 +154,27 @@ body {
     color: #000000;
     border: none;
     transition: all 0.3s ease-in-out;
+    cursor: pointer;
 }
 
 .submit-btn:hover {
     background-color: var(--hover-color);
 }
 
-/* ======== GRID DE PRODUCTOS Y CATEGORÍAS ======== */
+/* ======== GRID DE PRODUCTOS Y CATEGORÍAS - CORREGIDO ======== */
 .inventory-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
     justify-content: center;
     align-items: stretch;
-    padding: 20px;
-    max-width: 90vw;
+    padding: 0;
+    /* Removido padding que causaba desplazamiento */
+    margin: 0 auto;
+    /* Centrado */
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 /* ======== TARJETAS DE PRODUCTOS Y CATEGORÍAS ======== */
@@ -169,8 +188,19 @@ body {
     text-align: center;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* Altura específica para productos */
+.producto-item {
     min-height: 400px;
-    /* Altura mínima consistente */
+}
+
+/* Altura menor para categorías */
+.categoria-item {
+    min-height: 80px;
+    min-width: 120px;
+    max-width: 300px;
 }
 
 .producto-item:hover,
@@ -183,7 +213,6 @@ body {
 .producto-imagen {
     width: 100%;
     height: 180px;
-    /* Altura fija para todas las imágenes */
     margin-bottom: 15px;
     border-radius: 8px;
     overflow: hidden;
@@ -192,21 +221,19 @@ body {
     align-items: center;
     justify-content: center;
     border: 1px solid #e9ecef;
+    box-sizing: border-box;
 }
 
 .producto-imagen img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* Mantiene proporción y llena el contenedor */
     object-position: center;
-    /* Centra la imagen */
     transition: transform 0.3s ease;
 }
 
 .producto-imagen img:hover {
     transform: scale(1.05);
-    /* Efecto zoom al hover */
 }
 
 /* ======== CONTENIDO DEL PRODUCTO ======== */
@@ -217,7 +244,6 @@ body {
     margin: 10px 0;
     line-height: 1.3;
     min-height: 50px;
-    /* Altura mínima para títulos */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -264,7 +290,6 @@ body {
 /* ======== INFORMACIÓN DE PRECIO Y STOCK ======== */
 .producto-info {
     margin-top: auto;
-    /* Empuja hacia abajo */
     padding-top: 10px;
 }
 
@@ -278,7 +303,6 @@ body {
     justify-content: center;
     gap: 10px;
     margin-top: auto;
-    /* Empuja hacia abajo */
     padding-top: 10px;
 }
 
@@ -365,7 +389,6 @@ body {
     font-size: 16px;
     color: #777;
     grid-column: 1 / -1;
-    /* Ocupa todo el ancho del grid */
 }
 
 /* ======== MODALES MEJORADOS ======== */
@@ -393,6 +416,7 @@ body {
     margin: 50px auto;
     max-height: 80vh;
     overflow-y: auto;
+    box-sizing: border-box;
 }
 
 /* Cerrar modal */
@@ -425,6 +449,7 @@ body {
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 5px;
+    box-sizing: border-box;
 }
 
 /* Botón dentro del modal */
@@ -459,6 +484,7 @@ body {
     border: 1px dashed #ccc;
     padding: 15px;
     border-radius: 8px;
+    box-sizing: border-box;
 }
 
 .image-preview {
@@ -510,31 +536,36 @@ body {
 
 /* ======== ESTILOS PARA BOTÓN ELIMINAR IMAGEN ======== */
 .remove-btn {
-  background-color: #e74c3c !important;
-  margin-top: 5px;
+    background-color: #e74c3c !important;
+    margin-top: 5px;
 }
 
 .remove-btn:hover {
-  background-color: #c0392b !important;
+    background-color: #c0392b !important;
 }
 
 /* Mejoras al contenedor de controles de imagen */
 .upload-controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
 }
 
 /* Mejorar el botón de cambiar imagen */
 .upload-btn {
-  transition: all 0.3s ease;
-  min-width: 140px;
+    transition: all 0.3s ease;
+    min-width: 140px;
 }
 
-/* ======== RESPONSIVE ======== */
+/* ======== RESPONSIVE - MEJORADO ======== */
 @media (max-width: 1024px) {
+    .inventory-container {
+        margin: 15px;
+        max-width: calc(100vw - 30px);
+    }
+
     .inventory-grid {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 15px;
@@ -550,6 +581,12 @@ body {
 }
 
 @media (max-width: 768px) {
+    .inventory-container {
+        margin: 10px;
+        max-width: calc(100vw - 20px);
+        padding: 15px;
+    }
+
     .inventory-grid {
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 12px;
@@ -568,13 +605,29 @@ body {
         font-size: 16px;
         min-height: 45px;
     }
+
+    .search-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-bar input,
+    .search-bar select {
+        width: 100%;
+        max-width: none;
+    }
 }
 
 @media (max-width: 480px) {
+    .inventory-container {
+        margin: 5px;
+        max-width: calc(100vw - 10px);
+        padding: 10px;
+    }
+
     .inventory-grid {
         grid-template-columns: 1fr;
         gap: 10px;
-        padding: 10px;
     }
 
     .producto-item {

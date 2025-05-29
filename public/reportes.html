@@ -13,13 +13,18 @@
     <link rel="stylesheet" href="css/menu1.css">
     <link rel="stylesheet" href="css/reportes.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Racing+Sans+One&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Racing+Sans+One&display=swap"
+        rel="stylesheet">
 
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/chart.js" as="script">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js" as="script">
+    <link rel="preload"
+        href="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"
+        as="script">
     <link rel="preload" href="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js" as="script">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" as="script">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js" as="script">
+    <link rel="preload"
+        href="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js" as="script">
 </head>
 
 <body>
@@ -31,7 +36,7 @@
                 </div>
                 <div class="logo-text">
                     <h1>Toy Garage</h1>
-                    <h2>RTIS</h2>
+                    <h2>Collector Corner - Reportes</h2>
                 </div>
             </div>
 
@@ -40,8 +45,8 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="user-details">
-                    <div class="user-name" id="userName">Bryan GP</div>
-                    <div class="user-role" id="userRole">Administrador</div>
+                    <div class="user-name" id="userName">Usuario</div>
+                    <div class="user-role" id="userRole">Rol</div>
                 </div>
                 <button type="button" id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
             </div>
@@ -51,9 +56,12 @@
             <ul>
                 <li><a href="menu1.html"><i class="fas fa-home"></i> Inicio</a></li>
                 <li><a href="usuarios.html"><i class="fas fa-users"></i> Usuarios</a></li>
-                <li><a href="calendario.html"><i class="fas fa-calendar-alt"></i> Calendario</a></li>
-                <li><a href="configuracion.html"><i class="fas fa-cog"></i> Configuración</a></li>
-                <li><a href="reportes.html" class="active"><i class="fas fa-chart-line"></i> Reportes</a></li>
+                <<<<<<< HEAD <li><a href="calendario.html"><i class="fas fa-calendar-alt"></i> Calendario</a></li>
+                    <li><a href="configuracion.html"><i class="fas fa-cog"></i> Configuración</a></li>
+                    <li><a href="reportes.html" class="active"><i class="fas fa-chart-line"></i> Reportes</a></li>
+                    =======
+                    <li><a href="ventas.html"><i class="fas fa-shopping-cart"></i> Ventas</a></li>
+                    >>>>>>> origin/main
             </ul>
         </nav>
     </header>
@@ -211,53 +219,58 @@
             <div class="comparativa-header">
                 <h3>Comparativa Mensual de Ventas</h3>
             </div>
-            <div class="section-content card-body layout-final"> <div class="grafico-principal">
-                    <canvas id="grafico-comparativa-mensual"></canvas>
-                </div>
-
-                <div class="panel-derecho">
-                    <div class="controles-meses">
-                        <div class="control-group">
-                            <label for="mes-comparar-1">Mes 1:</label>
-                            <select id="mes-comparar-1" class="form-control">
-                                <option value="1">Enero</option>
-                                <option value="2">Febrero</option>
-                                <option value="3">Marzo</option>
-                                <option value="4">Abril</option>
-                                <option value="5" selected>Mayo</option>
-                                <option value="6">Junio</option>
-                                <option value="7">Julio</option>
-                                <option value="8">Agosto</option>
-                                <option value="9">Septiembre</option>
-                                <option value="10">Octubre</option>
-                                <option value="11">Noviembre</option>
-                                <option value="12">Diciembre</option>
-                            </select>
+            <<<<<<< HEAD <div class="section-content card-body layout-final">
+                <div class="grafico-principal">
+                    =======
+                    <div class="section-content card-body layout-final">
+                        <div class="grafico-principal">
+                            >>>>>>> origin/main
+                            <canvas id="grafico-comparativa-mensual"></canvas>
                         </div>
 
-                        <div class="control-group">
-                            <label for="mes-comparar-2">Mes 2:</label>
-                            <select id="mes-comparar-2" class="form-control">
-                                <option value="1">Enero</option>
-                                <option value="2">Febrero</option>
-                                <option value="3">Marzo</option>
-                                <option value="4">Abril</option>
-                                <option value="5">Mayo</option>
-                                <option value="6">Junio</option>
-                                <option value="7" selected>Julio</option>
-                                <option value="8">Agosto</option>
-                                <option value="9">Septiembre</option>
-                                <option value="10">Octubre</option>
-                                <option value="11">Noviembre</option>
-                                <option value="12">Diciembre</option>
-                            </select>
+                        <div class="panel-derecho">
+                            <div class="controles-meses">
+                                <div class="control-group">
+                                    <label for="mes-comparar-1">Mes 1:</label>
+                                    <select id="mes-comparar-1" class="form-control">
+                                        <option value="1">Enero</option>
+                                        <option value="2">Febrero</option>
+                                        <option value="3">Marzo</option>
+                                        <option value="4">Abril</option>
+                                        <option value="5" selected>Mayo</option>
+                                        <option value="6">Junio</option>
+                                        <option value="7">Julio</option>
+                                        <option value="8">Agosto</option>
+                                        <option value="9">Septiembre</option>
+                                        <option value="10">Octubre</option>
+                                        <option value="11">Noviembre</option>
+                                        <option value="12">Diciembre</option>
+                                    </select>
+                                </div>
+
+                                <div class="control-group">
+                                    <label for="mes-comparar-2">Mes 2:</label>
+                                    <select id="mes-comparar-2" class="form-control">
+                                        <option value="1">Enero</option>
+                                        <option value="2">Febrero</option>
+                                        <option value="3">Marzo</option>
+                                        <option value="4">Abril</option>
+                                        <option value="5">Mayo</option>
+                                        <option value="6">Junio</option>
+                                        <option value="7" selected>Julio</option>
+                                        <option value="8">Agosto</option>
+                                        <option value="9">Septiembre</option>
+                                        <option value="10">Octubre</option>
+                                        <option value="11">Noviembre</option>
+                                        <option value="12">Diciembre</option>
+                                    </select>
+                                </div>
+                                <button type="button" id="btn-comparar" class="btn btn-primary">
+                                    <i class="fas fa-sync-alt"></i> Comparar
+                                </button>
+                            </div>
                         </div>
-                        <button type="button" id="btn-comparar" class="btn btn-primary">
-                            <i class="fas fa-sync-alt"></i> Comparar
-                        </button>
                     </div>
-                </div>
-            </div>
         </section>
 
 
@@ -294,7 +307,13 @@
                         </thead>
                         <tbody id="bitacora-body">
                             <tr>
-                                <td colspan="7" class="empty-message" style="display: none;">No hay datos disponibles. Aplique filtros para ver resultados.</td>
+                                <<<<<<< HEAD <td colspan="7" class="empty-message" style="display: none;">No hay datos
+                                    disponibles. Aplique filtros para ver resultados.</td>
+                                    =======
+                                    <td colspan="7" class="empty-message" style="display: none;">No hay datos
+                                        disponibles.
+                                        Aplique filtros para ver resultados.</td>
+                                    >>>>>>> origin/main
                             </tr>
                         </tbody>
                     </table>
@@ -369,11 +388,18 @@
     <div id="modal-overlay"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <script type="module" src="js/reportes.js"></script>
+    <<<<<<< HEAD <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js">
+        </script>
+        =======
+        <script
+            src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+        >>>>>>> origin/main
+        <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+        <script type="module" src="js/reportes.js"></script>
 </body>
 
 </html>

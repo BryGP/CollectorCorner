@@ -11,6 +11,7 @@ import {
     Timestamp,
     where
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { displayUserInfo } from "./login.js"
 
 // Constantes y configuración
 const CHART_COLORS = [
@@ -52,6 +53,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("❌ Elemento #bitacora-body no encontrado");
         return;
     }
+
+    // Mostrar información del usuario
+    displayUserInfo();
+    console.log("👤 Usuario autenticado:", sessionStorage.getItem("currentUser"));
 
     initEventListeners();
     initCharts();
