@@ -69,13 +69,13 @@ const apartadoMetodoPagoEnganche = document.getElementById("apartado-metodo-pago
 const btnCrearApartado = document.getElementById("btn-crear-apartado");
 const btnCancelarApartado = document.getElementById("btn-cancelar-apartado");
 
+
 // Configurar eventos para apartados en tienda
 function configurarApartadoEnTienda() {
     // Evento para buscar productos en apartado
     if (apartadoBusquedaInput) {
         apartadoBusquedaInput.addEventListener("input", buscarProductosApartadoTienda);
     }
-
     // Evento para agregar producto al apartado
     const btnAgregarProductoApartado = document.getElementById("btn-agregar-producto-apartado");
     if (btnAgregarProductoApartado) {
@@ -596,8 +596,11 @@ async function eliminarApartadoYRestaurarStock(apartadoId, tipoColeccion = "Bole
     try {
         // Mostrar confirmación
         if (!confirm("¿Estás seguro de eliminar este apartado? El stock de los productos será restaurado.")) {
+            console.log("Eliminación de apartado cancelada por el usuario."); // DEBUG
             return false;
         }
+
+        console.log(`[DEBUG] Iniciando eliminación y restauración de stock para apartadoId: ${apartadoId}, colección: ${tipoColeccion}`); // DEBUG
 
         // Obtener el apartado desde la base de datos
         const apartadoRef = doc(db, tipoColeccion, apartadoId);
@@ -605,17 +608,24 @@ async function eliminarApartadoYRestaurarStock(apartadoId, tipoColeccion = "Bole
 
         if (!apartadoDoc.exists()) {
             mostrarAlerta("El apartado no existe", "error");
+            console.error(`[DEBUG] Error: El apartado con ID ${apartadoId} no existe en la colección ${tipoColeccion}.`); // DEBUG
             return false;
         }
 
         const apartadoData = apartadoDoc.data();
+        console.log("[DEBUG] Datos del apartado obtenidos:", apartadoData); // DEBUG
 
         // Verificar que tenga productos
-        if (!apartadoData.Productos || apartadoData.Productos.length === 0) {
+        // Se espera que 'apartadoData.Productos' sea un array como se ve en las imágenes
+        if (!apartadoData.Productos || !Array.isArray(apartadoData.Productos) || apartadoData.Productos.length === 0) {
             mostrarAlerta("El apartado no tiene productos para restaurar", "warning");
+            console.warn("[DEBUG] Advertencia: El apartado no tiene el array 'Productos' o está vacío/mal formado. No se restaurará stock."); // DEBUG
         } else {
+            console.log(`[DEBUG] Se encontraron ${apartadoData.Productos.length} productos para restaurar stock.`); // DEBUG
             // Restaurar stock de cada producto
             for (const producto of apartadoData.Productos) {
+                // Se espera que cada 'producto' tenga un 'id' y una 'cantidad' como se ve en las imágenes
+                console.log(`[DEBUG] Procesando producto: ${producto.nombre || 'N/A'}, ID: ${producto.id}, Cantidad a restaurar: ${producto.cantidad}`); // DEBUG
                 try {
                     const productoRef = doc(db, "Productos", producto.id);
                     const productoDoc = await getDoc(productoRef);
@@ -624,52 +634,70 @@ async function eliminarApartadoYRestaurarStock(apartadoId, tipoColeccion = "Bole
                         const stockActual = productoDoc.data().stock || 0;
                         const nuevoStock = stockActual + producto.cantidad;
 
+                        console.log(`[DEBUG] Stock actual de "${producto.nombre}": ${stockActual}. Cantidad a añadir: ${producto.cantidad}. Nuevo stock esperado: ${nuevoStock}.`); // DEBUG
+
                         await updateDoc(productoRef, {
                             stock: nuevoStock,
                             updatedAt: serverTimestamp()
                         });
 
-                        console.log(`Stock restaurado para ${producto.nombre}: +${producto.cantidad} (Total: ${nuevoStock})`);
+                        console.log(`[DEBUG] Stock restaurado exitosamente para "${producto.nombre}" (ID: ${producto.id}). Nuevo stock: ${nuevoStock}`); // DEBUG
                     } else {
-                        console.warn(`Producto ${producto.nombre} (ID: ${producto.id}) no encontrado en la base de datos`);
+                        console.warn(`[DEBUG] Producto "${producto.nombre}" (ID: ${producto.id}) NO encontrado en la colección "Productos". No se pudo restaurar el stock.`); // DEBUG
+                        mostrarAlerta(`Producto ${producto.nombre} no encontrado para restaurar stock.`, "warning");
                     }
                 } catch (error) {
-                    console.error(`Error al restaurar stock del producto ${producto.nombre}:`, error);
+                    console.error(`[DEBUG] Error al restaurar stock del producto "${producto.nombre}" (ID: ${producto.id}):`, error); // DEBUG
+                    mostrarAlerta(`Error al restaurar stock de ${producto.nombre}.`, "error");
                 }
             }
         }
 
-        // Eliminar el apartado de la base de datos
+        // Eliminar el apartado de la base de datos principal
         await deleteDoc(apartadoRef);
+        console.log(`[DEBUG] Apartado principal (ID: ${apartadoId}) eliminado de la colección "${tipoColeccion}".`); // DEBUG
 
         // Si también existe en la colección "Apartados", eliminarlo también
         if (tipoColeccion === "Boleto") {
             try {
+                // Es crucial que 'apartadoData.ID_BOLETO' contenga el valor correcto
+                // que se usa como 'numeroApartado' en la colección "Apartados".
+                const numeroApartadoABuscar = apartadoData.ID_BOLETO; // El ID_BOLETO que se ve en las capturas de pantalla
+                console.log(`[DEBUG] Buscando apartado relacionado en colección "Apartados" con numeroApartado: ${numeroApartadoABuscar}`); // DEBUG
+
                 const apartadosQuery = query(
                     collection(db, "Apartados"),
-                    where("numeroApartado", "==", apartadoData.ID_BOLETO)
+                    where("numeroApartado", "==", numeroApartadoABuscar)
                 );
                 const apartadosSnapshot = await getDocs(apartadosQuery);
 
-                apartadosSnapshot.forEach(async (doc) => {
-                    await deleteDoc(doc.ref);
-                });
+                if (!apartadosSnapshot.empty) {
+                    console.log(`[DEBUG] Se encontraron ${apartadosSnapshot.docs.length} apartados relacionados en "Apartados".`); // DEBUG
+                    apartadosSnapshot.forEach(async (doc) => {
+                        await deleteDoc(doc.ref);
+                        console.log(`[DEBUG] Apartado relacionado eliminado de "Apartados" con ID: ${doc.id}`); // DEBUG
+                    });
+                } else {
+                    console.log("[DEBUG] No se encontraron apartados relacionados en la colección 'Apartados' con el numeroApartado especificado."); // DEBUG
+                }
             } catch (error) {
-                console.error("Error al eliminar de colección Apartados:", error);
+                console.error("[DEBUG] Error al intentar eliminar de la colección 'Apartados':", error); // DEBUG
             }
         }
 
         mostrarAlerta("Apartado eliminado y stock restaurado correctamente", "success");
+        console.log("[DEBUG] Operación de eliminación y restauración de stock finalizada con éxito."); // DEBUG
 
         // Actualizar la interfaz si es necesario (recargar lista de apartados)
         if (typeof cargarApartados === 'function') {
+            console.log("[DEBUG] Llamando a cargarApartados() para actualizar la interfaz."); // DEBUG
             cargarApartados();
         }
 
         return true;
 
     } catch (error) {
-        console.error("Error al eliminar apartado:", error);
+        console.error("[DEBUG] Error CRÍTICO en eliminarApartadoYRestaurarStock:", error); // DEBUG
         mostrarAlerta("Error al eliminar apartado: " + error.message, "error");
         return false;
     }
@@ -679,22 +707,31 @@ async function eliminarApartadoYRestaurarStock(apartadoId, tipoColeccion = "Bole
 async function cancelarApartadoEspecifico(apartadoId, motivoCancelacion = "") {
     try {
         if (!confirm("¿Estás seguro de cancelar este apartado? Esta acción no se puede deshacer.")) {
+            console.log("Cancelación de apartado cancelada por el usuario."); // DEBUG
             return false;
         }
+
+        console.log(`[DEBUG] Iniciando cancelación de apartado con ID: ${apartadoId}`); // DEBUG
 
         const apartadoRef = doc(db, "Boleto", apartadoId);
         const apartadoDoc = await getDoc(apartadoRef);
 
         if (!apartadoDoc.exists()) {
             mostrarAlerta("El apartado no existe", "error");
+            console.error(`[DEBUG] Error: El apartado con ID ${apartadoId} no existe para cancelación.`); // DEBUG
             return false;
         }
 
         const apartadoData = apartadoDoc.data();
+        console.log("[DEBUG] Datos del apartado para cancelación:", apartadoData); // DEBUG
 
         // Restaurar stock si tiene productos
-        if (apartadoData.Productos && apartadoData.Productos.length > 0) {
+        // Se espera que 'apartadoData.Productos' sea un array
+        if (apartadoData.Productos && Array.isArray(apartadoData.Productos) && apartadoData.Productos.length > 0) {
+            console.log(`[DEBUG] Se encontraron ${apartadoData.Productos.length} productos para restaurar stock durante la cancelación.`); // DEBUG
             for (const producto of apartadoData.Productos) {
+                // Se espera que cada 'producto' tenga un 'id' y una 'cantidad'
+                console.log(`[DEBUG] Procesando producto para cancelación: ${producto.nombre || 'N/A'}, ID: ${producto.id}, Cantidad a restaurar: ${producto.cantidad}`); // DEBUG
                 try {
                     const productoRef = doc(db, "Productos", producto.id);
                     const productoDoc = await getDoc(productoRef);
@@ -703,15 +740,24 @@ async function cancelarApartadoEspecifico(apartadoId, motivoCancelacion = "") {
                         const stockActual = productoDoc.data().stock || 0;
                         const nuevoStock = stockActual + producto.cantidad;
 
+                        console.log(`[DEBUG] Stock actual de "${producto.nombre}": ${stockActual}. Cantidad a añadir: ${producto.cantidad}. Nuevo stock esperado: ${nuevoStock}.`); // DEBUG
+
                         await updateDoc(productoRef, {
                             stock: nuevoStock,
                             updatedAt: serverTimestamp()
                         });
+                        console.log(`[DEBUG] Stock restaurado exitosamente para "${producto.nombre}" (ID: ${producto.id}) durante la cancelación. Nuevo stock: ${nuevoStock}`); // DEBUG
+                    } else {
+                        console.warn(`[DEBUG] Producto "${producto.nombre}" (ID: ${producto.id}) NO encontrado en la colección "Productos" durante la cancelación. No se pudo restaurar el stock.`); // DEBUG
+                        mostrarAlerta(`Producto ${producto.nombre} no encontrado para restaurar stock al cancelar.`, "warning");
                     }
                 } catch (error) {
-                    console.error(`Error al restaurar stock del producto ${producto.nombre}:`, error);
+                    console.error(`[DEBUG] Error al restaurar stock del producto "${producto.nombre}" (ID: ${producto.id}) durante la cancelación:`, error); // DEBUG
+                    mostrarAlerta(`Error al restaurar stock de ${producto.nombre} al cancelar.`, "error");
                 }
             }
+        } else {
+             console.warn("[DEBUG] Advertencia: El apartado no tiene el array 'Productos' o está vacío/mal formado para cancelación. No se restaurará stock."); // DEBUG
         }
 
         // Actualizar el estado del apartado a "cancelado" en lugar de eliminarlo
@@ -721,23 +767,26 @@ async function cancelarApartadoEspecifico(apartadoId, motivoCancelacion = "") {
             motivoCancelacion: motivoCancelacion,
             canceladoPor: usuarioActual ? usuarioActual.email : "sistema"
         });
+        console.log(`[DEBUG] Apartado (ID: ${apartadoId}) actualizado a estado "cancelado".`); // DEBUG
+
 
         mostrarAlerta("Apartado cancelado y stock restaurado correctamente", "success");
+        console.log("[DEBUG] Operación de cancelación de apartado finalizada con éxito."); // DEBUG
 
         // Actualizar interfaz
         if (typeof cargarApartados === 'function') {
+            console.log("[DEBUG] Llamando a cargarApartados() para actualizar la interfaz después de cancelar."); // DEBUG
             cargarApartados();
         }
 
         return true;
 
     } catch (error) {
-        console.error("Error al cancelar apartado:", error);
+        console.error("[DEBUG] Error CRÍTICO en cancelarApartadoEspecifico:", error); // DEBUG
         mostrarAlerta("Error al cancelar apartado: " + error.message, "error");
         return false;
     }
 }
-
 // Función para liquidar apartado (cuando el cliente paga el resto)
 async function liquidarApartado(apartadoId, montoPagado, metodoPago) {
     try {
